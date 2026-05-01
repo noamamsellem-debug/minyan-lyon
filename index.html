@@ -19,10 +19,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .date-bar{background:var(--card-bg);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:11px 16px;margin:0 16px 6px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);}
 .date-civil{font-size:13px;color:var(--text);font-weight:500;}
 .date-jewish{font-size:12px;color:var(--gold);text-align:right;}
+.omer-short{font-size:10px;color:var(--text-dim);margin-top:2px;text-align:right;}
 .day-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;margin-top:3px;}
 .b-shabbat{background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid rgba(201,168,76,0.4);}
 .b-torah{background:rgba(232,164,74,0.15);color:var(--warning);border:1px solid rgba(232,164,74,0.3);}
 .b-normal{background:rgba(154,173,187,0.1);color:var(--text-dim);border:1px solid rgba(154,173,187,0.2);}
+.shabbat-banner{background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.04));border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:10px 16px;margin:0 16px 8px;font-size:11px;color:var(--gold);line-height:1.7;}
 .find-now-section{padding:8px 16px 6px;}
 .find-now-btn{width:100%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy);border:none;border-radius:var(--radius);padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 24px rgba(201,168,76,0.35);transition:transform 0.15s;}
 .find-now-btn:active{transform:scale(0.97);}
@@ -83,6 +85,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .p-time.none{color:var(--text-dim);font-size:11px;}
 .empty-state{text-align:center;padding:36px 20px;color:var(--text-dim);font-size:13px;}
 .empty-state div{font-size:30px;margin-bottom:8px;}
+/* CALENDRIER */
 .cal-grid{padding:0 16px;display:flex;flex-direction:column;gap:10px;}
 .cal-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;}
 .cal-card-header{padding:13px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);}
@@ -90,48 +93,34 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cal-title{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text);}
 .cal-subtitle{font-size:11px;color:var(--text-dim);margin-top:2px;}
 .cal-body{padding:12px 16px;}
-.zman-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.zman-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:8px 10px;}
-.zman-label{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
-.zman-time{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--gold);}
-.zman-note{font-size:9px;color:var(--text-dim);margin-top:1px;}
 .omer-big{text-align:center;padding:6px 0 2px;}
 .omer-num{font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--gold);line-height:1;}
 .omer-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
-.omer-heb{font-size:18px;color:var(--text);margin-top:6px;direction:rtl;font-weight:500;}
-.omer-sefirot{font-size:12px;color:var(--gold);margin-top:5px;font-style:italic;}
+.omer-sefirot{font-size:13px;color:var(--gold);margin-top:6px;font-style:italic;}
 .daf-display{text-align:center;padding:4px 0;}
 .daf-masechet{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--text);}
 .daf-num{font-family:'Fraunces',serif;font-size:40px;font-weight:900;color:var(--gold);line-height:1.1;}
 .daf-heb{font-size:20px;color:var(--text-dim);direction:rtl;margin-top:4px;}
 .daf-sub{font-size:11px;color:var(--text-dim);margin-top:4px;}
-.tehilim-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;}
-.tehilim-chaps{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--gold);}
+.tehilim-display{text-align:center;padding:4px 0;}
+.tehilim-num{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--gold);}
+.tehilim-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
 .fete-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .fete-item:last-child{border-bottom:none;}
-.fete-left{flex:1;}
 .fete-name{font-size:13px;color:var(--text);font-weight:500;}
-.fete-note{font-size:11px;color:var(--text-dim);margin-top:2px;}
-.fete-right{text-align:right;flex-shrink:0;margin-left:8px;}
-.fete-date{font-size:12px;color:var(--text-dim);}
-.fete-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;margin-top:2px;}
+.fete-date{font-size:11px;color:var(--text-dim);}
+.fete-badge{font-size:10px;padding:2px 7px;border-radius:10px;margin-top:2px;display:inline-block;}
 .fete-soon{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);}
 .fete-today{background:rgba(76,175,130,0.2);color:var(--success);border:1px solid rgba(76,175,130,0.3);}
 .birkat-window{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:7px;}
 .birkat-window.active-win{background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.3);}
-.birkat-window:last-child{margin-bottom:0;}
 .birkat-label{font-size:11px;color:var(--text-dim);margin-bottom:2px;}
-.birkat-dates{font-size:13px;color:var(--text);}
-.birkat-note{font-size:10px;color:var(--success);margin-top:3px;}
-.shabbat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.birkat-dates{font-size:13px;color:var(--text);font-weight:500;}
+.birkat-note{font-size:10px;color:var(--gold);margin-top:3px;}
+.shabbat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .shabbat-row:last-child{border-bottom:none;}
 .shabbat-label{font-size:12px;color:var(--text-dim);}
-.shabbat-time{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--gold);}
-.event-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.event-item:last-child{border-bottom:none;}
-.event-icon{font-size:20px;flex-shrink:0;}
-.event-name{font-size:13px;font-weight:500;color:var(--text);}
-.event-desc{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.shabbat-time{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--gold);}
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(13,27,42,0.96);border-top:1px solid rgba(201,168,76,0.15);backdrop-filter:blur(20px);display:flex;padding:8px 0 18px;z-index:100;}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:5px 0;}
 .nav-icon{font-size:20px;}
@@ -168,22 +157,27 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </head>
 <body>
 <div class="app">
+
 <div class="header">
   <span class="star">✡</span>
   <div class="app-title">Minyan Lyon</div>
-  <div class="app-subtitle">Synagogues · Calendrier · Zmanim</div>
+  <div class="app-subtitle">Synagogues · Calendrier · Prières</div>
 </div>
+
 <div class="date-bar">
   <div>
     <div class="date-civil" id="civilDate">—</div>
     <div id="dayBadge" style="margin-top:3px"></div>
   </div>
-  <div style="text-align:right">
+  <div>
     <div class="date-jewish" id="jewishDate">—</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-top:2px" id="omerShort"></div>
+    <div class="omer-short" id="omerShort"></div>
   </div>
 </div>
 
+<div id="shabbatBanner" class="shabbat-banner hidden"></div>
+
+<!-- PAGE PRIERES -->
 <div id="pagePrayer">
   <div class="find-now-section">
     <button class="find-now-btn" onclick="findNow()">
@@ -223,21 +217,23 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="syn-list" id="synList"></div>
 </div>
 
+<!-- PAGE CALENDRIER -->
 <div id="pageCalendar" class="hidden">
-  <div class="section-title">Calendrier juif — Lyon</div>
+  <div class="section-title">Calendrier juif</div>
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
+<!-- PAGE A PROPOS -->
 <div id="pageAbout" class="hidden">
   <div class="about-page">
     <div class="section-title" style="padding:6px 4px 12px">À propos</div>
     <div class="about-card"><h3>✡ Minyan Lyon</h3><p>Application communautaire listant les horaires de prières de 33 synagogues et minyanim de l'agglomération lyonnaise : Lyon, Écully, Caluire, Oullins, Bron, Meyzieu.</p></div>
-    <div class="about-card"><h3>🕰 Zmanim</h3><p>Calculés pour <strong style="color:var(--text)">Lyon</strong> selon la méthode de calj.net (application Calj). Alot Hachahar = 72 min avant Hanetz. Rabénou Tam = 72 min après coucher.</p></div>
     <div class="about-card"><h3>⭐ Favoris & Filtres</h3><p>Appuie sur l'étoile pour mettre une synagogue en favori. Filtre par rite ou quartier. Tes favoris sont sauvegardés sur ton téléphone.</p></div>
     <div class="about-card"><h3>📧 Contact</h3><p>Pour signaler une erreur ou mettre à jour un horaire :<br><a href="mailto:noamamsellem@gmail.com">noamamsellem@gmail.com</a></p></div>
   </div>
 </div>
-</div>
+
+</div><!-- /app -->
 
 <div class="bottom-nav">
   <button class="nav-btn active" id="navP" onclick="showPage('prayer')"><span class="nav-icon">🕍</span><span class="nav-label">Prières</span></button>
@@ -304,109 +300,48 @@ function isFav(id){return getFavs().includes(id);}
 function toggleFav(id){let f=getFavs();if(f.includes(id))f=f.filter(x=>x!==id);else f.push(id);saveFavs(f);}
 
 // ============================================================
-// CALENDRIER JUIF — Ref exacte : 1 Mai 2026 = 14 Iyar 5786
+// DATE JUIVE — Référence EXACTE : 1 Mai 2026 = 14 Iyar 5786
 // ============================================================
 const JM=["Tichri","Hechvan","Kislev","Tevet","Chevat","Adar","Nisan","Iyar","Sivan","Tamouz","Av","Eloul"];
 const ML=[30,29,30,29,30,30,29,30,29,30,29,29];
+
 function jewishDate(d){
-  const REF=new Date(2026,4,1);
-  const diff=Math.round((d-REF)/86400000);
-  let day=14,mi=7,yr=5786,dd=day+diff;
-  while(dd>ML[mi]){dd-=ML[mi];mi++;if(mi>=12){mi=0;yr++;}}
-  while(dd<1){mi--;if(mi<0){mi=11;yr--;}dd+=ML[mi];}
-  return{day:dd,month:mi,year:yr,str:`${dd} ${JM[mi]} ${yr}`};
+  // Référence fixe et exacte
+  const REF_GREG=new Date(2026,4,1); // 1 Mai 2026
+  const REF_DAY=14, REF_MONTH=7, REF_YEAR=5786; // 14 Iyar 5786
+  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const refn=new Date(REF_GREG.getFullYear(),REF_GREG.getMonth(),REF_GREG.getDate());
+  const diff=Math.round((dn-refn)/86400000);
+  let day=REF_DAY+diff, mi=REF_MONTH, yr=REF_YEAR;
+  // Avancer
+  while(day>ML[mi]){day-=ML[mi];mi++;if(mi>=12){mi=0;yr++;}}
+  // Reculer
+  while(day<1){mi--;if(mi<0){mi=11;yr--;}day+=ML[mi];}
+  return{day,month:mi,year:yr,str:`${day} ${JM[mi]} ${yr}`};
 }
 
 // ============================================================
-// ZMANIM — Calculés pour Lyon selon méthode Calj
-// Référence validée : 1 Mai 2026 (14 Iyar 5786)
-// Alot 04:42 | Téfilin 05:20 | Hanetz 06:27
-// Shema MA 09:10 | Shema GRA 10:02 | Tefila MA 10:39 | Tefila GRA 11:14
-// Hatsot 13:37 | Minha G 14:13 | Minha K 17:48 | Plag 19:17
-// Coucher 20:47 | Tseit 21:27 | RT 22:13 | Hatsot laila 01:37
+// OMER — Référence EXACTE : 1 Mai 2026 = 29ème jour
 // ============================================================
-function getZmanim(d){
-  // Coordonnées Lyon centre
-  const LAT=45.7640, LNG=4.8357, TZ=2;
-  const yr=d.getFullYear(), mo=d.getMonth()+1, day=d.getDate();
-  const A=Math.floor((14-mo)/12), Y=yr+4800-A, M=mo+12*A-3;
-  const JDN=day+Math.floor((153*M+2)/5)+365*Y+Math.floor(Y/4)-Math.floor(Y/100)+Math.floor(Y/400)-32045;
-  const n=(JDN-2451545.0)+0.5;
-  const L=(280.460+0.9856474*n)%360;
-  const g=(357.528+0.9856003*n)*Math.PI/180;
-  const lam=(L+1.915*Math.sin(g)+0.020*Math.sin(2*g))*Math.PI/180;
-  const sinD=Math.sin(23.439*Math.PI/180)*Math.sin(lam);
-  const decl=Math.asin(sinD);
-  const cosD=Math.cos(decl);
-  const latR=LAT*Math.PI/180;
-  // Équation du temps
-  const RA=Math.atan2(Math.cos(23.439*Math.PI/180)*Math.sin(lam),Math.cos(lam));
-  const eot=(L*Math.PI/180-RA)*12/Math.PI;
-  const noon=12-LNG/15-eot;
-  // Lever/coucher (dépression -0.8333°)
-  const cosH0=(Math.sin(-0.8333*Math.PI/180)-Math.sin(latR)*sinD)/(Math.cos(latR)*cosD);
-  if(Math.abs(cosH0)>1)return null;
-  const H0=Math.acos(cosH0)*180/Math.PI;
-  const sunrise=noon-H0/15+TZ;
-  const sunset=noon+H0/15+TZ;
-  const solarNoon=noon+TZ;
-  const dayMinutes=(sunset-sunrise)*60;
-  const shaotGra=dayMinutes/12;
-  // Durée jour MA = de alot à tseit
-  const alot=sunrise-72/60;
-  const tseit=sunset+18/60;
-  const dayMA=(tseit-alot)*60;
-  const shaotMA=dayMA/12;
+const SEFIROT_SEM=["Hessed","Guevura","Tiferet","Netsah","Hod","Yessod","Malkhout"];
+const SEFIROT_JOUR=["Hessed","Guevura","Tiferet","Netsah","Hod","Yessod","Malkhout"];
+
+function getOmer(d){
+  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const ref=new Date(2026,4,1); // 1 Mai 2026 = jour 29
+  const diff=Math.round((dn-ref)/86400000);
+  const jour=29+diff;
+  if(jour<1||jour>49)return null;
+  const sem=Math.floor((jour-1)/7);
+  const jourSem=(jour-1)%7;
   return{
-    alot,                                        // Alot HaShahar
-    misheyakir: sunrise-36/60,                   // Micheyakir / début téfilin
-    sunrise,                                     // Hanetz HaHama
-    shema_ma:   alot+3*shaotMA/60,               // Shema M"A
-    shema_gra:  sunrise+3*shaotGra/60,           // Shema GR"A
-    tfila_ma:   alot+4*shaotMA/60,               // Tefila M"A
-    tfila_gra:  sunrise+4*shaotGra/60,           // Tefila GR"A
-    hatsot:     solarNoon,                       // Hatsot hayom
-    minha_g:    solarNoon+0.5,                   // Minha Guedola
-    minha_k:    sunset-2.5,                      // Minha Ketana
-    plag:       sunset-75/60,                    // Plag HaMinha
-    sunset,                                      // Shqiat HaHama
-    tseit,                                       // Tseit HaKokhavim (18 min)
-    rt:         sunset+72/60,                    // Nuit Rabénou Tam
-    hatsot_laila: solarNoon+12,                  // Hatsot HaLayla
-    shaa_gra:   shaotGra,                        // Heure zmanit GR"A (minutes)
-    shaa_ma:    shaotMA,                         // Heure zmanit M"A (minutes)
+    jour,
+    sefirot:`${SEFIROT_JOUR[jourSem]} she-be${SEFIROT_SEM[sem]}`
   };
 }
 
-function fmtH(h){
-  if(h==null||isNaN(h))return"—";
-  h=((h%24)+24)%24;
-  const hh=Math.floor(h), mm=Math.round((h-hh)*60);
-  if(mm===60)return`${hh+1}h00`;
-  return`${hh}h${String(mm).padStart(2,'0')}`;
-}
-function fmtMin(m){
-  const h=Math.floor(m/60),mn=Math.round(m%60);
-  return`${h}h${String(mn).padStart(2,'0')}`;
-}
-
 // ============================================================
-// OMER — Ref exacte : 1 Mai 2026 = 29ème jour (Calj confirmé)
-// ============================================================
-const OMER_REF_DATE=new Date(2026,4,1);
-const OMER_REF_JOUR=29;
-const SEM=["Hessed","Guevura","Tiferet","Netsah","Hod","Yessod","Malkhout"];
-function getOmer(d){
-  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const ref=new Date(OMER_REF_DATE.getFullYear(),OMER_REF_DATE.getMonth(),OMER_REF_DATE.getDate());
-  const jour=OMER_REF_JOUR+Math.round((dn-ref)/86400000);
-  if(jour<1||jour>49)return null;
-  const sem=Math.floor((jour-1)/7), jourSem=(jour-1)%7;
-  return{jour, semaine:sem+1, jourSem:jourSem+1, sefirot:`${SEM[jourSem]} she-be${SEM[sem]}`};
-}
-
-// ============================================================
-// DAF YOMI — Ref exacte : 1 Mai 2026 = Menahot 110 (Calj confirmé)
+// DAF YOMI — Référence : 1 Mai 2026 = Menahot 110
 // ============================================================
 const MASSEKHOT=[
   {n:"Berakhot",d:64},{n:"Shabbat",d:157},{n:"Eruvin",d:105},{n:"Pesahim",d:121},
@@ -420,18 +355,17 @@ const MASSEKHOT=[
   {n:"Bekhorot",d:61},{n:"Arakhin",d:34},{n:"Temura",d:34},{n:"Keritot",d:28},
   {n:"Meila",d:22},{n:"Nida",d:73}
 ];
-// Ref : 1 Mai 2026 = Menahot 110 (dernier daf de Menahot !)
-const DAF_REF=new Date(2026,4,1);
-const DAF_REF_MASS_IDX=29; // Menahot = index 29
-const DAF_REF_DAF=110;
 
-function getDaf(d){
+function getDafYomi(d){
   const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const diff=Math.round((dn-DAF_REF)/86400000);
-  // Position globale de la ref
+  const ref=new Date(2026,4,1); // 1 Mai 2026 = Menahot 110
+  const diff=Math.round((dn-ref)/86400000);
+  // Position globale depuis début du cycle
   let refPos=0;
-  for(let i=0;i<DAF_REF_MASS_IDX;i++) refPos+=MASSEKHOT[i].d-1;
-  refPos+=DAF_REF_DAF-2;
+  for(const m of MASSEKHOT){
+    if(m.n==="Menahot"){refPos+=110-2;break;}
+    refPos+=m.d-1;
+  }
   const total=MASSEKHOT.reduce((s,m)=>s+(m.d-1),0);
   let pos=((refPos+diff)%total+total)%total;
   let acc=0;
@@ -444,59 +378,57 @@ function getDaf(d){
 }
 
 // ============================================================
-// TEHILIM — Division 30 jours
+// TEHILIM — Division en 30 jours du mois juif
 // ============================================================
-const TEHILIM=[
-  [1,9],[10,17],[18,22],[23,28],[29,34],[35,38],[39,43],
-  [44,48],[49,54],[55,59],[60,65],[66,68],[69,71],[72,76],
-  [77,78],[79,82],[83,87],[88,89],[90,96],[97,103],[104,105],
-  [106,107],[108,112],[113,118],[119,1,22],[119,23,44],[119,45,66],
-  [119,67,88],[119,89,110],[119,111,176],[120,134],[135,139],[140,144],[145,150]
+const TEHILIM_30=[
+  "1–9","10–17","18–22","23–32","33–35","36–41","42–50",
+  "51–60","61–68","69–75","76–80","81–89","90–100",
+  "101–103","104","105","106","107","108–110","111–118",
+  "119 (א-ב)","119 (ג-ד)","119 (ה-ו)","119 (ז-ח)","119 (ט-י)",
+  "119 (כ-ל)","119 (מ-נ)","119 (ס-ע)","120–134","135–136",
+  "137–144","145–150"
 ];
+
 function getTehilim(d){
   const jd=jewishDate(d);
   const idx=Math.min(jd.day-1,29);
-  const r=TEHILIM[idx];
-  if(!r)return"—";
-  if(r.length===2&&r[0]!==119)return`Psaumes ${r[0]}–${r[1]}`;
-  if(r[0]===119)return`Psaume 119 (${r[1]}–${r[2]})`;
-  return`Psaumes ${r[0]}–${r[r.length-1]}`;
+  return TEHILIM_30[idx]||"—";
 }
 
 // ============================================================
 // FÊTES 5786
 // ============================================================
 const FETES=[
-  {n:"Pessah Sheni",        note:"14 Iyar",           d:new Date(2026,3,30)},
-  {n:"Lag BaOmer",          note:"33e jour de l'Omer", d:new Date(2026,4,5)},
-  {n:"Yom Yeroushalayim",   note:"28 Iyar",           d:new Date(2026,4,14)},
-  {n:"Roch Hodech Sivan",   note:"1 Sivan",           d:new Date(2026,4,17)},
-  {n:"Chavouot J1",         note:"6 Sivan",           d:new Date(2026,4,22)},
-  {n:"Chavouot J2",         note:"7 Sivan",           d:new Date(2026,4,23)},
-  {n:"Jeûne du 17 Tamouz",  note:"17 Tamouz",         d:new Date(2026,6,12)},
-  {n:"Tisha BeAv",          note:"9 Av",              d:new Date(2026,7,2)},
-  {n:"Roch Hachana 5787",   note:"1 Tichri 5787",     d:new Date(2026,8,10)},
-  {n:"Yom Kippour",         note:"10 Tichri",         d:new Date(2026,8,19)},
-  {n:"Souccot J1",          note:"15 Tichri",         d:new Date(2026,8,24)},
-  {n:"Chemini Atseret",     note:"22 Tichri",         d:new Date(2026,9,1)},
-  {n:"Simhat Torah",        note:"23 Tichri",         d:new Date(2026,9,2)},
-  {n:"Hanouka J1",          note:"25 Kislev",         d:new Date(2026,11,5)},
+  {name:"Pessah Sheni",       note:"14 Iyar",       date:new Date(2026,4,1)},
+  {name:"Lag BaOmer",         note:"33e jour Omer", date:new Date(2026,4,5)},
+  {name:"Yom Yeroushalayim",  note:"28 Iyar",       date:new Date(2026,4,14)},
+  {name:"Roch Hodech Sivan",  note:"1 Sivan",       date:new Date(2026,4,17)},
+  {name:"Chavouot J1",        note:"6 Sivan",       date:new Date(2026,4,22)},
+  {name:"Chavouot J2",        note:"7 Sivan",       date:new Date(2026,4,23)},
+  {name:"17 Tamouz",          note:"Jeûne",         date:new Date(2026,6,2)},
+  {name:"Tisha BeAv",         note:"9 Av",          date:new Date(2026,6,23)},
+  {name:"Roch Hachana 5787",  note:"1 Tichri",      date:new Date(2026,8,10)},
+  {name:"Yom Kippour",        note:"10 Tichri",     date:new Date(2026,8,19)},
+  {name:"Souccot J1",         note:"15 Tichri",     date:new Date(2026,8,24)},
+  {name:"Chemini Atseret",    note:"22 Tichri",     date:new Date(2026,9,1)},
+  {name:"Simhat Torah",       note:"23 Tichri",     date:new Date(2026,9,2)},
+  {name:"Hanouka J1",         note:"25 Kislev",     date:new Date(2026,11,5)},
 ];
 
 // ============================================================
 // BIRKAT HALEVANA
 // ============================================================
 const BIRKAT=[
-  {m:"Iyar 5786",    debut:new Date(2026,3,20), fin:new Date(2026,3,29)},
-  {m:"Sivan 5786",   debut:new Date(2026,4,19), fin:new Date(2026,4,29)},
-  {m:"Tamouz 5786",  debut:new Date(2026,5,18), fin:new Date(2026,5,27)},
-  {m:"Av 5786",      debut:new Date(2026,6,17), fin:new Date(2026,6,27)},
-  {m:"Eloul 5786",   debut:new Date(2026,7,16), fin:new Date(2026,7,25)},
-  {m:"Tichri 5787",  debut:new Date(2026,8,15), fin:new Date(2026,8,24)},
+  {mois:"Iyar 5786",    debut:new Date(2026,3,21), fin:new Date(2026,4,1)},
+  {mois:"Sivan 5786",   debut:new Date(2026,4,20), fin:new Date(2026,4,30)},
+  {mois:"Tamouz 5786",  debut:new Date(2026,5,19), fin:new Date(2026,5,29)},
+  {mois:"Av 5786",      debut:new Date(2026,6,18), fin:new Date(2026,6,28)},
+  {mois:"Eloul 5786",   debut:new Date(2026,7,17), fin:new Date(2026,7,27)},
+  {mois:"Tichri 5787",  debut:new Date(2026,8,16), fin:new Date(2026,8,25)},
 ];
 
 // ============================================================
-// ÉTAT APP
+// ÉTAT
 // ============================================================
 const PRAYERS=[
   {key:'sh',label:'Shaharit',icon:'🌅',start:300,end:600},
@@ -517,6 +449,9 @@ function getDateOff(n){const d=new Date();d.setDate(d.getDate()+n);return d;}
 function getDayKey(d){const w=d.getDay();if(w===6)return'shabbat';if(w===5)return'vendredi';if(w===0)return'dimanche';if(w===1||w===4)return'lundi_jeudi';return'mardi_mercredi';}
 function getDayType(d){const k=getDayKey(d);if(k==='shabbat'||k==='vendredi')return{cls:'b-shabbat',label:k==='shabbat'?'Shabbat':'Vendredi'};if(k==='lundi_jeudi')return{cls:'b-torah',label:'Lundi/Jeudi — Torah'};return{cls:'b-normal',label:'Semaine'};}
 
+// ============================================================
+// HEADER
+// ============================================================
 function updateHeader(){
   const now=new Date();
   const DN=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
@@ -527,7 +462,18 @@ function updateHeader(){
   const dt=getDayType(now);
   document.getElementById('dayBadge').innerHTML=`<span class="day-badge ${dt.cls}">${dt.label}</span>`;
   const omer=getOmer(now);
-  document.getElementById('omerShort').textContent=omer?`🌾 ${omer.jour}ème jour de l'Omer`:'';
+  document.getElementById('omerShort').textContent=omer?`🌾 Omer : ${omer.jour}ème jour`:'';
+  // Shabbat banner
+  const banner=document.getElementById('shabbatBanner');
+  if(now.getDay()===5){
+    banner.classList.remove('hidden');
+    banner.innerHTML='🕯 <strong>Vendredi</strong> — Allumage des bougies pas avant <strong>19h21</strong>';
+  } else if(now.getDay()===6){
+    banner.classList.remove('hidden');
+    banner.innerHTML='🌙 <strong>Chabbat</strong> — Fin à <strong>21h39</strong> — Rabénou Tam <strong>22h33</strong>';
+  } else {
+    banner.classList.add('hidden');
+  }
   const cp=getCurrentPrayer();
   let lbl='';
   if(cp.status==='current')lbl=`${cp.label} en cours`;
@@ -536,6 +482,9 @@ function updateHeader(){
   document.getElementById('prayerLabel').textContent=lbl;
 }
 
+// ============================================================
+// DAY SELECTOR
+// ============================================================
 function buildDaySelector(){
   const sel=document.getElementById('daySelector');sel.innerHTML='';
   const DN=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
@@ -549,6 +498,9 @@ function buildDaySelector(){
   }
 }
 
+// ============================================================
+// FILTRES & TABS
+// ============================================================
 function setFilter(f,el){activeFilter=f;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');buildList();}
 function filterSyns(q){query=q.toLowerCase();buildList();}
 function switchTab(tab){
@@ -559,40 +511,47 @@ function switchTab(tab){
   document.getElementById('listTitle').textContent=tab==='fav'?'Mes synagogues favorites':'Horaires de la semaine';
   buildList();
 }
-function matchesFilter(s){
+function matchFilter(syn){
   if(activeFilter==='all')return true;
-  if(['sefarde','ashkenaze','habad'].includes(activeFilter))return s.rite===activeFilter;
-  if(activeFilter==='banlieue')return['banlieue','caluire','ecully'].includes(s.zone);
-  return s.zone===activeFilter;
+  if(['sefarde','ashkenaze','habad'].includes(activeFilter))return syn.rite===activeFilter;
+  if(activeFilter==='banlieue')return['banlieue','caluire','ecully'].includes(syn.zone);
+  return syn.zone===activeFilter;
 }
 
+// ============================================================
+// BUILD LIST
+// ============================================================
 function buildList(){
   const list=document.getElementById('synList');list.innerHTML='';
-  const d=getDateOff(selOff), key=getDayKey(d);
+  const d=getDateOff(selOff);
+  const key=getDayKey(d);
   const cp=selOff===0?getCurrentPrayer():null;
   const favs=getFavs();
   let syns=[...SYNS];
   if(activeTab==='fav')syns=syns.filter(s=>favs.includes(s.id));
-  if(activeTab==='all')syns=syns.filter(matchesFilter);
+  if(activeTab==='all')syns=syns.filter(matchFilter);
   if(query)syns=syns.filter(s=>s.name.toLowerCase().includes(query)||s.address.toLowerCase().includes(query));
   if(activeTab==='all')syns.sort((a,b)=>{const fa=favs.includes(a.id),fb=favs.includes(b.id);if(fa&&!fb)return-1;if(!fa&&fb)return 1;return 0;});
-  document.getElementById('countBadge').textContent=activeTab==='fav'?`${syns.length} favori${syns.length>1?'s':''}`:`${syns.length} synagogue${syns.length>1?'s':''}`;
-  if(!syns.length){list.innerHTML=`<div class="empty-state"><div>${activeTab==='fav'?'⭐':'🔍'}</div>${activeTab==='fav'?'Aucun favori.<br>Tape ⭐ sur une synagogue.':'Aucune synagogue trouvée.'}</div>`;return;}
+  const total=syns.length;
+  document.getElementById('countBadge').textContent=activeTab==='fav'?`${total} favori${total>1?'s':''}`:`${total} synagogue${total>1?'s':''}`;
+  if(!total){list.innerHTML=`<div class="empty-state"><div>${activeTab==='fav'?'⭐':'🔍'}</div>${activeTab==='fav'?'Aucun favori encore.<br>Tape ⭐ sur une synagogue.':'Aucune synagogue trouvée.'}</div>`;return;}
   syns.forEach(syn=>{
     const h=syn.hours[key]||{sh:null,mi:null,ar:null};
     const fav=favs.includes(syn.id);
     const card=document.createElement('div');
     card.className='syn-card'+(fav?' is-fav':'');
     const slots=PRAYERS.map(p=>{const t=h[p.key];const isNext=cp&&p.key===cp.key;const hasT=t&&t!=='Suivi';return`<div class="p-slot${isNext?' next':''}"><div class="p-label">${p.icon} ${p.label}</div><div class="p-time ${hasT?'has':'none'}">${t||'—'}</div></div>`;}).join('');
-    card.innerHTML=`<div class="syn-card-header" onclick="openModal(${syn.id})"><span class="syn-icon">🕍</span><div class="syn-info"><div class="syn-name">${syn.name}</div><div class="syn-addr">📍 ${syn.address}</div></div><div class="syn-actions"><button class="fav-btn${fav?' active':''}" onclick="event.stopPropagation();tapFav(${syn.id},this)">⭐</button><a class="maps-link" href="${syn.maps}" target="_blank" onclick="event.stopPropagation()">🗺</a></div></div><div class="prayer-times">${slots}</div>`;
+    card.innerHTML=`<div class="syn-card-header" onclick="openModal(${syn.id})"><span class="syn-icon">🕍</span><div class="syn-info"><div class="syn-name">${syn.name}</div><div class="syn-addr">📍 ${syn.address}</div></div><div class="syn-actions"><button class="fav-btn${fav?' active':''}" onclick="event.stopPropagation();tapFav(${syn.id},this)">⭐</button><a class="maps-link" href="${syn.maps}" target="_blank" onclick="event.stopPropagation()">🗺 Maps</a></div></div><div class="prayer-times">${slots}</div>`;
     list.appendChild(card);
   });
 }
-
 function tapFav(id,btn){toggleFav(id);const fav=isFav(id);btn.classList.toggle('active',fav);if(activeTab==='fav')buildList();else btn.closest('.syn-card').classList.toggle('is-fav',fav);}
 
+// ============================================================
+// FIND NOW
+// ============================================================
 function findNow(){
-  const cp=getCurrentPrayer(), key=getDayKey(new Date());
+  const cp=getCurrentPrayer();const key=getDayKey(new Date());
   document.getElementById('panelIcon').textContent=cp.icon;
   document.getElementById('panelName').textContent=cp.label;
   if(cp.status==='current')document.getElementById('panelSub').textContent='En cours maintenant';
@@ -607,6 +566,9 @@ function findNow(){
 }
 function closePanel(){document.getElementById('nowPanel').classList.add('hidden');}
 
+// ============================================================
+// MODAL
+// ============================================================
 function openModal(id){
   modalSynId=id;const syn=SYNS.find(s=>s.id===id);if(!syn)return;
   document.getElementById('mName').textContent=syn.name;
@@ -623,110 +585,87 @@ function closeOverlay(e){if(e.target.id==='modal')closeModal();}
 function closeModal(){document.getElementById('modal').classList.add('hidden');modalSynId=null;}
 
 // ============================================================
-// PAGE CALENDRIER
+// CALENDRIER
 // ============================================================
 function buildCalendar(){
-  const now=new Date(), grid=document.getElementById('calGrid');
-  grid.innerHTML='';
+  const now=new Date();
   const jd=jewishDate(now);
-  const z=getZmanim(now);
   const omer=getOmer(now);
-  const daf=getDaf(now);
-  const MN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
-  const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const daf=getDafYomi(now);
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
 
-  // ---- SHABBAT (vendredi ou samedi) ----
+  // SHABBAT
   const dow=now.getDay();
   if(dow===5||dow===6){
-    const c=mkCard('🕯','Chabbat','Parashat Emor');
+    const c=mkCard('🕯','Chabbat','');
     c.querySelector('.cal-body').innerHTML=`
       <div class="shabbat-row"><span class="shabbat-label">🕯 Allumage (pas avant)</span><span class="shabbat-time">19h21</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">🌇 Coucher du soleil</span><span class="shabbat-time">${fmtH(z?z.sunset:null)}</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">✡ Fin Chabbat (3 étoiles)</span><span class="shabbat-time">${fmtH(z?z.tseit:null)}</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">⏰ Rabénou Tam</span><span class="shabbat-time">${fmtH(z?z.rt:null)}</span></div>`;
+      <div class="shabbat-row"><span class="shabbat-label">🌙 Fin de Chabbat (3 étoiles)</span><span class="shabbat-time">21h39</span></div>
+      <div class="shabbat-row"><span class="shabbat-label">⭐ Rabénou Tam</span><span class="shabbat-time">22h33</span></div>`;
     grid.appendChild(c);
   }
 
-  // ---- ZMANIM ----
-  if(z){
-    const c=mkCard('🕰','Zmanim du jour',`Lyon — ${jd.str}`);
-    c.querySelector('.cal-body').innerHTML=`<div class="zman-grid">
-      <div class="zman-item"><div class="zman-label">🌄 Alot HaShahar</div><div class="zman-time">${fmtH(z.alot)}</div><div class="zman-note">72 min avant lever</div></div>
-      <div class="zman-item"><div class="zman-label">📿 Début téfilin</div><div class="zman-time">${fmtH(z.misheyakir)}</div><div class="zman-note">Micheyakir</div></div>
-      <div class="zman-item"><div class="zman-label">🌅 Hanetz HaHama</div><div class="zman-time">${fmtH(z.sunrise)}</div><div class="zman-note">Lever du soleil</div></div>
-      <div class="zman-item"><div class="zman-label">📖 Fin Shema M"A</div><div class="zman-time">${fmtH(z.shema_ma)}</div><div class="zman-note">Magen Avraham</div></div>
-      <div class="zman-item"><div class="zman-label">📖 Fin Shema GR"A</div><div class="zman-time">${fmtH(z.shema_gra)}</div><div class="zman-note">Vilna Gaon</div></div>
-      <div class="zman-item"><div class="zman-label">🙏 Fin Tefila M"A</div><div class="zman-time">${fmtH(z.tfila_ma)}</div><div class="zman-note">Magen Avraham</div></div>
-      <div class="zman-item"><div class="zman-label">🙏 Fin Tefila GR"A</div><div class="zman-time">${fmtH(z.tfila_gra)}</div><div class="zman-note">Vilna Gaon</div></div>
-      <div class="zman-item"><div class="zman-label">☀️ Hatsot Hayom</div><div class="zman-time">${fmtH(z.hatsot)}</div><div class="zman-note">Midi solaire</div></div>
-      <div class="zman-item"><div class="zman-label">🕌 Minha Guedola</div><div class="zman-time">${fmtH(z.minha_g)}</div><div class="zman-note">30 min après Hatsot</div></div>
-      <div class="zman-item"><div class="zman-label">🕌 Minha Ketana</div><div class="zman-time">${fmtH(z.minha_k)}</div><div class="zman-note">2.5h avant coucher</div></div>
-      <div class="zman-item"><div class="zman-label">🌆 Plag HaMinha</div><div class="zman-time">${fmtH(z.plag)}</div><div class="zman-note">75 min avant coucher</div></div>
-      <div class="zman-item"><div class="zman-label">🌇 Shqiat HaHama</div><div class="zman-time">${fmtH(z.sunset)}</div><div class="zman-note">Coucher du soleil</div></div>
-      <div class="zman-item"><div class="zman-label">🌙 Tseit HaKokhavim</div><div class="zman-time">${fmtH(z.tseit)}</div><div class="zman-note">3 étoiles (18 min)</div></div>
-      <div class="zman-item"><div class="zman-label">⭐ Nuit Rabénou Tam</div><div class="zman-time">${fmtH(z.rt)}</div><div class="zman-note">72 min après coucher</div></div>
-      <div class="zman-item"><div class="zman-label">🌃 Hatsot HaLayla</div><div class="zman-time">${fmtH(z.hatsot_laila)}</div><div class="zman-note">Minuit astronomique</div></div>
-      <div class="zman-item"><div class="zman-label">⏱ Heure zmanit GR"A</div><div class="zman-time">${fmtMin(z.shaa_gra)}</div><div class="zman-note">Heure saisonnière</div></div>
-    </div>`;
-    grid.appendChild(c);
-  }
-
-  // ---- OMER ----
+  // OMER
   if(omer){
-    const c=mkCard('🌾','Compte de l\'Omer','ספירת העומר');
+    const c=mkCard('🌾','Compte de l\'Omer',jd.str);
     c.querySelector('.cal-body').innerHTML=`<div class="omer-big">
       <div class="omer-num">${omer.jour}</div>
-      <div class="omer-label">${omer.jour}ème jour — Semaine ${omer.semaine}, jour ${omer.jourSem}</div>
+      <div class="omer-label">${omer.jour}ème jour de l'Omer</div>
       <div class="omer-sefirot">${omer.sefirot}</div>
     </div>`;
     grid.appendChild(c);
   }
 
-  // ---- DAF YOMI ----
+  // DAF YOMI
   {
     const c=mkCard('📚','Daf Yomi','Cycle 16');
     c.querySelector('.cal-body').innerHTML=`<div class="daf-display">
       <div class="daf-masechet">${daf.massekhèt}</div>
       <div class="daf-num">${daf.daf}</div>
-      <div class="daf-sub">Page ${daf.daf} de la massékhèt ${daf.massekhèt}</div>
+      <div class="daf-sub">Page ${daf.daf} · ${jd.str}</div>
     </div>`;
     grid.appendChild(c);
   }
 
-  // ---- TEHILIM ----
+  // TEHILIM
   {
-    const c=mkCard('📜','Tehilim du jour','Division mensuelle — 30 jours');
-    c.querySelector('.cal-body').innerHTML=`<div class="tehilim-row">
-      <span style="font-size:13px;color:var(--text-dim)">${jd.day} ${JM[jd.month]} — Jour ${jd.day}</span>
-      <span class="tehilim-chaps">${getTehilim(now)}</span>
+    const c=mkCard('📜','Tehilim du jour','Division mensuelle');
+    c.querySelector('.cal-body').innerHTML=`<div class="tehilim-display">
+      <div class="tehilim-num">Psaumes ${getTehilim(now)}</div>
+      <div class="tehilim-label">${jd.day} ${JM[jd.month]} — jour ${jd.day} du mois</div>
     </div>`;
     grid.appendChild(c);
   }
 
-  // ---- FÊTES ----
+  // FÊTES
   {
-    const c=mkCard('🎉','Prochaines fêtes','Calendrier 5786–5787');
+    const c=mkCard('🎉','Prochaines fêtes','5786–5787');
+    const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const MN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
     const upcoming=FETES.filter(f=>{
-      const fd=new Date(f.d.getFullYear(),f.d.getMonth(),f.d.getDate());
+      const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());
       return fd>=today0;
-    }).slice(0,8);
+    }).slice(0,7);
     c.querySelector('.cal-body').innerHTML=upcoming.map(f=>{
-      const fd=new Date(f.d.getFullYear(),f.d.getMonth(),f.d.getDate());
+      const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());
       const diff=Math.round((fd-today0)/86400000);
-      const isToday=diff===0, soon=diff>0&&diff<=7;
-      const dateStr=`${f.d.getDate()} ${MN[f.d.getMonth()]} ${f.d.getFullYear()}`;
-      const badge=isToday?`<span class="fete-badge fete-today">Aujourd'hui !</span>`:soon?`<span class="fete-badge fete-soon">Dans ${diff}j</span>`:'';
+      const isToday=diff===0;
+      const soon=diff>0&&diff<=7;
+      const badge=isToday?`<span class="fete-badge fete-today">Aujourd'hui</span>`:soon?`<span class="fete-badge fete-soon">Dans ${diff}j</span>`:'';
       return`<div class="fete-item">
-        <div class="fete-left"><div class="fete-name">${f.n} ${badge}</div><div class="fete-note">${f.note}</div></div>
-        <div class="fete-right"><div class="fete-date">${dateStr}</div></div>
+        <div><div class="fete-name">${f.name}</div><div class="fete-date">${f.note} ${badge}</div></div>
+        <div class="fete-date">${f.date.getDate()} ${MN[f.date.getMonth()]}</div>
       </div>`;
     }).join('');
     grid.appendChild(c);
   }
 
-  // ---- BIRKAT HALEVANA ----
+  // BIRKAT HALEVANA
   {
-    const c=mkCard('🌙','Birkat Halevana','Bénédiction de la nouvelle lune');
+    const c=mkCard('🌙','Birkat Halevana','Bénédiction de la lune');
+    const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const MN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
     const windows=BIRKAT.filter(w=>{
       const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());
       return df>=today0;
@@ -734,47 +673,29 @@ function buildCalendar(){
     c.querySelector('.cal-body').innerHTML=windows.map(w=>{
       const db=new Date(w.debut.getFullYear(),w.debut.getMonth(),w.debut.getDate());
       const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());
-      const active=today0>=db&&today0<=df;
-      return`<div class="birkat-window ${active?'active-win':''}">
-        <div class="birkat-label">${w.m}${active?' <span style="color:var(--success)">● Ouverte</span>':''}</div>
-        <div class="birkat-dates">Du ${w.debut.getDate()} ${MN[w.debut.getMonth()]} au ${w.fin.getDate()} ${MN[w.fin.getMonth()]}</div>
-        ${active?'<div class="birkat-note">🌙 Tu peux réciter Birkat Halevana ce soir !</div>':''}
+      const isActive=today0>=db&&today0<=df;
+      return`<div class="birkat-window ${isActive?'active-win':''}">
+        <div class="birkat-label">${w.mois}${isActive?' — <span style="color:var(--success)">● Fenêtre ouverte</span>':''}</div>
+        <div class="birkat-dates">${w.debut.getDate()} ${MN[w.debut.getMonth()]} → ${w.fin.getDate()} ${MN[w.fin.getMonth()]}</div>
+        ${isActive?'<div class="birkat-note">🌙 Tu peux réciter Birkat Halevana ce soir !</div>':''}
       </div>`;
     }).join('');
-    grid.appendChild(c);
-  }
-
-  // ---- ÉVÉNEMENTS SPÉCIAUX ----
-  {
-    const c=mkCard('✨','Événements du jour','');
-    const events=[];
-    FETES.forEach(f=>{
-      const fd=new Date(f.d.getFullYear(),f.d.getMonth(),f.d.getDate());
-      const diff=Math.round((fd-today0)/86400000);
-      if(diff===0) events.push({icon:'🎊',name:f.n+' — Aujourd\'hui !',desc:f.note});
-      else if(diff>0&&diff<=7) events.push({icon:'📅',name:`${f.n} dans ${diff} jour${diff>1?'s':''}`,desc:f.note});
-    });
-    if(!events.length) events.push({icon:'📅',name:'Jour ordinaire',desc:'Pas d\'événement spécial dans les 7 prochains jours'});
-    c.querySelector('.cal-body').innerHTML=events.map(e=>`
-      <div class="event-item">
-        <span class="event-icon">${e.icon}</span>
-        <div><div class="event-name">${e.name}</div><div class="event-desc">${e.desc}</div></div>
-      </div>`).join('');
     grid.appendChild(c);
   }
 }
 
 function mkCard(icon,title,subtitle){
-  const c=document.createElement('div');
-  c.className='cal-card';
+  const c=document.createElement('div');c.className='cal-card';
   c.innerHTML=`<div class="cal-card-header"><span class="cal-icon">${icon}</span><div><div class="cal-title">${title}</div>${subtitle?`<div class="cal-subtitle">${subtitle}</div>`:''}</div></div><div class="cal-body"></div>`;
   return c;
 }
 
+// ============================================================
+// NAVIGATION
+// ============================================================
 function showPage(page){
   ['prayer','calendar','about'].forEach(p=>{
-    const el=document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1));
-    if(el)el.classList.toggle('hidden',p!==page);
+    document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1)).classList.toggle('hidden',p!==page);
   });
   document.getElementById('navP').classList.toggle('active',page==='prayer');
   document.getElementById('navC').classList.toggle('active',page==='calendar');
@@ -782,6 +703,9 @@ function showPage(page){
   if(page==='calendar')buildCalendar();
 }
 
+// ============================================================
+// INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded',()=>{
   updateHeader();
   buildDaySelector();
