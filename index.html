@@ -1,722 +1,1248 @@
-
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Minyan Lyon"/>
 <title>Minyan Lyon</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;600;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root{--gold:#C9A84C;--gold-light:#E8C97A;--navy:#0D1B2A;--navy-mid:#152238;--text:#F0E6CE;--text-dim:#9AADBB;--success:#4CAF82;--warning:#E8A44A;--card-bg:rgba(21,34,56,0.85);--radius:16px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(201,168,76,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
-.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 110px;}
-.header{padding:28px 24px 12px;text-align:center;}
-.star{font-size:26px;display:block;margin-bottom:5px;animation:glow 3s ease-in-out infinite;}
-@keyframes glow{0%,100%{filter:drop-shadow(0 0 8px rgba(201,168,76,0.4))}50%{filter:drop-shadow(0 0 18px rgba(201,168,76,0.8))}}
-.app-title{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--gold);}
-.app-subtitle{font-size:11px;color:var(--text-dim);margin-top:3px;letter-spacing:1px;text-transform:uppercase;}
-.date-bar{background:var(--card-bg);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:11px 16px;margin:0 16px 6px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);}
-.date-civil{font-size:13px;color:var(--text);font-weight:500;}
-.date-jewish{font-size:12px;color:var(--gold);text-align:right;}
-.day-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;margin-top:3px;}
-.b-shabbat{background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid rgba(201,168,76,0.4);}
-.b-torah{background:rgba(232,164,74,0.15);color:var(--warning);border:1px solid rgba(232,164,74,0.3);}
-.b-normal{background:rgba(154,173,187,0.1);color:var(--text-dim);border:1px solid rgba(154,173,187,0.2);}
-.find-now-section{padding:8px 16px 6px;}
-.find-now-btn{width:100%;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy);border:none;border-radius:var(--radius);padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 24px rgba(201,168,76,0.35);transition:transform 0.15s;}
-.find-now-btn:active{transform:scale(0.97);}
-.btn-sub{font-family:'DM Sans',sans-serif;font-size:10px;opacity:0.7;display:block;margin-top:2px;font-weight:400;}
-.now-panel{margin:0 16px 10px;background:var(--card-bg);border:1px solid rgba(201,168,76,0.2);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;animation:slideDown 0.3s ease;}
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.now-panel-header{background:linear-gradient(90deg,rgba(201,168,76,0.1),transparent);padding:11px 16px;border-bottom:1px solid rgba(201,168,76,0.1);display:flex;align-items:center;gap:8px;}
-.panel-prayer{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--gold);}
-.panel-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
-.close-btn{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;}
-.minyan-item{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.15s;}
-.minyan-item:last-child{border-bottom:none;}
-.minyan-item:active{background:rgba(201,168,76,0.05);}
-.minyan-name{font-weight:500;font-size:13px;color:var(--text);}
-.minyan-addr{font-size:11px;color:var(--text-dim);margin-top:1px;}
-.minyan-time{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--gold);white-space:nowrap;}
-.no-minyan{padding:16px;text-align:center;color:var(--text-dim);font-size:13px;}
-.tabs{display:flex;margin:8px 16px 0;gap:3px;background:var(--card-bg);border-radius:12px;padding:3px;border:1px solid rgba(255,255,255,0.06);}
-.tab{flex:1;padding:7px 0;text-align:center;font-size:11px;font-weight:500;color:var(--text-dim);cursor:pointer;border-radius:9px;transition:all 0.2s;border:none;background:none;}
-.tab.active{background:rgba(201,168,76,0.15);color:var(--gold);}
-.section-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--text);padding:11px 20px 5px;}
-.search-bar{margin:0 16px 5px;position:relative;}
-.search-input{width:100%;background:var(--card-bg);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px 10px 36px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;backdrop-filter:blur(10px);outline:none;}
-.search-input::placeholder{color:var(--text-dim);}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-dim);}
-.filters-row{padding:3px 16px 5px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
-.filters-row::-webkit-scrollbar{display:none;}
-.filter-chip{flex-shrink:0;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:var(--card-bg);color:var(--text-dim);transition:all 0.2s;white-space:nowrap;}
-.filter-chip.active{background:rgba(201,168,76,0.15);border-color:var(--gold);color:var(--gold);}
-.day-selector{padding:5px 16px 3px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
-.day-selector::-webkit-scrollbar{display:none;}
-.day-btn{flex-shrink:0;background:var(--card-bg);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:8px 12px;cursor:pointer;text-align:center;min-width:52px;backdrop-filter:blur(10px);transition:all 0.2s;}
-.day-btn.active{background:rgba(201,168,76,0.15);border-color:var(--gold);}
-.day-btn-name{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.4px;}
-.day-btn.active .day-btn-name{color:var(--gold);}
-.day-btn-num{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--text);margin-top:1px;}
-.day-btn.active .day-btn-num{color:var(--gold);}
-.count-badge{font-size:11px;color:var(--text-dim);padding:5px 20px 2px;}
-.syn-list{padding:0 16px;display:flex;flex-direction:column;gap:9px;}
-.syn-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;}
-.syn-card.is-fav{border-color:rgba(201,168,76,0.35);}
-.syn-card-header{padding:12px 13px 9px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;}
-.syn-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+:root{
+  --gold:#C9A84C;--gold2:#E8C97A;--goldbg:rgba(201,168,76,0.1);--goldbr:rgba(201,168,76,0.22);
+  --navy:#0D1B2A;--navy2:#152238;--navy3:#1E3050;
+  --text:#F0E6CE;--text2:#9AADBB;--text3:#5A7080;
+  --green:#4CAF82;--greenbg:rgba(76,175,130,0.12);
+  --orange:#E8A44A;--orangebg:rgba(232,164,74,0.12);
+  --red:#E85A4A;--redbg:rgba(232,90,74,0.12);
+  --card:rgba(21,34,56,0.9);--r:16px;
+  --font:'DM Sans',sans-serif;--serif:'Fraunces',serif;--nav:70px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font);background:var(--navy);color:var(--text);font-size:15px;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(201,168,76,0.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;z-index:1;}
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav)+16px);opacity:0;pointer-events:none;transform:translateX(14px);transition:all 0.2s ease;}
+.page.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.page::-webkit-scrollbar{display:none;}
+
+/* HEADER */
+.hdr{background:rgba(13,27,42,0.98);border-bottom:1px solid var(–goldbr);backdrop-filter:blur(20px);z-index:50;}
+.hdr-top{padding:12px 18px 8px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-star{font-size:24px;animation:glow 3s ease-in-out infinite;}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 5px rgba(201,168,76,0.35))}50%{filter:drop-shadow(0 0 14px rgba(201,168,76,0.7))}}
+.logo-title{font-family:var(–serif);font-size:21px;font-weight:900;color:var(–gold);}
+.logo-sub{font-size:10px;color:var(–text2);margin-top:1px;letter-spacing:0.4px;text-transform:uppercase;}
+.hdr-right{display:flex;gap:5px;align-items:center;}
+.lbtn{background:var(–goldbg);border:1px solid var(–goldbr);border-radius:20px;padding:4px 9px;font-size:11px;font-weight:600;color:var(–text2);cursor:pointer;font-family:var(–font);transition:all 0.15s;}
+.lbtn.on{background:var(–gold);border-color:var(–gold);color:var(–navy);}
+.ibtn{background:var(–goldbg);border:1px solid var(–goldbr);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
+
+/* DATE STRIP */
+.dstrip{background:linear-gradient(135deg,var(–navy2),var(–navy3));border-bottom:1px solid var(–goldbr);padding:10px 18px 12px;display:flex;justify-content:space-between;align-items:flex-end;}
+.dcivil{font-size:13px;font-weight:600;color:var(–text);}
+.dtags{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;}
+.dtag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.dtag-gold{background:rgba(201,168,76,0.18);color:var(–gold);border:1px solid rgba(201,168,76,0.25);}
+.dtag-dim{background:rgba(154,173,187,0.08);color:var(–text2);border:1px solid rgba(154,173,187,0.12);}
+.dright{text-align:right;}
+.djewish{font-size:14px;font-weight:700;color:var(–gold);}
+.domer{font-size:10px;color:var(–text2);margin-top:2px;}
+
+/* COMPTE A REBOURS */
+.cdb{background:var(–navy2);border-bottom:1px solid var(–goldbr);padding:9px 18px 8px;}
+.cdb-row{display:flex;align-items:center;justify-content:space-between;}
+.cdb-label{font-size:12px;color:var(–text2);font-weight:500;}
+.cdb-timer{font-family:var(–serif);font-size:18px;font-weight:700;}
+.cdb-green{color:var(–green);}
+.cdb-orange{color:var(–orange);}
+.cdb-red{color:var(–red);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.cdb-progress{height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-top:6px;overflow:hidden;}
+.cdb-bar{height:100%;border-radius:2px;transition:width 1s linear;}
+.cdb-next{font-size:10px;color:var(–text3);margin-top:3px;}
+
+/* NAV */
+.bnav{height:var(–nav);background:rgba(13,27,42,0.97);border-top:1px solid var(–goldbr);backdrop-filter:blur(20px);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:50;}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;padding:5px 4px;}
+.nbtn .ni{font-size:20px;transition:transform 0.18s;}
+.nbtn .nl{font-size:9px;color:var(–text3);font-weight:500;letter-spacing:0.3px;text-transform:uppercase;}
+.nbtn.on .nl{color:var(–gold);}
+.nbtn.on .ni{transform:scale(1.1);filter:drop-shadow(0 0 4px rgba(201,168,76,0.45));}
+
+/* FIND NOW */
+.fwrap{padding:12px 16px 0;}
+.fbtn{width:100%;background:linear-gradient(135deg,var(–gold),var(–gold2));border:none;border-radius:var(–r);padding:16px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 22px rgba(201,168,76,0.28);transition:transform 0.15s;}
+.fbtn:active{transform:scale(0.97);}
+.fico{width:42px;height:42px;background:rgba(0,0,0,0.14);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.ftxt{flex:1;}
+.ftitle{font-family:var(–serif);font-size:16px;font-weight:900;color:var(–navy);}
+.fsub{font-size:11px;color:rgba(13,27,42,0.65);margin-top:2px;font-weight:500;}
+
+/* SIGNALER MINYAN */
+.sbtn{margin:8px 16px 0;background:var(–greenbg);border:1px solid rgba(76,175,130,0.2);border-radius:var(–r);padding:11px 15px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.15s;}
+.sbtn:active{transform:scale(0.98);}
+.stxt{font-size:13px;font-weight:600;color:var(–green);}
+.ssub{font-size:11px;color:var(–text2);margin-top:1px;}
+
+/* MINYANIM IMPROVISES */
+.improv-wrap{margin:8px 16px 0;}
+.improv-item{background:var(–greenbg);border:1px solid rgba(76,175,130,0.18);border-radius:12px;padding:10px 13px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.improv-name{font-size:13px;font-weight:600;color:var(–green);}
+.improv-addr{font-size:11px;color:var(–text2);margin-top:1px;}
+.improv-right{text-align:right;}
+.improv-time{font-family:var(–serif);font-size:18px;font-weight:700;color:var(–green);}
+.improv-exp{font-size:10px;color:var(–text2);margin-top:1px;}
+.improv-del{background:none;border:none;color:var(–red);cursor:pointer;font-size:16px;padding:0 0 0 8px;}
+
+/* NOW PANEL */
+.now-panel{margin:10px 16px 0;background:var(–card);border:2px solid var(–gold);border-radius:var(–r);backdrop-filter:blur(10px);overflow:hidden;animation:popIn 0.2s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+.now-hd{background:linear-gradient(90deg,var(–goldbg),transparent);border-bottom:1px solid var(–goldbr);padding:11px 14px;display:flex;align-items:center;gap:7px;}
+.now-prayer{font-family:var(–serif);font-size:15px;font-weight:600;color:var(–gold);}
+.now-sub{font-size:11px;color:var(–text2);margin-top:1px;}
+.now-close{margin-left:auto;background:none;border:none;color:var(–text2);cursor:pointer;font-size:15px;}
+.now-item{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.1s;}
+.now-item:last-child{border-bottom:none;}
+.now-item:active{background:var(–goldbg);}
+.now-sname{font-size:13px;font-weight:600;color:var(–text);}
+.now-addr{font-size:11px;color:var(–text2);margin-top:1px;}
+.now-right{text-align:right;}
+.now-time{font-family:var(–serif);font-size:20px;font-weight:900;color:var(–gold);}
+.now-dist{font-size:10px;color:var(–green);margin-top:1px;font-weight:600;}
+.no-res{padding:14px;text-align:center;color:var(–text2);font-size:13px;}
+
+/* TABS */
+.tabs{display:flex;margin:10px 16px 0;gap:3px;background:rgba(255,255,255,0.04);border-radius:12px;padding:3px;border:1px solid rgba(255,255,255,0.05);}
+.tab{flex:1;padding:6px;text-align:center;font-size:11px;font-weight:600;color:var(–text2);cursor:pointer;border-radius:9px;border:none;background:none;font-family:var(–font);transition:all 0.15s;}
+.tab.on{background:var(–goldbg);color:var(–gold);border:1px solid var(–goldbr);}
+
+/* SECTION */
+.sec-hd{padding:11px 18px 5px;display:flex;align-items:center;justify-content:space-between;}
+.sec-title{font-size:11px;font-weight:600;color:var(–text2);text-transform:uppercase;letter-spacing:0.5px;}
+
+/* SEARCH */
+.sw{margin:0 16px 6px;position:relative;}
+.si{width:100%;background:var(–card);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 13px 10px 35px;font-size:13px;font-family:var(–font);color:var(–text);outline:none;backdrop-filter:blur(10px);transition:border-color 0.15s;}
+.si:focus{border-color:var(–goldbr);}
+.si::placeholder{color:var(–text2);}
+.si-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;}
+
+/* FILTERS */
+.filters{padding:0 16px 6px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.fc{flex-shrink:0;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:var(–card);color:var(–text2);transition:all 0.15s;white-space:nowrap;font-family:var(–font);}
+.fc.on{background:var(–goldbg);border-color:var(–gold);color:var(–gold);}
+
+/* DAY SELECTOR */
+.days{padding:4px 16px 3px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
+.days::-webkit-scrollbar{display:none;}
+.dbtn{flex-shrink:0;background:var(–card);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:7px 11px;cursor:pointer;text-align:center;min-width:48px;backdrop-filter:blur(10px);transition:all 0.15s;font-family:var(–font);}
+.dbtn.on{background:var(–goldbg);border-color:var(–gold);}
+.dbn{font-size:10px;color:var(–text2);text-transform:uppercase;letter-spacing:0.3px;font-weight:600;}
+.dbtn.on .dbn{color:var(–gold);}
+.dbd{font-family:var(–serif);font-size:16px;font-weight:600;color:var(–text);margin-top:1px;}
+.dbtn.on .dbd{color:var(–gold);}
+.count{font-size:11px;color:var(–text2);padding:3px 18px 2px;font-weight:500;}
+
+/* LIEU CARD (regroupement par adresse) */
+.lieu-card{background:var(–card);border:1.5px solid rgba(255,255,255,0.06);border-radius:var(–r);backdrop-filter:blur(10px);margin:0 16px 10px;overflow:hidden;}
+.lieu-card.has-fav{border-color:var(–goldbr);}
+.lieu-hd{padding:11px 13px 8px;display:flex;align-items:center;gap:9px;}
+.lieu-ico{font-size:22px;flex-shrink:0;}
+.lieu-info{flex:1;min-width:0;}
+.lieu-addr-txt{font-family:var(–serif);font-size:13px;font-weight:600;color:var(–text);}
+.lieu-count{font-size:11px;color:var(–text2);margin-top:2px;}
+.lieu-acts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.maps-btn{background:var(–goldbg);border:1px solid var(–goldbr);border-radius:7px;padding:4px 7px;font-size:10px;color:var(–gold);font-weight:600;text-decoration:none;white-space:nowrap;}
+.lieu-dist{font-size:10px;color:var(–green);font-weight:600;}
+
+/* MINYAN ROW dans lieu-card */
+.mrow{border-top:1px solid rgba(255,255,255,0.04);padding:8px 13px;cursor:pointer;transition:background 0.1s;}
+.mrow:active{background:var(–goldbg);}
+.mrow-top{display:flex;align-items:center;justify-content:space-between;}
+.mrow-name{font-size:12px;font-weight:600;color:var(–text);}
+.mrow-fav{background:none;border:none;font-size:14px;cursor:pointer;opacity:0.25;transition:opacity 0.15s;padding:0;line-height:1;}
+.mrow-fav.on{opacity:1;}
+.mrow-times{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px;}
+.mt{background:rgba(255,255,255,0.03);border-radius:7px;padding:5px 4px;text-align:center;}
+.mt.hl{background:var(–goldbg);}
+.mt-lbl{font-size:9px;color:var(–text2);text-transform:uppercase;letter-spacing:0.3px;font-weight:600;margin-bottom:2px;}
+.mt-val{font-family:var(–serif);font-size:13px;font-weight:600;color:var(–gold);}
+.mt-val.dim{color:var(–text2);font-family:var(–font);font-size:11px;font-weight:400;}
+
+/* SYN CARD standalone */
+.syn-card{background:var(–card);border:1.5px solid rgba(255,255,255,0.06);border-radius:var(–r);backdrop-filter:blur(10px);margin:0 16px 10px;overflow:hidden;}
+.syn-card.fav{border-color:var(–goldbr);}
+.syn-head{padding:11px 13px 8px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;}
+.syn-emoji{font-size:22px;flex-shrink:0;margin-top:1px;}
 .syn-info{flex:1;min-width:0;}
-.syn-name{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:var(--text);}
-.syn-addr{font-size:11px;color:var(--text-dim);margin-top:2px;}
-.syn-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
-.maps-link{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:7px;padding:4px 7px;font-size:10px;color:var(--gold);text-decoration:none;white-space:nowrap;}
-.fav-btn{background:none;border:none;font-size:17px;cursor:pointer;opacity:0.35;transition:opacity 0.2s,transform 0.2s;padding:0;line-height:1;}
-.fav-btn.active{opacity:1;transform:scale(1.1);}
-.prayer-times{border-top:1px solid rgba(255,255,255,0.05);display:grid;grid-template-columns:1fr 1fr 1fr;}
-.p-slot{padding:8px 4px;text-align:center;border-right:1px solid rgba(255,255,255,0.05);position:relative;}
-.p-slot:last-child{border-right:none;}
-.p-slot.next{background:rgba(201,168,76,0.08);}
-.p-slot.next::after{content:'▶';position:absolute;top:4px;right:3px;font-size:6px;color:var(--gold);opacity:0.7;}
-.p-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
-.p-time{font-family:'Fraunces',serif;font-size:14px;font-weight:600;}
-.p-time.has{color:var(--gold);}
-.p-time.none{color:var(--text-dim);font-size:11px;}
-.empty-state{text-align:center;padding:36px 20px;color:var(--text-dim);font-size:13px;}
-.empty-state div{font-size:30px;margin-bottom:8px;}
-.cal-grid{padding:0 16px;display:flex;flex-direction:column;gap:10px;}
-.cal-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;}
-.cal-card-header{padding:13px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);}
-.cal-icon{font-size:22px;flex-shrink:0;}
-.cal-title{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text);}
-.cal-subtitle{font-size:11px;color:var(--text-dim);margin-top:2px;}
-.cal-body{padding:12px 16px;}
-.zman-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.zman-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:8px 10px;}
-.zman-label{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
-.zman-time{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--gold);}
-.zman-note{font-size:9px;color:var(--text-dim);margin-top:1px;}
-.omer-big{text-align:center;padding:6px 0 2px;}
-.omer-num{font-family:'Fraunces',serif;font-size:56px;font-weight:900;color:var(--gold);line-height:1;}
-.omer-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
-.omer-heb{font-size:18px;color:var(--text);margin-top:6px;direction:rtl;font-weight:500;}
-.omer-sefirot{font-size:12px;color:var(--gold);margin-top:5px;font-style:italic;}
-.daf-display{text-align:center;padding:4px 0;}
-.daf-masechet{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--text);}
-.daf-num{font-family:'Fraunces',serif;font-size:40px;font-weight:900;color:var(--gold);line-height:1.1;}
-.daf-heb{font-size:20px;color:var(--text-dim);direction:rtl;margin-top:4px;}
-.daf-sub{font-size:11px;color:var(--text-dim);margin-top:4px;}
-.tehilim-big{text-align:center;padding:6px 0;}
-.tehilim-chaps{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--gold);}
-.tehilim-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
-.fete-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.fete-item:last-child{border-bottom:none;}
-.fete-name{font-size:13px;color:var(--text);font-weight:500;}
-.fete-badge{font-size:10px;padding:2px 7px;border-radius:10px;margin-left:5px;}
-.fete-soon{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);}
-.fete-today{background:rgba(76,175,130,0.2);color:var(--success);border:1px solid rgba(76,175,130,0.3);}
-.birkat-window{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:7px;}
-.birkat-window.active-win{background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.3);}
-.birkat-label{font-size:11px;color:var(--text-dim);margin-bottom:2px;}
-.birkat-dates{font-size:13px;color:var(--text);}
-.birkat-note{font-size:10px;color:var(--gold);margin-top:3px;}
-.shabbat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.shabbat-row:last-child{border-bottom:none;}
-.shabbat-label{font-size:12px;color:var(--text-dim);}
-.shabbat-time{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--gold);}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(13,27,42,0.96);border-top:1px solid rgba(201,168,76,0.15);backdrop-filter:blur(20px);display:flex;padding:8px 0 18px;z-index:100;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:5px 0;}
-.nav-icon{font-size:20px;}
-.nav-label{font-size:9px;color:var(--text-dim);}
-.nav-btn.active .nav-label{color:var(--gold);}
-.nav-btn.active .nav-icon{filter:drop-shadow(0 0 5px rgba(201,168,76,0.5));}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:flex;align-items:flex-end;animation:fadeIn 0.2s ease;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--navy-mid);border-top:1px solid rgba(201,168,76,0.2);border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-height:88vh;overflow-y:auto;animation:slideUp 0.3s ease;}
-@keyframes slideUp{from{transform:translateY(40px)}to{transform:translateY(0)}}
-.modal-title{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--gold);margin-bottom:2px;}
-.modal-addr{font-size:12px;color:var(--text-dim);margin-bottom:12px;}
-.modal-week{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
-.modal-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr;align-items:center;padding:9px 11px;border-bottom:1px solid rgba(255,255,255,0.04);gap:5px;}
-.modal-row:last-child{border-bottom:none;}
-.modal-row.today{background:rgba(201,168,76,0.07);}
-.modal-day{font-size:11px;color:var(--text-dim);}
-.modal-row.today .modal-day{color:var(--gold);font-weight:500;}
-.mt-col{text-align:center;}
-.mt-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;}
-.mt-val{font-family:'Fraunces',serif;font-size:13px;color:var(--text);}
-.mt-val.g{color:var(--gold);}
-.mt-val.d{color:var(--text-dim);font-size:11px;}
-.modal-fav-btn{width:100%;margin-bottom:9px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:11px;color:var(--gold);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
-.modal-fav-btn.active{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.45);}
-.modal-close{margin-top:9px;width:100%;background:rgba(154,173,187,0.07);border:1px solid rgba(154,173,187,0.14);border-radius:12px;padding:12px;color:var(--text-dim);font-size:13px;font-weight:500;cursor:pointer;}
-.about-page{padding:14px;}
-.about-card{background:var(--card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:16px;margin-bottom:9px;backdrop-filter:blur(10px);}
-.about-card h3{font-family:'Fraunces',serif;font-size:14px;color:var(--gold);margin-bottom:7px;}
-.about-card p{font-size:12px;color:var(--text-dim);line-height:1.7;}
-.about-card a{color:var(--gold);}
+.syn-name{font-family:var(–serif);font-size:14px;font-weight:600;color:var(–text);}
+.syn-addr{font-size:11px;color:var(–text2);margin-top:2px;}
+.syn-acts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.fav-star{background:none;border:none;font-size:16px;cursor:pointer;opacity:0.25;transition:opacity 0.15s,transform 0.2s;line-height:1;padding:0;}
+.fav-star.on{opacity:1;transform:scale(1.1);}
+.syn-times{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,0.04);}
+.t-slot{padding:8px 4px;text-align:center;border-right:1px solid rgba(255,255,255,0.04);}
+.t-slot:last-child{border-right:none;}
+.t-slot.hl{background:var(–goldbg);}
+.t-lbl{font-size:9px;color:var(–text2);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;margin-bottom:2px;}
+.t-val{font-family:var(–serif);font-size:13px;font-weight:600;color:var(–gold);}
+.t-val.dim{color:var(–text2);font-family:var(–font);font-size:11px;font-weight:400;}
+.empty-st{text-align:center;padding:32px 20px;color:var(–text2);}
+.empty-st .ei{font-size:30px;margin-bottom:8px;}
+
+/* MODAL SIGNAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:flex-end;animation:fdIn 0.2s ease;}
+@keyframes fdIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(–navy2);border-top:1px solid var(–goldbr);border-radius:20px 20px 0 0;padding:20px 18px;width:100%;max-height:90vh;overflow-y:auto;animation:slUp 0.28s ease;}
+@keyframes slUp{from{transform:translateY(40px)}to{transform:translateY(0)}}
+.modal-bar{width:40px;height:4px;background:var(–goldbr);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-family:var(–serif);font-size:18px;font-weight:900;color:var(–gold);margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{font-size:12px;color:var(–text2);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px;}
+.field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 13px;font-size:14px;color:var(–text);font-family:var(–font);outline:none;transition:border-color 0.15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(–goldbr);}
+.field select option{background:var(–navy2);}
+.modal-submit{width:100%;background:var(–gold);border:none;border-radius:12px;padding:13px;color:var(–navy);font-size:14px;font-weight:700;cursor:pointer;font-family:var(–font);margin-top:4px;}
+.modal-cancel{margin-top:8px;width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;color:var(–text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(–font);}
+
+/* MODAL SYNAGOGUE */
+.syn-modal-week{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);}
+.srow{display:grid;grid-template-columns:78px 1fr 1fr 1fr;align-items:center;padding:9px 11px;border-bottom:1px solid rgba(255,255,255,0.04);gap:4px;}
+.srow:last-child{border-bottom:none;}
+.srow.today{background:var(–goldbg);}
+.srow-day{font-size:11px;color:var(–text2);font-weight:600;}
+.srow.today .srow-day{color:var(–gold);}
+.sc{text-align:center;}
+.sc-lbl{font-size:9px;color:var(–text2);text-transform:uppercase;letter-spacing:0.3px;font-weight:600;}
+.sc-val{font-family:var(–serif);font-size:13px;font-weight:600;color:var(–text);}
+.sc-val.gold{color:var(–gold);}
+.sc-val.dim{color:var(–text2);font-family:var(–font);font-size:11px;font-weight:400;}
+.mfav-btn{width:100%;background:var(–goldbg);border:1px solid var(–goldbr);border-radius:12px;padding:11px;color:var(–gold);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:11px;font-family:var(–font);transition:all 0.15s;}
+.mfav-btn.on{background:var(–gold);color:var(–navy);}
+.mclose{margin-top:9px;width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;color:var(–text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(–font);}
+
+/* CALENDRIER */
+.cal-wrap{padding:12px 16px 0;}
+.cal-card{background:var(–card);border:1px solid rgba(255,255,255,0.06);border-radius:var(–r);backdrop-filter:blur(10px);margin-bottom:11px;overflow:hidden;}
+.cal-hd{padding:12px 15px 9px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cal-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.ci-gold{background:var(–goldbg);}
+.ci-blue{background:rgba(76,130,200,0.1);}
+.ci-green{background:var(–greenbg);}
+.ci-dim{background:rgba(154,173,187,0.07);}
+.cal-title{font-family:var(–serif);font-size:14px;font-weight:600;color:var(–text);}
+.cal-sub{font-size:10px;color:var(–text2);margin-top:1px;}
+.cal-body{padding:12px 15px;}
+.zman-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.zi{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:8px 10px;}
+.zi-lbl{font-size:9px;color:var(–text2);margin-bottom:2px;font-weight:500;}
+.zi-time{font-family:var(–serif);font-size:18px;font-weight:600;color:var(–gold);}
+.zi-note{font-size:9px;color:var(–text2);margin-top:1px;}
+.zman-loading{text-align:center;padding:14px;color:var(–text2);font-size:12px;}
+.zman-err{padding:10px;color:var(–orange);font-size:12px;background:var(–orangebg);border-radius:9px;text-align:center;}
+.omer-c{text-align:center;padding:7px 0 3px;}
+.omer-big{font-family:var(–serif);font-size:58px;font-weight:900;color:var(–gold);line-height:1;}
+.omer-sub{font-size:12px;color:var(–text2);margin-top:5px;}
+.omer-sefira{font-size:11px;color:var(–gold);margin-top:4px;font-weight:500;}
+.omer-left{font-size:11px;color:var(–text2);margin-top:6px;}
+.daf-c{text-align:center;padding:5px 0;}
+.daf-name{font-family:var(–serif);font-size:19px;font-weight:600;color:var(–text);}
+.daf-page{font-family:var(–serif);font-size:46px;font-weight:900;color:var(–gold);line-height:1.1;}
+.daf-info{font-size:11px;color:var(–text2);margin-top:4px;}
+.teh-c{text-align:center;padding:7px 0;}
+.teh-chaps{font-family:var(–serif);font-size:24px;font-weight:600;color:var(–gold);}
+.teh-sub{font-size:11px;color:var(–text2);margin-top:3px;}
+.fete-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.fete-row:last-child{border-bottom:none;}
+.fete-name{font-size:13px;font-weight:600;color:var(–text);}
+.fete-note{font-size:11px;color:var(–text2);margin-top:1px;}
+.fete-date{font-size:12px;color:var(–text2);}
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;display:inline-block;margin-left:4px;}
+.b-today{background:var(–greenbg);color:var(–green);}
+.b-soon{background:var(–goldbg);color:var(–gold);}
+.birkat-row{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:9px 11px;margin-bottom:6px;}
+.birkat-row.open{background:var(–greenbg);border-color:rgba(76,175,130,0.22);}
+.birkat-mois{font-size:12px;font-weight:600;color:var(–text);}
+.birkat-dates{font-size:11px;color:var(–text2);margin-top:2px;}
+.birkat-open{font-size:11px;color:var(–green);font-weight:600;margin-top:3px;}
+.shab-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.shab-row:last-child{border-bottom:none;}
+.shab-lbl{font-size:12px;color:var(–text2);}
+.shab-time{font-family:var(–serif);font-size:18px;font-weight:600;color:var(–gold);}
+
+/* TORAH */
+.mb-card{background:linear-gradient(135deg,rgba(28,16,4,0.95),rgba(48,28,6,0.95));border:1px solid rgba(201,168,76,0.18);border-radius:var(–r);padding:17px;margin-bottom:11px;backdrop-filter:blur(10px);}
+.mb-ref{font-size:11px;color:var(–gold);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;}
+.mb-text{font-size:14px;color:var(–text);line-height:1.75;}
+.mb-source{font-size:10px;color:var(–text2);margin-top:9px;}
+.mikve-card{background:var(–card);border:1px solid rgba(255,255,255,0.06);border-radius:var(–r);backdrop-filter:blur(10px);margin-bottom:10px;overflow:hidden;}
+.mikve-hd{padding:12px 15px 9px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.04);}
+.mikve-name{font-size:13px;font-weight:600;color:var(–text);}
+.mikve-addr{font-size:11px;color:var(–text2);margin-top:2px;}
+.mikve-contact{font-size:11px;color:var(–text2);margin-top:2px;}
+.mbadge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;flex-shrink:0;margin-left:8px;margin-top:2px;}
+.mb-w{background:rgba(219,39,119,0.14);color:#f472b6;}
+.mb-m{background:rgba(59,130,246,0.14);color:#60a5fa;}
+.mb-b{background:var(–greenbg);color:var(–green);}
+.mikve-btns{padding:9px 15px;display:flex;gap:7px;}
+.call-btn{flex:1;background:var(–greenbg);border:1px solid rgba(76,175,130,0.18);border-radius:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:600;color:var(–green);cursor:pointer;text-decoration:none;font-family:var(–font);}
+.wa-btn{background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.18);border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;text-decoration:none;}
+
+/* PARTAGE */
+.share-hero{background:linear-gradient(135deg,var(–navy2),var(–navy3));border:1px solid var(–goldbr);border-radius:var(–r);padding:20px;margin:12px 16px;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.share-title{font-family:var(–serif);font-size:19px;font-weight:900;color:var(–gold);margin-bottom:5px;}
+.share-sub{font-size:12px;color:var(–text2);margin-bottom:14px;}
+.share-btns{display:flex;gap:9px;}
+.btn-wa{flex:1;background:#25d366;border:none;border-radius:11px;padding:12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(–font);}
+.btn-sh{flex:1;background:var(–goldbg);border:1px solid var(–goldbr);border-radius:11px;padding:12px;font-size:12px;font-weight:700;color:var(–gold);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(–font);}
+.info-card{background:var(–card);border:1px solid rgba(255,255,255,0.06);border-radius:var(–r);backdrop-filter:blur(10px);margin:0 16px 12px;padding:15px;}
+.info-title{font-size:13px;font-weight:600;color:var(–text);margin-bottom:10px;}
+.info-step{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px;}
+.info-step:last-child{margin-bottom:0;}
+.step-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(–goldbg);}
+.step-txt{font-size:12px;color:var(–text2);line-height:1.6;}
+
+.notif-banner{background:var(–orangebg);border:1px solid rgba(232,164,74,0.22);border-radius:12px;padding:10px 14px;margin:10px 16px 0;display:flex;align-items:center;gap:8px;}
+.notif-txt{flex:1;font-size:12px;color:var(–orange);font-weight:500;}
+.notif-act{background:var(–orange);border:none;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;color:var(–navy);cursor:pointer;font-family:var(–font);}
+.notif-x{background:none;border:none;font-size:14px;color:var(–orange);cursor:pointer;}
+
 .hidden{display:none!important;}
 </style>
+
 </head>
 <body>
 <div class="app">
-<div class="header">
-  <span class="star">✡</span>
-  <div class="app-title">Minyan Lyon</div>
-  <div class="app-subtitle">Synagogues · Calendrier · Zmanim</div>
-</div>
-<div class="date-bar">
-  <div>
-    <div class="date-civil" id="civilDate">—</div>
-    <div id="dayBadge" style="margin-top:3px"></div>
-  </div>
-  <div style="text-align:right">
-    <div class="date-jewish" id="jewishDate">—</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-top:2px" id="omerShort"></div>
-  </div>
+
+<!-- HEADER -->
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">
+      <span class="logo-star">✡</span>
+      <div>
+        <div class="logo-title">Minyan Lyon</div>
+        <div class="logo-sub">Synagogues · Prières · Calendrier</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="lbtn on" onclick="setLang('fr')">FR</button>
+      <button class="lbtn" onclick="setLang('he')">עב</button>
+      <button class="lbtn" onclick="setLang('en')">EN</button>
+      <button class="ibtn" onclick="shareNative()">📤</button>
+    </div>
+  </div>
+  <div class="dstrip">
+    <div>
+      <div class="dcivil" id="civilDate">—</div>
+      <div class="dtags" id="dateTags"></div>
+    </div>
+    <div class="dright">
+      <div class="djewish" id="jewishDate">—</div>
+      <div class="domer" id="omerShort"></div>
+    </div>
+  </div>
+  <!-- COMPTE A REBOURS -->
+  <div class="cdb" id="cdb">
+    <div class="cdb-row">
+      <div class="cdb-label" id="cdbLabel">—</div>
+      <div class="cdb-timer" id="cdbTimer">—</div>
+    </div>
+    <div class="cdb-progress"><div class="cdb-bar" id="cdbBar" style="width:0%"></div></div>
+    <div class="cdb-next" id="cdbNext"></div>
+  </div>
 </div>
 
-<div id="pagePrayer">
-  <div class="find-now-section">
-    <button class="find-now-btn" onclick="findNow()">
-      <span style="font-size:22px">🔍</span>
-      <div><div>Trouver un minyan maintenant</div><span class="btn-sub" id="prayerLabel">Calcul…</span></div>
-    </button>
-  </div>
-  <div class="now-panel hidden" id="nowPanel">
-    <div class="now-panel-header">
-      <span style="font-size:20px" id="panelIcon">🕐</span>
-      <div><div class="panel-prayer" id="panelName">—</div><div class="panel-sub" id="panelSub">—</div></div>
-      <button class="close-btn" onclick="closePanel()">✕</button>
-    </div>
-    <div id="minyanResults"></div>
-  </div>
-  <div class="tabs">
-    <button class="tab active" id="tabAll" onclick="switchTab('all')">🕍 Toutes</button>
-    <button class="tab" id="tabFav" onclick="switchTab('fav')">⭐ Favoris</button>
-  </div>
-  <div class="section-title" id="listTitle">Horaires de la semaine</div>
-  <div class="search-bar"><span class="search-icon">🔎</span><input class="search-input" type="text" placeholder="Rechercher…" oninput="filterSyns(this.value)"/></div>
-  <div class="filters-row" id="filtersRow">
-    <button class="filter-chip active" onclick="setFilter('all',this)">Tous</button>
-    <button class="filter-chip" onclick="setFilter('sefarde',this)">Séfarade</button>
-    <button class="filter-chip" onclick="setFilter('ashkenaze',this)">Ashkénaze</button>
-    <button class="filter-chip" onclick="setFilter('habad',this)">Habad</button>
-    <button class="filter-chip" onclick="setFilter('lyon2',this)">Lyon 2</button>
-    <button class="filter-chip" onclick="setFilter('lyon3',this)">Lyon 3</button>
-    <button class="filter-chip" onclick="setFilter('lyon6',this)">Lyon 6</button>
-    <button class="filter-chip" onclick="setFilter('lyon7',this)">Lyon 7</button>
-    <button class="filter-chip" onclick="setFilter('villeurb',this)">Villeurbanne</button>
-    <button class="filter-chip" onclick="setFilter('ecully',this)">Écully</button>
-    <button class="filter-chip" onclick="setFilter('caluire',this)">Caluire</button>
-    <button class="filter-chip" onclick="setFilter('banlieue',this)">Banlieue</button>
-  </div>
-  <div class="day-selector" id="daySelector"></div>
-  <div class="count-badge" id="countBadge"></div>
-  <div class="syn-list" id="synList"></div>
+<!-- PAGES -->
+
+<div class="pages">
+
+<!-- PAGE PRIERES -->
+
+<div class="page active" id="p0">
+  <div class="notif-banner" id="notifBanner">
+    <span>🔔</span>
+    <div class="notif-txt">Activer les notifications avant les prières</div>
+    <button class="notif-act" onclick="askNotif()">Activer</button>
+    <button class="notif-x" onclick="dismissNotif()">✕</button>
+  </div>
+  <div class="fwrap">
+    <button class="fbtn" onclick="findNow()">
+      <div class="fico">🔍</div>
+      <div class="ftxt">
+        <div class="ftitle" id="findTitle">Trouver un minyan</div>
+        <div class="fsub" id="findSub">Maintenant</div>
+      </div>
+      <span style="font-size:20px;color:rgba(13,27,42,0.4)">›</span>
+    </button>
+  </div>
+  <!-- SIGNAL -->
+  <div class="sbtn" onclick="openSignal()">
+    <span style="font-size:20px">🙋</span>
+    <div>
+      <div class="stxt">Signaler un minyan improvisé</div>
+      <div class="ssub">Partager avec la communauté</div>
+    </div>
+    <span style="margin-left:auto;font-size:18px;color:var(--green)">›</span>
+  </div>
+  <!-- MINYANIM IMPROVISES -->
+  <div class="improv-wrap" id="improvList"></div>
+  <!-- NOW PANEL -->
+  <div class="now-panel hidden" id="nowPanel">
+    <div class="now-hd">
+      <span id="nowIcon" style="font-size:20px">🕐</span>
+      <div style="margin-left:8px">
+        <div class="now-prayer" id="nowPrayer">—</div>
+        <div class="now-sub" id="nowSub">—</div>
+      </div>
+      <button class="now-close" onclick="closeNow()">✕</button>
+    </div>
+    <div id="nowList"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="tabAll" onclick="switchTab('all')">🕍 Toutes</button>
+    <button class="tab" id="tabFav" onclick="switchTab('fav')">⭐ Favoris</button>
+  </div>
+  <div class="sec-hd"><span class="sec-title" id="secTitle">Horaires de la semaine</span></div>
+  <div class="sw"><span class="si-ico">🔎</span><input class="si" type="text" placeholder="Rechercher…" oninput="doSearch(this.value)"/></div>
+  <div class="filters" id="filtersRow">
+    <button class="fc on" onclick="setFilter('all',this)">Tous</button>
+    <button class="fc" onclick="setFilter('sefarde',this)">Séfarade</button>
+    <button class="fc" onclick="setFilter('ashkenaze',this)">Ashkénaze</button>
+    <button class="fc" onclick="setFilter('habad',this)">Habad</button>
+    <button class="fc" onclick="setFilter('villeurb',this)">Villeurbanne</button>
+    <button class="fc" onclick="setFilter('lyon2',this)">Lyon 2</button>
+    <button class="fc" onclick="setFilter('lyon3',this)">Lyon 3</button>
+    <button class="fc" onclick="setFilter('lyon6',this)">Lyon 6</button>
+    <button class="fc" onclick="setFilter('lyon7',this)">Lyon 7</button>
+    <button class="fc" onclick="setFilter('ecully',this)">Écully</button>
+    <button class="fc" onclick="setFilter('caluire',this)">Caluire</button>
+    <button class="fc" onclick="setFilter('banlieue',this)">Banlieue</button>
+  </div>
+  <div class="days" id="daySelector"></div>
+  <div class="count" id="countBadge"></div>
+  <div id="synList"></div>
 </div>
 
-<div id="pageCalendar" class="hidden">
-  <div class="section-title">Calendrier juif</div>
-  <div class="cal-grid" id="calGrid"></div>
+<!-- PAGE CALENDRIER -->
+
+<div class="page" id="p1">
+  <div class="cal-wrap" id="calGrid"></div>
 </div>
 
-<div id="pageAbout" class="hidden">
-  <div class="about-page">
-    <div class="section-title" style="padding:6px 4px 12px">À propos</div>
-    <div class="about-card"><h3>✡ Minyan Lyon</h3><p>Application communautaire listant les horaires de prières de <strong style="color:var(--text)">33 synagogues et minyanim</strong> de Lyon, Villeurbanne, Écully, Caluire, Oullins, Bron et Meyzieu. Adresses vérifiées sur Google Maps.</p></div>
-    <div class="about-card"><h3>🕰 Zmanim</h3><p>Calculés selon la méthode de <strong style="color:var(--text)">calj.net</strong> pour Lyon/Villeurbanne. Alot Hachahar selon Rav Posen (72 min avant Hanetz). Rabénou Tam selon Rav Ovadia (72 min après coucher).</p></div>
-    <div class="about-card"><h3>⭐ Favoris & Filtres</h3><p>Appuie sur l'étoile ⭐ pour mettre une synagogue en favori. Filtre par rite ou quartier. Tes favoris sont sauvegardés sur ton téléphone.</p></div>
-    <div class="about-card"><h3>📧 Contact</h3><p>Pour signaler une erreur ou mettre à jour un horaire :<br><a href="mailto:noamamsellem@gmail.com">noamamsellem@gmail.com</a></p></div>
-  </div>
-</div>
+<!-- PAGE TORAH -->
+
+<div class="page" id="p2">
+  <div style="padding:12px 16px 0">
+    <div class="sec-hd" style="padding:0 0 8px"><span class="sec-title">Mishna Broura du jour</span></div>
+    <div class="mb-card">
+      <div class="mb-ref" id="mbRef">—</div>
+      <div class="mb-text" id="mbText">—</div>
+      <div class="mb-source">Mishna Broura — Orah Haïm</div>
+    </div>
+    <div class="sec-hd" style="padding:4px 0 8px"><span class="sec-title">Mikvaot de Lyon</span></div>
+    <div id="mikveList"></div>
+  </div>
 </div>
 
-<div class="bottom-nav">
-  <button class="nav-btn active" id="navP" onclick="showPage('prayer')"><span class="nav-icon">🕍</span><span class="nav-label">Prières</span></button>
-  <button class="nav-btn" id="navC" onclick="showPage('calendar')"><span class="nav-icon">📅</span><span class="nav-label">Calendrier</span></button>
-  <button class="nav-btn" id="navA" onclick="showPage('about')"><span class="nav-icon">ℹ️</span><span class="nav-label">À propos</span></button>
+<!-- PAGE PARTAGE -->
+
+<div class="page" id="p3">
+  <div class="share-hero">
+    <div class="share-title">Partager Minyan Lyon 🙏</div>
+    <div class="share-sub">Envoie l'app à toute la communauté</div>
+    <div class="share-btns">
+      <button class="btn-wa" onclick="shareWA()">📱 WhatsApp</button>
+      <button class="btn-sh" onclick="shareNative()">📤 Partager</button>
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-title">📱 Ajouter à l'écran d'accueil</div>
+    <div class="info-step"><div class="step-ico">🍎</div><div class="step-txt"><strong style="color:var(--text)">iPhone</strong> — Safari → Partager → "Sur l'écran d'accueil" → Ajouter</div></div>
+    <div class="info-step"><div class="step-ico">🤖</div><div class="step-txt"><strong style="color:var(--text)">Android</strong> — Chrome → 3 points → "Ajouter à l'écran d'accueil"</div></div>
+  </div>
+  <div class="info-card">
+    <div class="info-title">📧 Contact</div>
+    <div style="font-size:13px;color:var(--text2)">Pour signaler une erreur :<br><a href="mailto:noamamsellem@gmail.com" style="color:var(--gold);font-weight:600">noamamsellem@gmail.com</a></div>
+  </div>
 </div>
 
-<div class="modal-overlay hidden" id="modal" onclick="closeOverlay(event)">
-  <div class="modal">
-    <div class="modal-title" id="mName"></div>
-    <div class="modal-addr" id="mAddr"></div>
-    <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal()"></button>
-    <div class="modal-week" id="mWeek"></div>
-    <button class="modal-close" onclick="closeModal()">Fermer</button>
-  </div>
+</div><!-- /pages -->
+
+<div class="bnav">
+  <button class="nbtn on" id="nav0" onclick="showPage(0)"><span class="ni">🕍</span><span class="nl">Prières</span></button>
+  <button class="nbtn" id="nav1" onclick="showPage(1)"><span class="ni">📅</span><span class="nl">Calendrier</span></button>
+  <button class="nbtn" id="nav2" onclick="showPage(2)"><span class="ni">📖</span><span class="nl">Torah</span></button>
+  <button class="nbtn" id="nav3" onclick="showPage(3)"><span class="ni">📤</span><span class="nl">Partager</span></button>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL SIGNAL -->
+
+<div class="modal-ov hidden" id="signalModal" onclick="closeSignalOv(event)">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title">🙋 Signaler un minyan</div>
+    <div class="field"><label>Prière</label>
+      <select id="sig-prayer">
+        <option value="sh">🌅 Shaharit</option>
+        <option value="mi">☀️ Minha</option>
+        <option value="ar">🌙 Arvit</option>
+      </select>
+    </div>
+    <div class="field"><label>Adresse</label><input type="text" id="sig-addr" placeholder="Ex: 12 Rue des Rosiers, Lyon 6"/></div>
+    <div class="field"><label>Heure</label><input type="time" id="sig-time"/></div>
+    <div class="field"><label>Hommes présents / manquants</label>
+      <select id="sig-men">
+        <option value="minyan">✅ Minyan complet</option>
+        <option value="9">9 hommes — il en manque 1</option>
+        <option value="8">8 hommes — il en manque 2</option>
+        <option value="7">7 hommes — il en manque 3</option>
+        <option value="moins">Moins de 7 hommes</option>
+      </select>
+    </div>
+    <button class="modal-submit" onclick="submitSignal()">Publier le minyan</button>
+    <button class="modal-cancel" onclick="closeSignal()">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL SYNAGOGUE -->
+
+<div class="modal-ov hidden" id="synModal" onclick="closeSynOv(event)">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title" id="smTitle"></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:13px" id="smAddr"></div>
+    <button class="mfav-btn" id="smFavBtn" onclick="toggleFavModal()"></button>
+    <div class="syn-modal-week" id="smWeek"></div>
+    <button class="mclose" onclick="closeSynModal()">Fermer</button>
+  </div>
 </div>
 
 <script>
-// ============================================================
-// DONNÉES — Adresses vérifiées sur Google Maps
-// ============================================================
-const SYNS=[
-  {id:1,name:"Minian du NETS",address:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"mixte",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",hours:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45 / 5h50",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:2,name:"Yismah' Lev",address:"14 Rue Pierre Loti, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=14+Rue+Pierre+Loti+Villeurbanne",hours:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:3,name:"Torath Emeth",address:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=52+Rue+Hippolyte+Kahn+Villeurbanne",hours:{vendredi:{sh:"6h45",mi:"19h15",ar:"Suivi"},shabbat:{sh:"5h35–9h",mi:"19h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"Suivi"},lundi_jeudi:{sh:"6h45",mi:"19h10",ar:"Suivi"},mardi_mercredi:{sh:"6h45",mi:"19h10",ar:"Suivi"}}},
-  {id:4,name:"Ecole Juive",address:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",hours:{vendredi:{sh:"6h45",mi:"19h15",ar:"Suivi"},shabbat:{sh:"7h30–8h25 / 17h30–19h",mi:null,ar:"21h39"},dimanche:{sh:"7h15",mi:"19h00",ar:"Suivi"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"Suivi"},mardi_mercredi:{sh:"6h45",mi:"19h00",ar:"Suivi"}}},
-  {id:5,name:"Collel Na'halat Moché",address:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",hours:{vendredi:{sh:"14h30",mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"14h50",mi:null,ar:"22h10"},mardi_mercredi:{sh:"14h50",mi:null,ar:"22h10"}}},
-  {id:6,name:"Minian Achkenaze — Ecole Juive",address:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",hours:{vendredi:{sh:"17h50",mi:"Suivi",ar:null},shabbat:{sh:"8h30 / 17h30",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:7,name:"Yéchiva Pinto",address:"20 Bis Rue des Mûriers, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=20+Rue+des+Muriers+Villeurbanne",hours:{vendredi:{sh:"6h45–8h",mi:null,ar:null},shabbat:{sh:"7h30–8h45",mi:null,ar:"21h39"},dimanche:{sh:"7h30–8h30",mi:"Suivi",ar:null},lundi_jeudi:{sh:"6h45–8h",mi:"Suivi–18h30",ar:null},mardi_mercredi:{sh:"6h45–8h",mi:"Suivi–18h30",ar:null}}},
-  {id:8,name:"Tal Orot",address:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=52+Rue+Hippolyte+Kahn+Villeurbanne",hours:{vendredi:{sh:"7h00",mi:"19h00",ar:"Suivi"},shabbat:{sh:"8h30",mi:"19h55",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"Suivi"}}},
-  {id:9,name:"CIV Malherbe",address:"4 Rue Malherbe, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=4+Rue+Malherbe+Villeurbanne",hours:{vendredi:{sh:"6h45–8h30",mi:"19h15",ar:"Suivi"},shabbat:{sh:"8h45 / 19h45",mi:null,ar:"21h39"},dimanche:{sh:"8h–9h",mi:"19h00",ar:"Suivi"},lundi_jeudi:{sh:"6h45–8h20",mi:"19h00",ar:"Suivi"},mardi_mercredi:{sh:"6h45–8h30",mi:"19h00",ar:"Suivi"}}},
-  {id:10,name:"Beth Menahem Habad",address:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"habad",zone:"villeurb",maps:"https://maps.google.com/?q=293+Rue+Francis+de+Pressense+Villeurbanne",hours:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:"7h00"},mardi_mercredi:{sh:"7h00",mi:null,ar:"7h00"}}},
-  {id:11,name:"Beth Menahem Séfarade",address:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=293+Rue+Francis+de+Pressense+Villeurbanne",hours:{vendredi:{sh:"7h15",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:"21h39"},dimanche:{sh:"8h15",mi:null,ar:null},lundi_jeudi:{sh:"7h15",mi:null,ar:null},mardi_mercredi:{sh:"7h15",mi:null,ar:null}}},
-  {id:12,name:"Beth Habad Charpennes",address:"86 Cours Émile Zola, 69100 Villeurbanne",rite:"habad",zone:"villeurb",maps:"https://maps.google.com/?q=86+Cours+Emile+Zola+Villeurbanne",hours:{vendredi:{sh:"7h00",mi:"19h30",ar:"Suivi"},shabbat:{sh:"10h00 / 20h15",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:"19h30",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"Suivi"}}},
-  {id:13,name:"Neveh Chalom",address:"317 Rue Duguesclin, 69007 Lyon",rite:"sefarde",zone:"lyon7",maps:"https://maps.google.com/?q=317+Rue+Duguesclin+Lyon",hours:{vendredi:{sh:"7h00",mi:"18h10",ar:"Suivi"},shabbat:{sh:"8h30 / 18h00",mi:null,ar:null},dimanche:{sh:"8h00",mi:"18h45",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"18h45",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"18h45",ar:"Suivi"}}},
-  {id:14,name:"Chaaré Tsédék",address:"16 Rue St Mathieu, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=16+Rue+Saint+Mathieu+Lyon",hours:{vendredi:{sh:"6h30",mi:"19h00",ar:"Suivi"},shabbat:{sh:"8h30 / 20h10",mi:null,ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"Suivi"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"Suivi"},mardi_mercredi:{sh:"6h30",mi:"19h00",ar:"Suivi"}}},
-  {id:15,name:"Mizrahi",address:"156 Rue Cuvier, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=156+Rue+Cuvier+Lyon",hours:{vendredi:{sh:"7h00",mi:"19h00",ar:"Suivi"},shabbat:{sh:"8h45 / 19h30",mi:null,ar:"21h39"},dimanche:{sh:"7h45",mi:"19h00",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"Suivi"}}},
-  {id:16,name:"Or David Lyon 6",address:"109 Rue Tronchet, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=109+Rue+Tronchet+Lyon",hours:{vendredi:{sh:"7h00",mi:"19h15",ar:"Suivi"},shabbat:{sh:"9h00 / 20h10",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h10",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h10",ar:"Suivi"}}},
-  {id:17,name:"Braha Vehatslaha",address:"19 Rue J. Bourgey, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=19+Rue+J+Bourgey+Lyon",hours:{vendredi:{sh:"7h00",mi:"19h00",ar:"Suivi"},shabbat:{sh:"9h00 / 19h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:18,name:"CERJ",address:"76 Rue de Fontanières, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",maps:"https://maps.google.com/?q=76+Rue+de+Fontanieres+Villeurbanne",hours:{vendredi:{sh:"7h00",mi:"19h30",ar:"Suivi"},shabbat:{sh:"8h30 / 19h30",mi:null,ar:"21h39"},dimanche:{sh:"7h30",mi:"19h30",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"Suivi"}}},
-  {id:19,name:"Grande Synagogue de Lyon",address:"13 Quai Tilsitt, 69002 Lyon",rite:"ashkenaze",zone:"lyon2",maps:"https://maps.google.com/?q=13+Quai+Tilsitt+Lyon",hours:{vendredi:{sh:"7h00",mi:"19h00",ar:"Suivi"},shabbat:{sh:"9h00 / 18h40",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:"19h05",ar:"Suivi"},lundi_jeudi:{sh:"7h00",mi:"19h05",ar:"Suivi"},mardi_mercredi:{sh:"7h00",mi:"19h05",ar:"Suivi"}}},
-  {id:20,name:"ACIM Beth Moché",address:"22 Cours du Dr Long, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=22+Cours+du+Dr+Long+Lyon",hours:{vendredi:{sh:"6h45",mi:"19h15",ar:"Suivi"},shabbat:{sh:"9h00 / 20h00",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:"19h00",ar:null},lundi_jeudi:{sh:"6h45",mi:null,ar:null},mardi_mercredi:{sh:"6h45",mi:null,ar:null}}},
-  {id:21,name:"Beth Israel",address:"26 Rue Tête d'Or, 69006 Lyon",rite:"ashkenaze",zone:"lyon6",maps:"https://maps.google.com/?q=26+Rue+Tete+d+Or+Lyon",hours:{vendredi:{sh:"7h45",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h45",mi:null,ar:null},mardi_mercredi:{sh:"7h45",mi:null,ar:null}}},
-  {id:22,name:"Rav Hyda",address:"501 Rue Sauvegarde Duchère, 69009 Lyon",rite:"sefarde",zone:"lyon9",maps:"https://maps.google.com/?q=501+Rue+Sauvegarde+Duchere+Lyon",hours:{vendredi:{sh:"7h00",mi:"Suivi",ar:null},shabbat:{sh:"9h00",mi:"21h",ar:null},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:23,name:"Mérone",address:"61 Rue de Greuze, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=61+Rue+de+Greuze+Lyon",hours:{vendredi:{sh:null,mi:"20h00",ar:"Suivi"},shabbat:{sh:"8h30 / 19h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:24,name:"Ohel Yaacov",address:"26 Rue Cheneul, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=26+Rue+Cheneul+Villeurbanne",hours:{vendredi:{sh:"6h30",mi:"18h45",ar:"Suivi"},shabbat:{sh:"8h30 / 20h00",mi:null,ar:"21h39"},dimanche:{sh:"6h30",mi:"18h55",ar:"Suivi"},lundi_jeudi:{sh:"6h30",mi:"18h55",ar:"Suivi"},mardi_mercredi:{sh:"6h30",mi:"18h55",ar:"Suivi"}}},
-  {id:25,name:"Harav Sidi Fredj Halimi",address:"7 Rue du Dr Frappaz, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=7+Rue+du+Dr+Frappaz+Villeurbanne",hours:{vendredi:{sh:"7h00",mi:"19h15",ar:"Suivi"},shabbat:{sh:"9h00 / 19h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:26,name:"Beth Habad Part-Dieu",address:"119 Rue Servient, 69003 Lyon",rite:"habad",zone:"lyon3",maps:"https://maps.google.com/?q=119+Rue+Servient+Lyon",hours:{vendredi:{sh:null,mi:"Suivi",ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:27,name:"Chabad Lyon 6",address:"60 Rue Crillon, 69006 Lyon",rite:"habad",zone:"lyon6",maps:"https://maps.google.com/?q=60+Rue+Crillon+Lyon",hours:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"9h30",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:28,name:"Ateret Eliyaou",address:"24 Allée Simon Saint-Jean, 69130 Écully",rite:"sefarde",zone:"ecully",maps:"https://maps.google.com/?q=24+Allee+Simon+Saint+Jean+Ecully",hours:{vendredi:{sh:"7h00",mi:"19h15",ar:"Suivi"},shabbat:{sh:"9h30 / 20h10",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:29,name:"Yechiva Pinto Or David",address:"41 Chemin du Chancelier, 69130 Écully",rite:"sefarde",zone:"ecully",maps:"https://maps.google.com/?q=41+Chemin+du+Chancelier+Ecully",hours:{vendredi:{sh:"7h30",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h30",mi:null,ar:null},mardi_mercredi:{sh:"7h30",mi:null,ar:null}}},
-  {id:30,name:"CI Caluire",address:"48 Avenue Général Leclerc, 69300 Caluire",rite:"sefarde",zone:"caluire",maps:"https://maps.google.com/?q=48+Avenue+General+Leclerc+Caluire",hours:{vendredi:{sh:"18h45",mi:null,ar:null},shabbat:{sh:"9h00 / 19h45",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:"18h50",ar:"Suivi"},lundi_jeudi:{sh:"6h30",mi:"20h15",ar:"Suivi"},mardi_mercredi:{sh:"6h30",mi:"20h15",ar:"Suivi"}}},
-  {id:31,name:"ACIB Bron",address:"97 Rue de la Pagère, 69500 Bron",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=97+Rue+de+la+Pagere+Bron",hours:{vendredi:{sh:"6h30",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:null},dimanche:{sh:"7h30",mi:null,ar:null},lundi_jeudi:{sh:"6h30",mi:null,ar:null},mardi_mercredi:{sh:"6h30",mi:null,ar:null}}},
-  {id:32,name:"AJECO Oullins",address:"18 Rue Aulagne, 69600 Oullins",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=18+Rue+Aulagne+Oullins",hours:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:33,name:"ACI Meyziau",address:"6 Avenue de la Libération, 69330 Meyzieu",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=6+Avenue+de+la+Liberation+Meyzieu",hours:{vendredi:{sh:"18h00",mi:null,ar:null},shabbat:{sh:"9h00",mi:"17h50",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+// ================================================================
+// POINT 10 — Logique horaire soir
+// Après 21h → utiliser le jour suivant pour Shaharit
+// ================================================================
+function getEffectiveDate(offsetFromToday) {
+  const now = new Date();
+  const hour = now.getHours();
+  const d = new Date();
+  // Si après 21h, on considère qu'on est déjà "demain" pour Shaharit
+  if (hour >= 21) {
+    d.setDate(d.getDate() + offsetFromToday + 1);
+  } else {
+    d.setDate(d.getDate() + offsetFromToday);
+  }
+  return d;
+}
+
+function isEveningMode() {
+  return new Date().getHours() >= 21;
+}
+
+// ================================================================
+// DONNÉES — 34 synagogues, horaires corrigés
+// Shabbat: sh = Shaharit matin SEULEMENT, mi = Minha Shabbat
+// ================================================================
+const SYNS = [
+  {id:1,e:"🕍",name:"Minian du NETS",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"mixte",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",lat:45.768,lng:4.870,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45 / 5h50",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:2,e:"🕍",name:"Yismah' Lev",addr:"14 Rue Pierre Loti, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=14+Rue+Pierre+Loti+Villeurbanne",lat:45.769,lng:4.868,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:3,e:"🕍",name:"Torath Emeth",addr:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=52+Rue+Hippolyte+Kahn+Villeurbanne",lat:45.769,lng:4.875,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"5h35 / 9h00",mi:"19h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"19h30"},lundi_jeudi:{sh:"6h45",mi:"19h10",ar:"19h30"},mardi_mercredi:{sh:"6h45",mi:"19h10",ar:"19h30"}}},
+  {id:4,e:"🏫",name:"Ecole Juive",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",lat:45.768,lng:4.870,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"7h30 / 8h25",mi:null,ar:"21h39"},dimanche:{sh:"7h15",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h45",mi:"19h00",ar:"19h20"}}},
+  {id:5,e:"📚",name:"Collel Na'halat Moché",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",lat:45.768,lng:4.870,h:{vendredi:{sh:null,mi:"14h30",ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:"14h50",ar:"22h10"},mardi_mercredi:{sh:null,mi:"14h50",ar:null}}},
+  {id:6,e:"🕍",name:"Minian Achkenaze — Ecole Juive",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",lat:45.768,lng:4.870,h:{vendredi:{sh:null,mi:"17h50",ar:"18h10"},shabbat:{sh:"8h30",mi:"17h30",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:7,e:"📖",name:"Yéchiva Pinto",addr:"20 Bis Rue des Mûriers, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=20+Rue+des+Muriers+Villeurbanne",lat:45.762,lng:4.883,h:{vendredi:{sh:"6h45 / 8h00",mi:null,ar:null},shabbat:{sh:"7h30 / 8h45",mi:null,ar:"21h39"},dimanche:{sh:"7h30 / 8h30",mi:null,ar:null},lundi_jeudi:{sh:"6h45 / 8h00",mi:"18h30",ar:"18h50"},mardi_mercredi:{sh:"6h45 / 8h00",mi:"18h30",ar:"18h50"}}},
+  {id:8,e:"🕍",name:"Tal Orot",addr:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=52+Rue+Hippolyte+Kahn+Villeurbanne",lat:45.769,lng:4.875,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:"19h55",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"19h20"}}},
+  {id:9,e:"🕍",name:"CIV Malherbe",addr:"4 Rue Malherbe, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=4+Rue+Malherbe+Villeurbanne",lat:45.767,lng:4.878,h:{vendredi:{sh:"6h45 / 8h30",mi:"19h15",ar:"19h35"},shabbat:{sh:"8h45",mi:"19h45",ar:"21h39"},dimanche:{sh:"8h00 / 9h00",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h45 / 8h20",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h45 / 8h30",mi:"19h00",ar:"19h20"}}},
+  {id:10,e:"✡",name:"Beth Menahem Habad",addr:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"habad",zone:"villeurb",maps:"https://maps.google.com/?q=293+Rue+Francis+de+Pressense+Villeurbanne",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:11,e:"🕍",name:"Beth Menahem Séfarade",addr:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=293+Rue+Francis+de+Pressense+Villeurbanne",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h15",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:"21h39"},dimanche:{sh:"8h15",mi:null,ar:null},lundi_jeudi:{sh:"7h15",mi:null,ar:null},mardi_mercredi:{sh:"7h15",mi:null,ar:null}}},
+  {id:12,e:"✡",name:"Beth Habad Charpennes",addr:"86 Cours Émile Zola, 69100 Villeurbanne",rite:"habad",zone:"villeurb",maps:"https://maps.google.com/?q=86+Cours+Emile+Zola+Villeurbanne",lat:45.771,lng:4.871,h:{vendredi:{sh:"7h00",mi:"19h30",ar:"19h50"},shabbat:{sh:"10h00",mi:"20h15",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h30",ar:"19h50"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"19h50"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"19h50"}}},
+  {id:13,e:"🕍",name:"Neveh Chalom",addr:"317 Rue Duguesclin, 69007 Lyon",rite:"sefarde",zone:"lyon7",maps:"https://maps.google.com/?q=317+Rue+Duguesclin+Lyon",lat:45.751,lng:4.851,h:{vendredi:{sh:"7h00",mi:"18h10",ar:"18h30"},shabbat:{sh:"8h30",mi:"18h00",ar:null},dimanche:{sh:"8h00",mi:"18h45",ar:"19h05"},lundi_jeudi:{sh:"7h00",mi:"18h45",ar:"19h05"},mardi_mercredi:{sh:"7h00",mi:"18h45",ar:"19h05"}}},
+  {id:14,e:"🕍",name:"Chaaré Tsédék",addr:"16 Rue St Mathieu, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=16+Rue+Saint+Mathieu+Lyon",lat:45.771,lng:4.849,h:{vendredi:{sh:"6h30",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h30",mi:"19h00",ar:"19h20"}}},
+  {id:15,e:"🕍",name:"Mizrahi",addr:"156 Rue Cuvier, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=156+Rue+Cuvier+Lyon",lat:45.767,lng:4.854,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h45",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h45",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"19h20"}}},
+  {id:16,e:"🕍",name:"Or David Lyon 6",addr:"109 Rue Tronchet, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=109+Rue+Tronchet+Lyon",lat:45.768,lng:4.852,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"19h30"},lundi_jeudi:{sh:"7h00",mi:"19h10",ar:"19h30"},mardi_mercredi:{sh:"7h00",mi:"19h10",ar:"19h30"}}},
+  {id:17,e:"🕍",name:"Braha Vehatslaha",addr:"19 Rue J. Bourgey, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=19+Rue+J+Bourgey+Lyon",lat:45.769,lng:4.851,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:18,e:"🕍",name:"CERJ",addr:"76 Rue de Fontanières, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",maps:"https://maps.google.com/?q=76+Rue+de+Fontanieres+Villeurbanne",lat:45.773,lng:4.884,h:{vendredi:{sh:"7h00",mi:"19h30",ar:"19h50"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h30",ar:"19h50"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"19h50"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"19h50"}}},
+  {id:19,e:"🏛",name:"Grande Synagogue de Lyon",addr:"13 Quai Tilsitt, 69002 Lyon",rite:"ashkenaze",zone:"lyon2",maps:"https://maps.google.com/?q=13+Quai+Tilsitt+Lyon",lat:45.757,lng:4.828,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"18h40",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h05",ar:"19h25"},lundi_jeudi:{sh:"7h00",mi:"19h05",ar:"19h25"},mardi_mercredi:{sh:"7h00",mi:"19h05",ar:"19h25"}}},
+  {id:20,e:"🕍",name:"ACIM Beth Moché",addr:"22 Cours du Dr Long, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=22+Cours+du+Dr+Long+Lyon",lat:45.769,lng:4.853,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"20h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h45",mi:null,ar:null},mardi_mercredi:{sh:"6h45",mi:null,ar:null}}},
+  {id:21,e:"🕍",name:"Beth Israel",addr:"26 Rue Tête d'Or, 69006 Lyon",rite:"ashkenaze",zone:"lyon6",maps:"https://maps.google.com/?q=26+Rue+Tete+d+Or+Lyon",lat:45.768,lng:4.854,h:{vendredi:{sh:"7h45",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h45",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h45",mi:"19h00",ar:"19h20"}}},
+  {id:22,e:"🕍",name:"Rav Hyda",addr:"501 Rue Sauvegarde Duchère, 69009 Lyon",rite:"sefarde",zone:"lyon9",maps:"https://maps.google.com/?q=501+Rue+Sauvegarde+Duchere+Lyon",lat:45.788,lng:4.792,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"9h00",mi:"21h00",ar:null},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:23,e:"🕍",name:"Mérone",addr:"61 Rue de Greuze, 69006 Lyon",rite:"sefarde",zone:"lyon6",maps:"https://maps.google.com/?q=61+Rue+de+Greuze+Lyon",lat:45.770,lng:4.855,h:{vendredi:{sh:null,mi:"20h00",ar:"20h20"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:24,e:"🕍",name:"Ohel Yaacov",addr:"26 Rue Cheneul, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=26+Rue+Cheneul+Villeurbanne",lat:45.770,lng:4.876,h:{vendredi:{sh:"6h30",mi:"18h45",ar:"19h05"},shabbat:{sh:"8h30",mi:"20h00",ar:"21h39"},dimanche:{sh:"6h30",mi:"18h55",ar:"19h15"},lundi_jeudi:{sh:"6h30",mi:"18h55",ar:"19h15"},mardi_mercredi:{sh:"6h30",mi:"18h55",ar:"19h15"}}},
+  {id:25,e:"🕍",name:"Harav Sidi Fredj Halimi",addr:"7 Rue du Dr Frappaz, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",maps:"https://maps.google.com/?q=7+Rue+du+Dr+Frappaz+Villeurbanne",lat:45.771,lng:4.882,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:26,e:"✡",name:"Beth Habad Part-Dieu",addr:"119 Rue Servient, 69003 Lyon",rite:"habad",zone:"lyon3",maps:"https://maps.google.com/?q=119+Rue+Servient+Lyon",lat:45.761,lng:4.851,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:27,e:"✡",name:"Chabad Lyon 6",addr:"60 Rue Crillon, 69006 Lyon",rite:"habad",zone:"lyon6",maps:"https://maps.google.com/?q=60+Rue+Crillon+Lyon",lat:45.771,lng:4.851,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"9h30",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:28,e:"🕍",name:"Ateret Eliyaou",addr:"24 Allée Simon Saint-Jean, 69130 Écully",rite:"sefarde",zone:"ecully",maps:"https://maps.google.com/?q=24+Allee+Simon+Saint+Jean+Ecully",lat:45.789,lng:4.768,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:29,e:"📖",name:"Yechiva Pinto Or David",addr:"41 Chemin du Chancelier, 69130 Écully",rite:"sefarde",zone:"ecully",maps:"https://maps.google.com/?q=41+Chemin+du+Chancelier+Ecully",lat:45.785,lng:4.772,h:{vendredi:{sh:"7h30",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h30",mi:null,ar:null},mardi_mercredi:{sh:"7h30",mi:null,ar:null}}},
+  {id:30,e:"🕍",name:"CI Caluire",addr:"48 Avenue Général Leclerc, 69300 Caluire",rite:"sefarde",zone:"caluire",maps:"https://maps.google.com/?q=48+Avenue+General+Leclerc+Caluire",lat:45.802,lng:4.858,h:{vendredi:{sh:null,mi:"18h45",ar:null},shabbat:{sh:"9h00",mi:"19h45",ar:"21h39"},dimanche:{sh:"8h00",mi:"18h50",ar:"19h10"},lundi_jeudi:{sh:"6h30",mi:"20h15",ar:"20h35"},mardi_mercredi:{sh:"6h30",mi:"20h15",ar:"20h35"}}},
+  {id:31,e:"🕍",name:"ACIB Bron",addr:"97 Rue de la Pagère, 69500 Bron",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=97+Rue+de+la+Pagere+Bron",lat:45.741,lng:4.915,h:{vendredi:{sh:"6h30",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:null},dimanche:{sh:"7h30",mi:null,ar:null},lundi_jeudi:{sh:"6h30",mi:null,ar:null},mardi_mercredi:{sh:"6h30",mi:null,ar:null}}},
+  {id:32,e:"🕍",name:"AJECO Oullins",addr:"18 Rue Aulagne, 69600 Oullins",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=18+Rue+Aulagne+Oullins",lat:45.715,lng:4.808,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:33,e:"🕍",name:"ACI Meyziau",addr:"6 Avenue de la Libération, 69330 Meyzieu",rite:"sefarde",zone:"banlieue",maps:"https://maps.google.com/?q=6+Avenue+de+la+Liberation+Meyzieu",lat:45.767,lng:5.006,h:{vendredi:{sh:null,mi:"18h00",ar:null},shabbat:{sh:"9h00",mi:"17h50",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:34,e:"🕍",name:"Or David Écully",addr:"Écully",rite:"sefarde",zone:"ecully",maps:"https://maps.google.com/?q=Or+David+Ecully",lat:45.787,lng:4.770,h:{vendredi:{sh:"7h15",mi:"20h00",ar:"20h20"},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"7h15",mi:"20h00",ar:"20h20"},lundi_jeudi:{sh:"7h15",mi:"20h00",ar:"20h20"},mardi_mercredi:{sh:"7h15",mi:"20h00",ar:"20h20"}}},
 ];
 
-// ============================================================
-// FAVORIS
-// ============================================================
-function getFavs(){try{return JSON.parse(localStorage.getItem('minyan_favs')||'[]');}catch(e){return[];}}
-function saveFavs(f){try{localStorage.setItem('minyan_favs',JSON.stringify(f));}catch(e){}}
-function isFav(id){return getFavs().includes(id);}
-function toggleFav(id){let f=getFavs();if(f.includes(id))f=f.filter(x=>x!==id);else f.push(id);saveFavs(f);}
+// LIEUX GROUPÉS (point 2)
+const LIEUX = [
+  {addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",ico:"🏫",maps:"https://maps.google.com/?q=37+Rue+Alexandre+Boutin+Villeurbanne",lat:45.768,lng:4.870,ids:[1,4,5,6]},
+  {addr:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",ico:"🕍",maps:"https://maps.google.com/?q=52+Rue+Hippolyte+Kahn+Villeurbanne",lat:45.769,lng:4.875,ids:[3,8]},
+  {addr:"293 Rue Francis de Pressensé, 69100 Villeurbanne",ico:"✡",maps:"https://maps.google.com/?q=293+Rue+Francis+de+Pressense+Villeurbanne",lat:45.768,lng:4.897,ids:[10,11]},
+];
+const GROUPED_IDS = LIEUX.flatMap(l=>l.ids);
 
-// ============================================================
-// CALENDRIER JUIF — Référence : 1 Mai 2026 = 14 Iyar 5786
-// ============================================================
+const MIKVAOT=[
+  {name:"CIV Malherbe Beer Myriam",addr:"35 Rue Racine, Villeurbanne",tel:"0652070417",contact:"Mme Benzakin",who:"both"},
+  {name:"Mikveh Ecole Juive",addr:"47 Rue Jean Claude Vivant, Villeurbanne",tel:"0614610863",contact:"Mme Madar",who:"women"},
+  {name:"Hayé Tahara",addr:"80 Rue Fontanières, Villeurbanne",tel:"0651156862",contact:"Mme Guedj",who:"women"},
+  {name:"Yéchiva Pinto",addr:"24 Rue des Muriers, Villeurbanne",tel:"0620272701",contact:"Mme Zadel",who:"women"},
+  {name:"Mikveh de la Duchère",addr:"501 Avenue de la Sauvegarde, Lyon 9",tel:"0648134601",contact:"Mme Abbou",who:"women"},
+  {name:"Mikveh Neveh Chalom",addr:"317 Rue Duguesclin, Lyon 7",tel:"0614504238",contact:"Mme Nezri",who:"women"},
+  {name:"Mikveh Haya Mouchka 6ème",addr:"60 Rue Crillon, Lyon 6",tel:"0606536763",contact:"Mme Nemanov",who:"women"},
+  {name:"Mikveh d'Ecully",addr:"20 Chemin Louis Chirpaz, Écully",tel:"0628916238",contact:"Mme Gurevitch",who:"women"},
+  {name:"Mikveh Eshel",addr:"97 Rue de la Pagère, Bron",tel:"0651836255",contact:"Mme El Hadad",who:"women"},
+  {name:"Chaaré Tsédék",addr:"18 Rue St Mathieu, Lyon 6",tel:"0659086880",contact:"Mme Germain",who:"women"},
+  {name:"Beth Menahem pour Homme",addr:"293 Rue Francis de Pressensé, Villeurbanne",tel:null,contact:"24h/24 — 7j/7",who:"men"},
+];
+
+const MB=[
+  {ref:"O.H. 1:1",text:"Sois fort comme le léopard, rapide comme l'aigle, agile comme le cerf et courageux comme le lion pour accomplir la volonté de ton Père céleste."},
+  {ref:"O.H. 2:1",text:"Lorsqu'on se lève le matin, il convient de se laver les mains avant toute chose, car l'esprit impur repose sur les mains jusqu'à ce qu'on les lave trois fois."},
+  {ref:"O.H. 4:1",text:"Il faut se laver les mains le matin en versant trois fois de l'eau alternativement sur chaque main depuis un récipient tenu par la main opposée."},
+  {ref:"O.H. 6:1",text:"On ne doit pas réciter de bénédiction inutilement. Toute bénédiction récitée sans obligation transgresse l'interdiction de prononcer le Nom de Dieu en vain."},
+  {ref:"O.H. 25:1",text:"On met d'abord la téfiline du bras gauche, puis celle de la tête. Celui qui est gaucher met la téfiline sur son bras droit qui est son bras faible."},
+  {ref:"O.H. 46:1",text:"On récite les Birkhot HaChahar même si on n'a pas dormi de la nuit, car ces bénédictions furent instituées pour toute la communauté d'Israël."},
+  {ref:"O.H. 61:2",text:"On doit lire le Shema avec une grande concentration — en particulier le premier verset qui est l'essentiel de l'acceptation du Royaume céleste."},
+  {ref:"O.H. 89:1",text:"Il est interdit de prier Shaharit après quatre heures solaires. En cas d'extrême nécessité on peut prier jusqu'à la fin de la septième heure solaire."},
+  {ref:"O.H. 90:5",text:"On doit veiller à prier en minyan autant que possible, car la prière en public est plus agréée que la prière individuelle et ne revient jamais bredouille."},
+  {ref:"O.H. 92:4",text:"Avant de prier il est interdit de manger ou de s'occuper de ses affaires. On doit se préparer mentalement à se tenir devant le Roi des rois."},
+  {ref:"O.H. 98:1",text:"Lors de la prière, on doit se représenter qu'on se tient devant la Présence Divine et écarter toutes les pensées qui pourraient distraire."},
+  {ref:"O.H. 111:1",text:"Il est interdit d'interrompre entre la Gueoula et la Amida. On ne répondra pas Amen dans cet intervalle afin de les enchaîner sans interruption."},
+  {ref:"O.H. 128:1",text:"Le commandement de la bénédiction sacerdotale est accompli par les Cohanim qui bénissent le peuple d'Israël lors de la prière de Shaharit."},
+  {ref:"O.H. 151:1",text:"Il est interdit de se conduire avec légèreté dans une synagogue. Elle possède une sainteté particulière et doit être traitée avec tout le respect dû."},
+  {ref:"O.H. 155:1",text:"Après la prière du matin, il convient d'aller étudier la Torah, car l'étude de la Torah est équivalente à tous les commandements réunis."},
+  {ref:"O.H. 231:1",text:"Chaque acte doit être accompli pour le nom du Ciel. Même manger, boire et dormir peuvent devenir des actes de service divin."},
+  {ref:"O.H. 263:1",text:"Les femmes sont obligées d'allumer les bougies de Chabbat. Cette mitsva est d'une grande importance pour la paix du foyer."},
+  {ref:"O.H. 271:1",text:"La mitsva de Kidouch du vendredi soir est accomplie sur du vin. Le Kidouch doit être récité à l'endroit même où l'on mangera."},
+  {ref:"O.H. 282:1",text:"Le Chabbat on lit la paracha de la semaine et on appelle au moins sept personnes pour l'aliya lors de Shaharit."},
+  {ref:"O.H. 300:1",text:"La Havdala sépare le Chabbat des jours ordinaires. Elle est récitée sur du vin, des épices et une bougie à plusieurs flammes."},
+  {ref:"O.H. 328:1",text:"La sauvegarde de la vie humaine repousse toutes les interdictions de la Torah y compris celles du Chabbat."},
+  {ref:"O.H. 429:1",text:"Trente jours avant la fête on commence à étudier et enseigner ses lois. Certains commencent dès Pourim pour les lois de Pessa'h."},
+  {ref:"O.H. 472:1",text:"La nuit du Séder, on est tenu de réciter la Haggada avec enthousiasme et de narrer la sortie d'Égypte à sa famille."},
+  {ref:"O.H. 489:1",text:"On compte le Omer chaque soir après la tombée de la nuit, debout. Si on oublie le soir, on peut encore compter pendant la journée sans bénédiction."},
+  {ref:"O.H. 606:1",text:"La veille de Yom Kippour, on demande pardon à toute personne qu'on aurait pu offenser, car Yom Kippour n'expie pas les fautes envers autrui."},
+  {ref:"O.H. 625:1",text:"L'obligation de la Souccah est d'y habiter pendant sept jours comme dans sa maison — on y mange, boit et lorsque le temps le permet on y dort."},
+  {ref:"O.H. 670:1",text:"La mitsva de Hanouka consiste à allumer les bougies pour proclamer le miracle. On les allume à la porte ou à la fenêtre pour que tous le voient."},
+  {ref:"O.H. 685:1",text:"Le Méguilat Esther doit être lu deux fois : la nuit de Pourim et le jour de Pourim. Cette lecture commémore le miracle de la délivrance."},
+];
+
+const FETES=[
+  {name:"Pessah Sheni",note:"14 Iyar",date:new Date(2026,3,30)},
+  {name:"Lag BaOmer",note:"33ème jour de l'Omer",date:new Date(2026,4,4)},
+  {name:"Yom Yeroushalayim",note:"28 Iyar",date:new Date(2026,4,14)},
+  {name:"Chavouot J1",note:"6 Sivan",date:new Date(2026,4,22)},
+  {name:"Chavouot J2",note:"7 Sivan",date:new Date(2026,4,23)},
+  {name:"Jeûne du 17 Tamouz",note:"17 Tamouz",date:new Date(2026,6,12)},
+  {name:"Tisha BeAv",note:"9 Av",date:new Date(2026,7,2)},
+  {name:"Roch Hachana 5787",note:"1 Tichri 5787",date:new Date(2026,8,10)},
+  {name:"Yom Kippour",note:"10 Tichri",date:new Date(2026,8,19)},
+  {name:"Souccot J1",note:"15 Tichri",date:new Date(2026,8,24)},
+  {name:"Hanouka J1",note:"25 Kislev",date:new Date(2026,11,5)},
+];
+const BIRKAT=[
+  {mois:"Iyar 5786",debut:new Date(2026,3,22),fin:new Date(2026,4,1)},
+  {mois:"Sivan 5786",debut:new Date(2026,4,21),fin:new Date(2026,4,31)},
+  {mois:"Tamouz 5786",debut:new Date(2026,5,19),fin:new Date(2026,5,29)},
+  {mois:"Av 5786",debut:new Date(2026,6,19),fin:new Date(2026,6,29)},
+  {mois:"Eloul 5786",debut:new Date(2026,7,17),fin:new Date(2026,7,27)},
+  {mois:"Tichri 5787",debut:new Date(2026,8,16),fin:new Date(2026,8,25)},
+];
+
+// ================================================================
+// CALENDRIER JUIF
+// ================================================================
 const JM=["Tichri","Hechvan","Kislev","Tevet","Chevat","Adar","Nisan","Iyar","Sivan","Tamouz","Av","Eloul"];
 const ML=[30,29,30,29,30,30,29,30,29,30,29,29];
-function jewishDate(d){
-  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const ref=new Date(2026,4,1);
-  const diff=Math.floor((dn-ref)/86400000);
-  let day=14+diff,mi=7,yr=5786;
-  while(day>ML[mi]){day-=ML[mi];mi++;if(mi>=12){mi=0;yr++;}}
-  while(day<1){mi--;if(mi<0){mi=11;yr--;}day+=ML[mi];}
-  return{day,month:mi,year:yr,str:`${day} ${JM[mi]} ${yr}`};
+function getJD(d){
+  const diff=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(2026,4,1))/86400000);
+  let day=14+diff,mi=7,yr=5786;
+  while(day>ML[mi]){day-=ML[mi];mi++;if(mi>=12){mi=0;yr++;}}
+  while(day<1){mi--;if(mi<0){mi=11;yr--;}day+=ML[mi];}
+  return{day,month:mi,year:yr,str:`${day} ${JM[mi]} ${yr}`};
 }
-
-// ============================================================
-// ZMANIM — Algorithme précis pour Lyon/Villeurbanne
-// Validé contre calj.net : 1 Mai 2026
-// Lever: 6h29 | Coucher: 21h05 | Hatsot: 13h47
-// ============================================================
-function getZmanim(d){
-  const LAT=45.76,LNG=4.87,TZ=2;
-  const doy=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);
-  const B=(360/365)*(doy-81)*Math.PI/180;
-  const decl=Math.asin(0.39795*Math.cos((360/365)*(doy+10)*Math.PI/180-2*0.0335*Math.sin((360/365)*doy*Math.PI/180)));
-  const eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
-  const noon=12-(LNG-15*TZ)/15-eot/60;
-  const latR=LAT*Math.PI/180;
-  const cosH=(Math.sin(-0.01454)-Math.sin(latR)*Math.sin(decl))/(Math.cos(latR)*Math.cos(decl));
-  if(Math.abs(cosH)>1)return null;
-  const H=Math.acos(cosH)*180/Math.PI/15;
-  const sunrise=noon-H;
-  const sunset=noon+H;
-  const dayLen=(sunset-sunrise)*60;
-  const shaotGra=dayLen/12;
-  const shaotMA=(sunset-(sunrise-72/60))*60/12;
-  return{
-    alot_posen:sunrise-72/60,
-    alot_ovadia:sunrise-18/60,
-    misheyakir:sunrise-36/60,
-    sunrise,
-    shema_ma:sunrise+3*shaotMA/60,
-    shema_gra:sunrise+3*shaotGra/60,
-    tfila_ma:sunrise+4*shaotMA/60,
-    tfila_gra:sunrise+4*shaotGra/60,
-    hatsot:noon,
-    minha_gedola:noon+30/60,
-    minha_ketana:sunset-2.5,
-    plag:sunset-75/60,
-    sunset,
-    tzet:sunset+18/60,
-    tzet_rt_ovadia:sunset+72/60,
-    tzet_rt_posen:sunset+90/60,
-    shaot_gra:shaotGra,
-    shaot_ma:shaotMA
-  };
-}
-
-function fmtH(h){
-  if(h===null||h===undefined||isNaN(h))return"—";
-  h=((h%24)+24)%24;
-  const hh=Math.floor(h),mm=Math.round((h-hh)*60);
-  if(mm===60)return`${hh+1}h00`;
-  return`${hh}h${String(mm).padStart(2,'0')}`;
-}
-
-// ============================================================
-// OMER — Référence : 1 Mai 2026 = 29ème jour
-// ============================================================
-const OMER_SEM=["Hessed","Guevura","Tiferet","Netsah","Hod","Yessod","Malkhout"];
+const SEM=["Hessed","Guevura","Tiferet","Netsah","Hod","Yessod","Malkhout"];
 function getOmer(d){
-  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const ref=new Date(2026,4,1);
-  const jour=29+Math.floor((dn-ref)/86400000);
-  if(jour<1||jour>49)return null;
-  const sem=Math.floor((jour-1)/7),j=(jour-1)%7;
-  return{jour,semaine:sem+1,jourSem:j+1,sefirot:`${OMER_SEM[j]} she-be${OMER_SEM[sem]}`};
+  const jour=29+Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(2026,4,1))/86400000);
+  if(jour<1||jour>49)return null;
+  const s=Math.floor((jour-1)/7),j=(jour-1)%7;
+  return{jour,semaine:s+1,jourSem:j+1,sefirot:`${SEM[j]} she-be${SEM[s]}`};
 }
-
-// ============================================================
-// DAF YOMI — Référence : 1 Mai 2026 = Menahot 110
-// ============================================================
-const MASSEKHOT=[
-  {n:"Berakhot",d:64},{n:"Shabbat",d:157},{n:"Eruvin",d:105},{n:"Pesahim",d:121},
-  {n:"Shekalim",d:22},{n:"Yoma",d:88},{n:"Sukka",d:56},{n:"Beitza",d:40},
-  {n:"Rosh Hashana",d:35},{n:"Taanit",d:31},{n:"Megila",d:32},{n:"Moed Katan",d:29},
-  {n:"Hagiga",d:27},{n:"Yevamot",d:122},{n:"Ketubot",d:112},{n:"Nedarim",d:91},
-  {n:"Nazir",d:66},{n:"Sota",d:49},{n:"Gitin",d:90},{n:"Kidushin",d:82},
-  {n:"Bava Kama",d:119},{n:"Bava Metsia",d:119},{n:"Bava Batra",d:176},
-  {n:"Sanhedrin",d:113},{n:"Makkot",d:24},{n:"Shevuot",d:49},{n:"Avoda Zara",d:76},
-  {n:"Horayot",d:14},{n:"Zevahim",d:120},{n:"Menahot",d:110},{n:"Hulin",d:142},
-  {n:"Bekhorot",d:61},{n:"Arakhin",d:34},{n:"Temura",d:34},{n:"Keritot",d:28},
-  {n:"Meila",d:22},{n:"Nida",d:73}
-];
+const MASEKHOT=[{n:"Berakhot",d:64},{n:"Shabbat",d:157},{n:"Eruvin",d:105},{n:"Pesahim",d:121},{n:"Shekalim",d:22},{n:"Yoma",d:88},{n:"Sukka",d:56},{n:"Beitza",d:40},{n:"Rosh Hashana",d:35},{n:"Taanit",d:31},{n:"Megila",d:32},{n:"Moed Katan",d:29},{n:"Hagiga",d:27},{n:"Yevamot",d:122},{n:"Ketubot",d:112},{n:"Nedarim",d:91},{n:"Nazir",d:66},{n:"Sota",d:49},{n:"Gitin",d:90},{n:"Kidushin",d:82},{n:"Bava Kama",d:119},{n:"Bava Metsia",d:119},{n:"Bava Batra",d:176},{n:"Sanhedrin",d:113},{n:"Makkot",d:24},{n:"Shevuot",d:49},{n:"Avoda Zara",d:76},{n:"Horayot",d:14},{n:"Zevahim",d:120},{n:"Menahot",d:110},{n:"Hulin",d:142},{n:"Bekhorot",d:61},{n:"Arakhin",d:34},{n:"Temura",d:34},{n:"Keritot",d:28},{n:"Meila",d:22},{n:"Nida",d:73}];
 function getDaf(d){
-  const dn=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  const ref=new Date(2026,4,1);
-  const diff=Math.floor((dn-ref)/86400000);
-  // Position de référence : Menahot 110 = page 110-2=108 dans Menahot
-  let refPos=0;
-  for(const m of MASSEKHOT){if(m.n==="Menahot"){refPos+=108;break;}refPos+=m.d-1;}
-  const total=MASSEKHOT.reduce((s,m)=>s+(m.d-1),0);
-  let pos=((refPos+diff)%total+total)%total;
-  let acc=0;
-  for(const m of MASSEKHOT){const p=m.d-1;if(pos<acc+p)return{n:m.n,d:pos-acc+2};acc+=p;}
-  return{n:"Nida",d:2};
+  const diff=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(2026,4,1))/86400000);
+  const total=MASEKHOT.reduce((s,m)=>s+(m.d-1),0);
+  let rp=0;for(const m of MASEKHOT){if(m.n==="Menahot"){rp+=108;break;}rp+=m.d-1;}
+  let pos=((rp+diff)%total+total)%total,acc=0;
+  for(const m of MASEKHOT){const p=m.d-1;if(pos<acc+p)return{n:m.n,d:pos-acc+2};acc+=p;}
+  return{n:"Nida",d:2};
+}
+const TEH=["1–9","10–17","18–22","23–32","33–35","36–41","42–50","51–60","61–68","69–75","76–80","81–89","90–100","101–103","104","105","106","107","108–110","111–118","119:1–96","119:97–176","120–134","135–136","137–139","140–144","145–150","145–150","1–9","1–9"];
+
+// ================================================================
+// ZMANIM via Hebcal API
+// ================================================================
+let zmanimCache={};
+async function fetchZmanim(date){
+  const key=`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  if(zmanimCache[key])return zmanimCache[key];
+  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),dd=String(date.getDate()).padStart(2,'0');
+  try{
+    const r=await fetch(`https://www.hebcal.com/zmanim?cfg=json&latitude=45.75&longitude=4.85&tzid=Europe%2FParis&date=${y}-${m}-${dd}`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    zmanimCache[key]=data;
+    return data;
+  }catch(e){return null;}
+}
+function fmtZ(iso){if(!iso)return'—';try{const d=new Date(iso);return`${d.getHours()}h${String(d.getMinutes()).padStart(2,'0')}`;}catch{return'—';}}
+
+// ================================================================
+// COMPTE À REBOURS (point 9)
+// ================================================================
+const ZMAN_EVENTS=[
+  {key:'alotHaShachar',label:'🌄 Alot HaShahar',color:'green'},
+  {key:'misheyakir',label:'📿 Début téfilin',color:'green'},
+  {key:'sunrise',label:'🌅 Lever du soleil (Hanetz)',color:'green'},
+  {key:'sofZmanShmaMGA',label:'📖 Fin Shema M"A',color:'orange'},
+  {key:'sofZmanShma',label:'📖 Fin Shema GR"A',color:'orange'},
+  {key:'sofZmanTfilla',label:'🙏 Fin Tefila GR"A',color:'orange'},
+  {key:'chatzot',label:'☀️ Hatsot',color:'green'},
+  {key:'minchaGedola',label:'🕌 Minha Guedola',color:'green'},
+  {key:'minchaKetana',label:'🕌 Minha Ketana',color:'green'},
+  {key:'plagHaMincha',label:'🌆 Plag HaMinha',color:'orange'},
+  {key:'sunset',label:'🌇 Coucher du soleil',color:'orange'},
+  {key:'tzeit',label:'🌙 3 étoiles (fin Chabbat)',color:'red'},
+];
+
+let cdInterval=null;
+async function startCountdown(){
+  const now=new Date();
+  const data=await fetchZmanim(now);
+  if(!data||!data.times)return;
+  const times=data.times;
+  function tick(){
+    const n=new Date();
+    const nm=n.getTime();
+    let next=null,nextLabel='',nextColor='green';
+    for(const ev of ZMAN_EVENTS){
+      const t=times[ev.key];
+      if(!t)continue;
+      const td=new Date(t).getTime();
+      if(td>nm){next=td;nextLabel=ev.label;nextColor=ev.color;break;}
+    }
+    if(!next){document.getElementById('cdbLabel').textContent='Toutes les prières terminées';document.getElementById('cdbTimer').textContent='';return;}
+    const diff=next-nm;
+    const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    const label=document.getElementById('cdbLabel');
+    const timer=document.getElementById('cdbTimer');
+    const bar=document.getElementById('cdbBar');
+    label.textContent=`Prochain : ${nextLabel}`;
+    const timeStr=h>0?`${h}h${String(m).padStart(2,'0')}min`:`${m}min ${String(s).padStart(2,'0')}s`;
+    timer.textContent=timeStr;
+    timer.className=`cdb-timer cdb-${nextColor}`;
+    // Barre de progression
+    const totalDur=3600000;
+    const pct=Math.max(0,Math.min(100,(1-diff/totalDur)*100));
+    bar.style.width=pct+'%';
+    bar.className=`cdb-bar`+(nextColor==='red'?' cdb-bar-red':nextColor==='orange'?' cdb-bar-orange':' cdb-bar-green');
+    // Prochain après
+    const idx=ZMAN_EVENTS.findIndex(ev=>{const t=times[ev.key];return t&&new Date(t).getTime()===next;});
+    if(idx<ZMAN_EVENTS.length-1){
+      const ne=ZMAN_EVENTS[idx+1];
+      if(times[ne.key])document.getElementById('cdbNext').textContent=`Ensuite : ${ne.label} à ${fmtZ(times[ne.key])}`;
+    }
+  }
+  tick();
+  if(cdInterval)clearInterval(cdInterval);
+  cdInterval=setInterval(tick,1000);
 }
 
-// ============================================================
-// TEHILIM — Division en 30 jours
-// ============================================================
-const TEHILIM=[
-  "1–9","10–17","18–22","23–32","33–35","36–41","42–50","51–60",
-  "61–68","69–75","76–80","81–89","90–100","101–103","104","105",
-  "106","107","108–110","111–118","119:1–96","119:97–176","120–134",
-  "135–136","137–139","140–144","145–150","145–150","1–9","1–9"
-];
-function getTehilim(d){const jd=jewishDate(d);return TEHILIM[Math.min(jd.day-1,29)]||"—";}
+// ================================================================
+// GÉOLOCALISATION (point 1)
+// ================================================================
+let userLat=null,userLng=null;
+function getLocation(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLat=pos.coords.latitude;
+    userLng=pos.coords.longitude;
+    buildList();
+  },()=>{});
+}
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fmtDist(km){if(km<1)return`${Math.round(km*1000)}m`;return`${km.toFixed(1)}km`;}
 
-// ============================================================
-// FETES 5786
-// ============================================================
-const FETES=[
-  {name:"Pessah Sheni",       note:"14 Iyar",          date:new Date(2026,3,30)},
-  {name:"Lag BaOmer",         note:"33ème jour de l'Omer", date:new Date(2026,4,4)},
-  {name:"Yom Yeroushalayim",  note:"28 Iyar",          date:new Date(2026,4,14)},
-  {name:"Roch Hodech Sivan",  note:"1 Sivan",          date:new Date(2026,4,17)},
-  {name:"Chavouot J1",        note:"6 Sivan",          date:new Date(2026,4,22)},
-  {name:"Chavouot J2",        note:"7 Sivan",          date:new Date(2026,4,23)},
-  {name:"Jeûne du 17 Tamouz", note:"17 Tamouz",        date:new Date(2026,6,12)},
-  {name:"Tisha BeAv",         note:"9 Av",             date:new Date(2026,7,2)},
-  {name:"Roch Hachana 5787",  note:"1 Tichri 5787",    date:new Date(2026,8,10)},
-  {name:"Yom Kippour",        note:"10 Tichri",        date:new Date(2026,8,19)},
-  {name:"Souccot J1",         note:"15 Tichri",        date:new Date(2026,8,24)},
-  {name:"Chemini Atseret",    note:"22 Tichri",        date:new Date(2026,9,1)},
-  {name:"Simhat Torah",       note:"23 Tichri",        date:new Date(2026,9,2)},
-  {name:"Hanouka J1",         note:"25 Kislev",        date:new Date(2026,11,5)},
-];
-
-// BIRKAT HALEVANA
-const BIRKAT=[
-  {mois:"Iyar 5786",    debut:new Date(2026,3,22),fin:new Date(2026,4,1)},
-  {mois:"Sivan 5786",   debut:new Date(2026,4,21),fin:new Date(2026,4,31)},
-  {mois:"Tamouz 5786",  debut:new Date(2026,5,19),fin:new Date(2026,5,29)},
-  {mois:"Av 5786",      debut:new Date(2026,6,19),fin:new Date(2026,6,29)},
-  {mois:"Eloul 5786",   debut:new Date(2026,7,17),fin:new Date(2026,7,27)},
-  {mois:"Tichri 5787",  debut:new Date(2026,8,16),fin:new Date(2026,8,25)},
-];
-
-// ============================================================
-// ETAT
-// ============================================================
+// ================================================================
+// ÉTAT
+// ================================================================
+let lang='fr',activePage=0,selOff=0,searchQ='',activeFilter='all',activeTab='all',modalSynId=null;
 const PRAYERS=[
-  {key:'sh',label:'Shaharit',icon:'🌅',start:300,end:600},
-  {key:'mi',label:'Minha',icon:'☀️',start:720,end:1170},
-  {key:'ar',label:'Arvit',icon:'🌙',start:1080,end:1380},
+  {key:'sh',fr:'Shaharit',he:'שחרית',en:'Shacharit',icon:'🌅',start:300,end:600},
+  {key:'mi',fr:'Minha',he:'מנחה',en:'Mincha',icon:'☀️',start:720,end:1170},
+  {key:'ar',fr:'Arvit',he:'ערבית',en:'Arvit',icon:'🌙',start:1080,end:1380},
 ];
-let selOff=0,query='',activeFilter='all',activeTab='all',modalSynId=null;
-
+function T(fr,he,en){return lang==='he'?he:lang==='en'?en:fr;}
+function getFavs(){try{return JSON.parse(localStorage.getItem('mly_favs')||'[]');}catch{return[];}}
+function saveFavs(f){try{localStorage.setItem('mly_favs',JSON.stringify(f));}catch{}}
+function isFav(id){return getFavs().includes(id);}
+function toggleFav(id){let f=getFavs();f=f.includes(id)?f.filter(x=>x!==id):[...f,id];saveFavs(f);}
 function nowMin(){const n=new Date();return n.getHours()*60+n.getMinutes();}
-function timeToMin(t){if(!t||t==='Suivi')return null;const m=t.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])*60+(parseInt(m[2])||0);}
+function timeToMin(t){if(!t)return null;const m=t.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])*60+(parseInt(m[2])||0);}
+
+// POINT 10 — getCurrentPrayer avec logique soir
 function getCurrentPrayer(){
-  const nm=nowMin();
-  for(const p of PRAYERS)if(nm>=p.start&&nm<=p.end)return{...p,status:'current'};
-  for(const p of PRAYERS)if(nm<p.start)return{...p,status:'upcoming',diff:p.start-nm};
-  return{...PRAYERS[0],status:'tomorrow'};
+  const now=new Date();
+  const h=now.getHours();
+  const nm=nowMin();
+  // Après 21h → on cherche Shaharit de demain
+  if(h>=21){
+    return{...PRAYERS[0],status:'tomorrow_morning'};
+  }
+  for(const p of PRAYERS)if(nm>=p.start&&nm<=p.end)return{...p,status:'current'};
+  for(const p of PRAYERS)if(nm<p.start)return{...p,status:'upcoming',diff:p.start-nm};
+  return{...PRAYERS[0],status:'tomorrow'};
 }
-function getDateOff(n){const d=new Date();d.setDate(d.getDate()+n);return d;}
-function getDayKey(d){const w=d.getDay();if(w===6)return'shabbat';if(w===5)return'vendredi';if(w===0)return'dimanche';if(w===1||w===4)return'lundi_jeudi';return'mardi_mercredi';}
-function getDayType(d){const k=getDayKey(d);if(k==='shabbat'||k==='vendredi')return{cls:'b-shabbat',label:k==='shabbat'?'Shabbat':'Vendredi'};if(k==='lundi_jeudi')return{cls:'b-torah',label:'Lundi/Jeudi — Torah'};return{cls:'b-normal',label:'Semaine'};}
 
+// POINT 10 — getDayKey prend en compte le mode soir
+function getDayKey(d,forShaharit=false){
+  let date=d;
+  if(forShaharit&&isEveningMode()){
+    date=new Date(d);
+    date.setDate(date.getDate()+1);
+  }
+  const w=date.getDay();
+  if(w===6)return'shabbat';
+  if(w===5)return'vendredi';
+  if(w===0)return'dimanche';
+  if(w===1||w===4)return'lundi_jeudi';
+  return'mardi_mercredi';
+}
+
+// ================================================================
+// HEADER
+// ================================================================
 function updateHeader(){
-  const now=new Date();
-  const DN=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const MN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
-  document.getElementById('civilDate').textContent=`${DN[now.getDay()]} ${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}`;
-  const jd=jewishDate(now);
-  document.getElementById('jewishDate').textContent=jd.str;
-  const dt=getDayType(now);
-  document.getElementById('dayBadge').innerHTML=`<span class="day-badge ${dt.cls}">${dt.label}</span>`;
-  const omer=getOmer(now);
-  document.getElementById('omerShort').textContent=omer?`🌾 Omer : ${omer.jour}ème jour`:'';
-  const cp=getCurrentPrayer();
-  let lbl='';
-  if(cp.status==='current')lbl=`${cp.label} en cours`;
-  else if(cp.status==='upcoming'){const h=Math.floor(cp.diff/60),m=cp.diff%60;lbl=`${cp.label} dans ${h>0?h+'h':''}${m}min`;}
-  else lbl='Shaharit demain matin';
-  document.getElementById('prayerLabel').textContent=lbl;
+  const now=new Date();
+  const evening=isEveningMode();
+  // Pour l'affichage de la date : si soir, montrer "demain matin"
+  const displayDate=evening?new Date(now.getFullYear(),now.getMonth(),now.getDate()+1):now;
+  const DN=[T('Dimanche','יום ראשון','Sunday'),T('Lundi','יום שני','Monday'),T('Mardi','יום שלישי','Tuesday'),T('Mercredi','יום רביעי','Wednesday'),T('Jeudi','יום חמישי','Thursday'),T('Vendredi','יום שישי','Friday'),T('Samedi','שבת','Saturday')];
+  const MN=[T('jan','ינואר','Jan'),T('fév','פברואר','Feb'),T('mar','מרץ','Mar'),T('avr','אפריל','Apr'),T('mai','מאי','May'),T('juin','יוני','Jun'),T('juil','יולי','Jul'),T('août','אוגוסט','Aug'),T('sep','ספטמבר','Sep'),T('oct','אוקטובר','Oct'),T('nov','נובמבר','Nov'),T('déc','דצמבר','Dec')];
+  document.getElementById('civilDate').textContent=`${DN[now.getDay()]} ${now.getDate()} ${MN[now.getMonth()]} ${now.getFullYear()}`;
+  const jd=getJD(now);
+  document.getElementById('jewishDate').textContent=jd.str;
+  const omer=getOmer(now);
+  document.getElementById('omerShort').textContent=omer?`🌾 Omer : jour ${omer.jour}`:'';
+  const tags=[];const dow=now.getDay();
+  if(dow===6)tags.push({cls:'dtag-gold',txt:'Shabbat'});
+  else if(dow===5)tags.push({cls:'dtag-gold',txt:'Vendredi'});
+  else if(dow===1||dow===4)tags.push({cls:'dtag-gold',txt:'Torah'});
+  else tags.push({cls:'dtag-dim',txt:'Semaine'});
+  if(omer)tags.push({cls:'dtag-dim',txt:`${omer.jour}/49`});
+  if(evening)tags.push({cls:'dtag-gold',txt:'🌙 Soir'});
+  document.getElementById('dateTags').innerHTML=tags.map(t=>`<span class="dtag ${t.cls}">${t.txt}</span>`).join('');
+  const cp=getCurrentPrayer();
+  document.getElementById('findTitle').textContent=T('Trouver un minyan','מצא מניין','Find a minyan');
+  if(cp.status==='tomorrow_morning'){
+    // Point 10 — soir → montrer horaires de demain matin
+    const tomorrowKey=getDayKey(now,true);
+    const dayNames={shabbat:'Shabbat',vendredi:'Vendredi',dimanche:'Dimanche',lundi_jeudi:'Lundi/Jeudi',mardi_mercredi:'Mardi/Mercredi'};
+    document.getElementById('findSub').textContent=`Shaharit demain — ${dayNames[tomorrowKey]||''}`;
+  } else if(cp.status==='current')document.getElementById('findSub').textContent=`${T(cp.fr,cp.he,cp.en)} en cours`;
+  else if(cp.status==='upcoming'){const h=Math.floor(cp.diff/60),m=cp.diff%60;document.getElementById('findSub').textContent=`${T(cp.fr,cp.he,cp.en)} dans ${h>0?h+'h':''}${m}min`;}
+  else document.getElementById('findSub').textContent='Shaharit demain matin';
 }
 
-function buildDaySelector(){
-  const sel=document.getElementById('daySelector');
-  sel.innerHTML='';
-  const DN=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-  for(let i=0;i<7;i++){
-    const d=getDateOff(i);
-    const b=document.createElement('button');
-    b.className='day-btn'+(i===selOff?' active':'');
-    b.innerHTML=`<div class="day-btn-name">${i===0?'Auj.':DN[d.getDay()]}</div><div class="day-btn-num">${d.getDate()}</div>`;
-    b.onclick=()=>{selOff=i;buildDaySelector();buildList();};
-    sel.appendChild(b);
-  }
+// ================================================================
+// DAY SELECTOR
+// ================================================================
+function buildDays(){
+  const el=document.getElementById('daySelector');el.innerHTML='';
+  const DN=[T('Dim','א','Sun'),T('Lun','ב','Mon'),T('Mar','ג','Tue'),T('Mer','ד','Wed'),T('Jeu','ה','Thu'),T('Ven','ו','Fri'),T('Sam','ש','Sat')];
+  for(let i=0;i<7;i++){
+    const d=getEffectiveDate(i);
+    const b=document.createElement('button');
+    b.className='dbtn'+(i===selOff?' on':'');
+    b.innerHTML=`<div class="dbn">${i===0?T('Auj.','היום','Today'):DN[d.getDay()]}</div><div class="dbd">${d.getDate()}</div>`;
+    b.onclick=()=>{selOff=i;buildDays();buildList();};
+    el.appendChild(b);
+  }
 }
 
-function setFilter(f,el){activeFilter=f;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');buildList();}
-function filterSyns(q){query=q.toLowerCase();buildList();}
-function switchTab(tab){
-  activeTab=tab;
-  document.getElementById('tabAll').classList.toggle('active',tab==='all');
-  document.getElementById('tabFav').classList.toggle('active',tab==='fav');
-  document.getElementById('filtersRow').classList.toggle('hidden',tab==='fav');
-  document.getElementById('listTitle').textContent=tab==='fav'?'Mes synagogues favorites':'Horaires de la semaine';
-  buildList();
-}
-function matchesFilter(s){
-  if(activeFilter==='all')return true;
-  if(['sefarde','ashkenaze','habad','mixte'].includes(activeFilter))return s.rite===activeFilter;
-  if(activeFilter==='banlieue')return['banlieue','caluire','ecully'].includes(s.zone);
-  return s.zone===activeFilter;
-}
+// ================================================================
+// BUILD LIST — avec regroupement par adresse (point 2)
+// ================================================================
+function doSearch(q){searchQ=q.toLowerCase();buildList();}
+function setFilter(f,el){activeFilter=f;document.querySelectorAll('.fc').forEach(c=>c.classList.remove('on'));el.classList.add('on');buildList();}
+function switchTab(t){activeTab=t;document.getElementById('tabAll').classList.toggle('on',t==='all');document.getElementById('tabFav').classList.toggle('on',t==='fav');document.getElementById('filtersRow').style.display=t==='fav'?'none':'flex';document.getElementById('secTitle').textContent=t==='fav'?'Mes favoris':'Horaires de la semaine';buildList();}
+function matchFilter(s){if(activeFilter==='all')return true;if(['sefarde','ashkenaze','habad','mixte'].includes(activeFilter))return s.rite===activeFilter;if(activeFilter==='banlieue')return['banlieue','caluire','ecully'].includes(s.zone);return s.zone===activeFilter;}
 
 function buildList(){
-  const list=document.getElementById('synList');
-  list.innerHTML='';
-  const d=getDateOff(selOff),key=getDayKey(d);
-  const cp=selOff===0?getCurrentPrayer():null;
-  const favs=getFavs();
-  let syns=[...SYNS];
-  if(activeTab==='fav')syns=syns.filter(s=>favs.includes(s.id));
-  if(activeTab==='all')syns=syns.filter(matchesFilter);
-  if(query)syns=syns.filter(s=>s.name.toLowerCase().includes(query)||s.address.toLowerCase().includes(query));
-  if(activeTab==='all')syns.sort((a,b)=>{const fa=favs.includes(a.id),fb=favs.includes(b.id);if(fa&&!fb)return-1;if(!fa&&fb)return 1;return 0;});
-  const total=syns.length;
-  document.getElementById('countBadge').textContent=activeTab==='fav'?`${total} favori${total>1?'s':''}`:`${total} synagogue${total>1?'s':''}`;
-  if(!total){list.innerHTML=`<div class="empty-state"><div>${activeTab==='fav'?'⭐':'🔍'}</div>${activeTab==='fav'?'Tape ⭐ sur une synagogue pour l\'ajouter aux favoris':'Aucune synagogue trouvée'}</div>`;return;}
-  syns.forEach(syn=>{
-    const h=syn.hours[key]||{sh:null,mi:null,ar:null};
-    const fav=favs.includes(syn.id);
-    const card=document.createElement('div');
-    card.className='syn-card'+(fav?' is-fav':'');
-    const slots=PRAYERS.map(p=>{const t=h[p.key];const isNext=cp&&p.key===cp.key;return`<div class="p-slot${isNext?' next':''}"><div class="p-label">${p.icon} ${p.label}</div><div class="p-time ${t&&t!=='Suivi'?'has':'none'}">${t||'—'}</div></div>`;}).join('');
-    card.innerHTML=`<div class="syn-card-header" onclick="openModal(${syn.id})"><span class="syn-icon">🕍</span><div class="syn-info"><div class="syn-name">${syn.name}</div><div class="syn-addr">📍 ${syn.address}</div></div><div class="syn-actions"><button class="fav-btn${fav?' active':''}" onclick="event.stopPropagation();tapFav(${syn.id},this)">⭐</button><a class="maps-link" href="${syn.maps}" target="_blank" onclick="event.stopPropagation()">🗺 Maps</a></div></div><div class="prayer-times">${slots}</div>`;
-    list.appendChild(card);
-  });
+  const list=document.getElementById('synList');list.innerHTML='';
+  const d=getEffectiveDate(selOff);
+  // Point 10 — si soir et offset=0, utiliser le lendemain pour Shaharit
+  const key=selOff===0&&isEveningMode()?getDayKey(new Date(),true):getDayKey(d);
+  const cp=selOff===0?getCurrentPrayer():null;
+  const favs=getFavs();
+  let syns=[...SYNS].filter(s=>activeTab==='fav'?favs.includes(s.id):matchFilter(s));
+  if(searchQ)syns=syns.filter(s=>s.name.toLowerCase().includes(searchQ)||s.addr.toLowerCase().includes(searchQ));
+  syns.sort((a,b)=>{
+    // Favoris en premier
+    const fa=favs.includes(a.id),fb=favs.includes(b.id);
+    if(fa&&!fb)return-1;if(!fa&&fb)return 1;
+    // Puis par distance si géoloc disponible
+    if(userLat!==null){
+      const da=haversine(userLat,userLng,a.lat||45.75,a.lng||4.85);
+      const db2=haversine(userLat,userLng,b.lat||45.75,b.lng||4.85);
+      return da-db2;
+    }
+    return 0;
+  });
+  document.getElementById('countBadge').textContent=`${syns.length} synagogue${syns.length>1?'s':''}`;
+  if(!syns.length){list.innerHTML=`<div class="empty-st"><div class="ei">${activeTab==='fav'?'⭐':'🔍'}</div>${activeTab==='fav'?'Appuie sur ⭐ pour ajouter des favoris':'Aucune synagogue trouvée'}</div>`;return;}
+
+  // Construire les lieux groupés + synagogues isolées
+  const shownIds=new Set();
+
+  // LIEUX GROUPÉS
+  if(activeFilter==='all'||activeTab==='fav'){
+    for(const lieu of LIEUX){
+      const lsyns=syns.filter(s=>lieu.ids.includes(s.id));
+      if(!lsyns.length)continue;
+      shownIds.add(...lsyns.map(s=>s.id));
+      const hasFav=lsyns.some(s=>favs.includes(s.id));
+      const dist=userLat!==null?haversine(userLat,userLng,lieu.lat,lieu.lng):null;
+      const card=document.createElement('div');
+      card.className='lieu-card'+(hasFav?' has-fav':'');
+      const distHtml=dist!==null?`<div class="lieu-dist">📍 ${fmtDist(dist)}</div>`:'';
+      card.innerHTML=`<div class="lieu-hd"><span class="lieu-ico">${lieu.ico}</span><div class="lieu-info"><div class="lieu-addr-txt">${lieu.addr}</div><div class="lieu-count">${lsyns.length} minyanim</div></div><div class="lieu-acts">${distHtml}<a class="maps-btn" href="${lieu.maps}" target="_blank">🗺 Maps</a></div></div>`;
+      lsyns.forEach(syn=>{
+        const h=syn.h[key]||{sh:null,mi:null,ar:null};
+        const fav=favs.includes(syn.id);
+        const row=document.createElement('div');row.className='mrow';
+        const slots=PRAYERS.map(p=>{const tv=h[p.key];const isNext=cp&&p.key===cp.key;return`<div class="mt${isNext?' hl':''}"><div class="mt-lbl">${p.icon} ${T(p.fr,p.he,p.en)}</div><div class="mt-val ${tv?'':'dim'}">${tv||'—'}</div></div>`;}).join('');
+        row.innerHTML=`<div class="mrow-top"><div class="mrow-name">${syn.name}</div><button class="mrow-fav ${fav?'on':''}" onclick="event.stopPropagation();doFavRow(${syn.id},this)">⭐</button></div><div class="mrow-times">${slots}</div>`;
+        row.onclick=()=>openSynModal(syn.id);
+        card.appendChild(row);
+      });
+      list.appendChild(card);
+    }
+  }
+
+  // SYNAGOGUES ISOLÉES
+  syns.filter(s=>!GROUPED_IDS.includes(s.id)||activeFilter!=='all'&&activeTab!=='fav').forEach(syn=>{
+    if(shownIds.has(syn.id))return;
+    const h=syn.h[key]||{sh:null,mi:null,ar:null};
+    const fav=favs.includes(syn.id);
+    const dist=userLat!==null&&syn.lat?haversine(userLat,userLng,syn.lat,syn.lng):null;
+    const card=document.createElement('div');card.className='syn-card'+(fav?' fav':'');
+    const slots=PRAYERS.map(p=>{const tv=h[p.key];const isNext=cp&&p.key===cp.key;return`<div class="t-slot${isNext?' hl':''}"><div class="t-lbl">${p.icon} ${T(p.fr,p.he,p.en)}</div><div class="t-val ${tv?'':'dim'}">${tv||'—'}</div></div>`;}).join('');
+    const distHtml=dist!==null?`<span class="now-dist">📍 ${fmtDist(dist)}</span>`:'';
+    card.innerHTML=`<div class="syn-head" onclick="openSynModal(${syn.id})"><span class="syn-emoji">${syn.e}</span><div class="syn-info"><div class="syn-name">${syn.name}</div><div class="syn-addr">📍 ${syn.addr}</div>${distHtml}</div><div class="syn-acts"><button class="fav-star ${fav?'on':''}" onclick="event.stopPropagation();doFav(${syn.id},this)">⭐</button><a class="maps-btn" href="${syn.maps}" target="_blank" onclick="event.stopPropagation()">🗺 Maps</a></div></div><div class="syn-times">${slots}</div>`;
+    list.appendChild(card);
+  });
 }
 
-function tapFav(id,btn){toggleFav(id);const fav=isFav(id);btn.classList.toggle('active',fav);if(activeTab==='fav')buildList();else btn.closest('.syn-card').classList.toggle('is-fav',fav);}
+function doFav(id,btn){toggleFav(id);const f=isFav(id);btn.classList.toggle('on',f);btn.closest('.syn-card').classList.toggle('fav',f);}
+function doFavRow(id,btn){toggleFav(id);btn.classList.toggle('on',isFav(id));const card=btn.closest('.lieu-card');if(card)card.classList.toggle('has-fav',LIEUX.find(l=>l.ids.includes(id))?.ids.some(i=>isFav(i)));}
 
+// ================================================================
+// FIND NOW — Point 10 soir + Point 1 géoloc
+// ================================================================
 function findNow(){
-  const cp=getCurrentPrayer(),key=getDayKey(new Date());
-  document.getElementById('panelIcon').textContent=cp.icon;
-  document.getElementById('panelName').textContent=cp.label;
-  if(cp.status==='current')document.getElementById('panelSub').textContent='En cours maintenant';
-  else if(cp.status==='upcoming'){const h=Math.floor(cp.diff/60),m=cp.diff%60;document.getElementById('panelSub').textContent=`Dans ${h>0?h+'h':''}${m}min`;}
-  else document.getElementById('panelSub').textContent='Demain matin';
-  const res=document.getElementById('minyanResults');res.innerHTML='';
-  const avail=SYNS.map(s=>{const t=s.hours[key]?.[cp.key];if(!t)return null;return{s,t,min:timeToMin(t)||999};}).filter(Boolean).sort((a,b)=>a.min-b.min);
-  if(!avail.length)res.innerHTML='<div class="no-minyan">Aucun minyan trouvé pour cette prière.</div>';
-  else avail.forEach(({s,t})=>{const el=document.createElement('div');el.className='minyan-item';el.innerHTML=`<div><div class="minyan-name">${isFav(s.id)?'⭐ ':''}${s.name}</div><div class="minyan-addr">${s.address}</div></div><div class="minyan-time">${t}</div>`;el.onclick=()=>openModal(s.id);res.appendChild(el);});
-  document.getElementById('nowPanel').classList.remove('hidden');
-  document.getElementById('nowPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function closePanel(){document.getElementById('nowPanel').classList.add('hidden');}
+  const now=new Date();
+  const evening=isEveningMode();
+  // Point 10 — si soir, chercher Shaharit de demain
+  const key=evening?getDayKey(now,true):getDayKey(now);
+  const cp=getCurrentPrayer();
+  const prayerKey=evening?'sh':cp.key;
+  const prayerObj=PRAYERS.find(p=>p.key===prayerKey)||PRAYERS[0];
 
-function openModal(id){
-  modalSynId=id;const syn=SYNS.find(s=>s.id===id);if(!syn)return;
-  document.getElementById('mName').textContent=syn.name;
-  document.getElementById('mAddr').textContent='📍 '+syn.address;
-  updateModalFavBtn();
-  const today=new Date().getDay();
-  const ROWS=[{l:'Vendredi',k:'vendredi',w:5},{l:'Shabbat',k:'shabbat',w:6},{l:'Dimanche',k:'dimanche',w:0},{l:'Lun/Jeu',k:'lundi_jeudi',w:1},{l:'Mar/Mer',k:'mardi_mercredi',w:2}];
-  document.getElementById('mWeek').innerHTML=ROWS.map(r=>{const h=syn.hours[r.k]||{};const isT=r.w===today||(today===4&&r.w===1)||(today===3&&r.w===2);const g=isT?'g':'';const f=v=>v?`<div class="mt-val ${g}">${v}</div>`:`<div class="mt-val d">—</div>`;return`<div class="modal-row ${isT?'today':''}"><div class="modal-day">${r.l}${isT?' ✦':''}</div><div class="mt-col"><div class="mt-label">🌅</div>${f(h.sh)}</div><div class="mt-col"><div class="mt-label">☀️</div>${f(h.mi)}</div><div class="mt-col"><div class="mt-label">🌙</div>${f(h.ar)}</div></div>`;}).join('');
-  document.getElementById('modal').classList.remove('hidden');
-}
-function updateModalFavBtn(){const fav=isFav(modalSynId);const btn=document.getElementById('modalFavBtn');btn.textContent=fav?'⭐ Retirer des favoris':'☆ Ajouter aux favoris';btn.classList.toggle('active',fav);}
-function toggleFavFromModal(){toggleFav(modalSynId);updateModalFavBtn();buildList();}
-function closeOverlay(e){if(e.target.id==='modal')closeModal();}
-function closeModal(){document.getElementById('modal').classList.add('hidden');modalSynId=null;}
+  document.getElementById('nowIcon').textContent=prayerObj.icon;
+  document.getElementById('nowPrayer').textContent=T(prayerObj.fr,prayerObj.he,prayerObj.en);
+  if(evening){
+    const dayNames={shabbat:'Shabbat',vendredi:'Vendredi',dimanche:'Dimanche',lundi_jeudi:'Lundi/Jeudi',mardi_mercredi:'Mardi/Mercredi'};
+    document.getElementById('nowSub').textContent=`Demain matin — ${dayNames[key]||''}`;
+  } else if(cp.status==='current'){
+    document.getElementById('nowSub').textContent='En cours maintenant';
+  } else if(cp.status==='upcoming'){
+    const h=Math.floor(cp.diff/60),m=cp.diff%60;
+    document.getElementById('nowSub').textContent=`Dans ${h>0?h+'h':''}${m}min`;
+  } else {
+    document.getElementById('nowSub').textContent='Demain matin';
+  }
 
-// ============================================================
+  const lst=document.getElementById('nowList');lst.innerHTML='';
+  let avail=SYNS.map(s=>{
+    const tv=s.h[key]?.[prayerKey];
+    if(!tv)return null;
+    const dist=userLat!==null&&s.lat?haversine(userLat,userLng,s.lat,s.lng):null;
+    return{s,tv,min:timeToMin(tv)||999,dist};
+  }).filter(Boolean);
+
+  // Trier par distance si géoloc, sinon par heure
+  if(userLat!==null){
+    avail.sort((a,b)=>(a.dist||999)-(b.dist||999));
+  } else {
+    avail.sort((a,b)=>a.min-b.min);
+  }
+
+  if(!avail.length){lst.innerHTML=`<div class="no-res">Aucun minyan trouvé</div>`;}
+  else avail.forEach(({s,tv,dist})=>{
+    const el=document.createElement('div');el.className='now-item';
+    el.innerHTML=`<div><div class="now-sname">${isFav(s.id)?'⭐ ':''}${s.name}</div><div class="now-addr">${s.addr}</div></div><div class="now-right"><div class="now-time">${tv}</div>${dist!==null?`<div class="now-dist">📍 ${fmtDist(dist)}</div>`:''}</div>`;
+    el.onclick=()=>openSynModal(s.id);lst.appendChild(el);
+  });
+  document.getElementById('nowPanel').classList.remove('hidden');
+  document.getElementById('nowPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeNow(){document.getElementById('nowPanel').classList.add('hidden');}
+
+// ================================================================
+// SIGNALER MINYAN (point 3)
+// ================================================================
+let improvs=[];
+function openSignal(){document.getElementById('signalModal').classList.remove('hidden');}
+function closeSignal(){document.getElementById('signalModal').classList.add('hidden');}
+function closeSignalOv(e){if(e.target.id==='signalModal')closeSignal();}
+function submitSignal(){
+  const prayer=document.getElementById('sig-prayer').value;
+  const addr=document.getElementById('sig-addr').value.trim();
+  const time=document.getElementById('sig-time').value;
+  const men=document.getElementById('sig-men').value;
+  if(!addr||!time){alert('Adresse et heure obligatoires');return;}
+  const pNames={sh:'Shaharit',mi:'Minha',ar:'Arvit'};
+  const menLabels={minyan:'✅ Minyan complet','9':'9h — il manque 1','8':'8h — il manque 2','7':'7h — il manque 3','moins':'< 7 hommes'};
+  const expire=new Date();expire.setHours(expire.getHours()+2);
+  improvs.push({id:Date.now(),prayer:pNames[prayer],addr,time,men:menLabels[men],expire});
+  closeSignal();
+  renderImprovs();
+  // Reset
+  document.getElementById('sig-addr').value='';
+  document.getElementById('sig-time').value='';
+}
+function renderImprovs(){
+  const now=new Date();
+  improvs=improvs.filter(i=>new Date(i.expire)>now);
+  const wrap=document.getElementById('improvList');
+  wrap.innerHTML='';
+  if(!improvs.length)return;
+  improvs.forEach(i=>{
+    const el=document.createElement('div');el.className='improv-item';
+    const rem=Math.round((new Date(i.expire)-now)/60000);
+    el.innerHTML=`<div><div class="improv-name">🙋 ${i.prayer} — ${i.time}</div><div class="improv-addr">📍 ${i.addr}</div><div style="font-size:11px;color:var(--green);margin-top:2px">${i.men}</div></div><div class="improv-right"><div class="improv-time">${i.time}</div><div class="improv-exp">Expire dans ${rem}min</div><button class="improv-del" onclick="delImprov(${i.id})">✕</button></div>`;
+    wrap.appendChild(el);
+  });
+}
+function delImprov(id){improvs=improvs.filter(i=>i.id!==id);renderImprovs();}
+
+// ================================================================
+// MODAL SYNAGOGUE
+// ================================================================
+function openSynModal(id){
+  modalSynId=id;const syn=SYNS.find(s=>s.id===id);if(!syn)return;
+  document.getElementById('smTitle').textContent=syn.name;
+  document.getElementById('smAddr').textContent='📍 '+syn.addr;
+  updateSmFav();
+  const today=new Date().getDay();
+  const ROWS=[{l:'Vendredi',k:'vendredi',w:5},{l:'Shabbat',k:'shabbat',w:6},{l:'Dimanche',k:'dimanche',w:0},{l:'Lun/Jeu',k:'lundi_jeudi',w:1},{l:'Mar/Mer',k:'mardi_mercredi',w:2}];
+  document.getElementById('smWeek').innerHTML=ROWS.map(r=>{
+    const h=syn.h[r.k]||{};const isT=r.w===today||(today===4&&r.w===1)||(today===3&&r.w===2);
+    const f=v=>v?`<div class="sc-val ${isT?'gold':''}">${v}</div>`:`<div class="sc-val dim">—</div>`;
+    return`<div class="srow ${isT?'today':''}"><div class="srow-day">${r.l}${isT?' ✦':''}</div><div class="sc"><div class="sc-lbl">🌅</div>${f(h.sh)}</div><div class="sc"><div class="sc-lbl">☀️</div>${f(h.mi)}</div><div class="sc"><div class="sc-lbl">🌙</div>${f(h.ar)}</div></div>`;
+  }).join('');
+  document.getElementById('synModal').classList.remove('hidden');
+}
+function updateSmFav(){const f=isFav(modalSynId);const b=document.getElementById('smFavBtn');b.textContent=f?'⭐ Retirer des favoris':'☆ Ajouter aux favoris';b.classList.toggle('on',f);}
+function toggleFavModal(){toggleFav(modalSynId);updateSmFav();buildList();}
+function closeSynOv(e){if(e.target.id==='synModal')closeSynModal();}
+function closeSynModal(){document.getElementById('synModal').classList.add('hidden');modalSynId=null;}
+
+// ================================================================
 // CALENDRIER
-// ============================================================
-function mkCard(icon,title,sub){
-  const c=document.createElement('div');c.className='cal-card';
-  c.innerHTML=`<div class="cal-card-header"><span class="cal-icon">${icon}</span><div><div class="cal-title">${title}</div>${sub?`<div class="cal-subtitle">${sub}</div>`:''}</div></div><div class="cal-body"></div>`;
-  return c;
+// ================================================================
+function mkCal(icon,cls,title,sub){
+  const c=document.createElement('div');c.className='cal-card';
+  c.innerHTML=`<div class="cal-hd"><div class="cal-ico ${cls}">${icon}</div><div><div class="cal-title">${title}</div>${sub?`<div class="cal-sub">${sub}</div>`:''}</div></div><div class="cal-body"></div>`;
+  return c;
+}
+const MNS=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+
+async function buildCalendar(){
+  const g=document.getElementById('calGrid');
+  if(g.dataset.built)return;g.dataset.built='1';
+  const now=new Date(),jd=getJD(now),omer=getOmer(now),daf=getDaf(now);
+  const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+
+  // ZMANIM
+  {
+    const c=mkCal('🕰','ci-gold','Zmanim du jour',`Lyon · ${now.getDate()} ${MNS[now.getMonth()]}`);
+    c.querySelector('.cal-body').innerHTML=`<div class="zman-loading">⏳ Chargement des Zmanim…</div>`;
+    g.appendChild(c);
+    const data=await fetchZmanim(now);
+    if(data&&data.times){
+      const z=data.times;
+      c.querySelector('.cal-body').innerHTML=`<div class="zman-grid">
+        <div class="zi"><div class="zi-lbl">🌄 Alot HaShahar</div><div class="zi-time">${fmtZ(z.alotHaShachar)}</div><div class="zi-note">72 min avant lever</div></div>
+        <div class="zi"><div class="zi-lbl">🌅 Lever du soleil</div><div class="zi-time">${fmtZ(z.sunrise)}</div><div class="zi-note">Hanetz HaHama</div></div>
+        <div class="zi"><div class="zi-lbl">📿 Début téfilin</div><div class="zi-time">${fmtZ(z.misheyakir)}</div><div class="zi-note">Micheyakir</div></div>
+        <div class="zi"><div class="zi-lbl">📖 Fin Shema GR"A</div><div class="zi-time">${fmtZ(z.sofZmanShma)}</div><div class="zi-note">Kriat Shema</div></div>
+        <div class="zi"><div class="zi-lbl">📖 Fin Shema M"A</div><div class="zi-time">${fmtZ(z.sofZmanShmaMGA)}</div><div class="zi-note">Magen Avraham</div></div>
+        <div class="zi"><div class="zi-lbl">🙏 Fin Tefila GR"A</div><div class="zi-time">${fmtZ(z.sofZmanTfilla)}</div><div class="zi-note">Zman Tefila</div></div>
+        <div class="zi"><div class="zi-lbl">☀️ Hatsot</div><div class="zi-time">${fmtZ(z.chatzot)}</div><div class="zi-note">Midi solaire</div></div>
+        <div class="zi"><div class="zi-lbl">🕌 Minha Guedola</div><div class="zi-time">${fmtZ(z.minchaGedola)}</div><div class="zi-note">30 min après Hatsot</div></div>
+        <div class="zi"><div class="zi-lbl">🕌 Minha Ketana</div><div class="zi-time">${fmtZ(z.minchaKetana)}</div><div class="zi-note">9.5h solaires</div></div>
+        <div class="zi"><div class="zi-lbl">🌆 Plag HaMinha</div><div class="zi-time">${fmtZ(z.plagHaMincha)}</div><div class="zi-note">1.25h avant coucher</div></div>
+        <div class="zi"><div class="zi-lbl">🌇 Coucher soleil</div><div class="zi-time">${fmtZ(z.sunset)}</div><div class="zi-note">Chkiat HaHama</div></div>
+        <div class="zi"><div class="zi-lbl">🌙 3 étoiles</div><div class="zi-time">${fmtZ(z.tzeit)}</div><div class="zi-note">Tsét Hakokavim</div></div>
+      </div>`;
+      // Lancer le compte à rebours maintenant qu'on a les données
+      startCountdown();
+    } else {
+      c.querySelector('.cal-body').innerHTML=`<div class="zman-err">⚠️ Impossible de charger les Zmanim. Vérifie ta connexion internet.</div>`;
+    }
+  }
+
+  // SHABBAT
+  if(now.getDay()===5||now.getDay()===6){
+    const data=await fetchZmanim(now);
+    const c=mkCal('🕯','ci-gold','Chabbat cette semaine','');
+    let html='';
+    if(now.getDay()===5&&data?.times){
+      const candles=new Date(data.times.sunset);candles.setMinutes(candles.getMinutes()-18);
+      html+=`<div class="shab-row"><span class="shab-lbl">🕯 Allumage (18 min avant)</span><span class="shab-time">${fmtZ(candles.toISOString())}</span></div>`;
+    }
+    html+=`<div class="shab-row"><span class="shab-lbl">🌇 Coucher du soleil</span><span class="shab-time">${data?.times?fmtZ(data.times.sunset):'—'}</span></div>`;
+    html+=`<div class="shab-row"><span class="shab-lbl">✡ Fin Chabbat (3 étoiles)</span><span class="shab-time">${data?.times?fmtZ(data.times.tzeit):'—'}</span></div>`;
+    html+=`<div class="shab-row"><span class="shab-lbl">🌙 Rabénou Tam</span><span class="shab-time">${data?.times?.tzeitMalikei?fmtZ(data.times.tzeitMalikei):'—'}</span></div>`;
+    c.querySelector('.cal-body').innerHTML=html;
+    g.insertBefore(c,g.firstChild);
+  }
+
+  // OMER
+  if(omer){
+    const c=mkCal('🌾','ci-green',"Compte de l'Omer",jd.str);
+    c.querySelector('.cal-body').innerHTML=`<div class="omer-c"><div class="omer-big">${omer.jour}</div><div class="omer-sub">Jour de l'Omer — Semaine ${omer.semaine}, jour ${omer.jourSem}</div><div class="omer-sefira">${omer.sefirot}</div><div class="omer-left">${49-omer.jour} jours jusqu'à Chavouot</div></div>`;
+    g.appendChild(c);
+  }
+
+  // DAF YOMI
+  {
+    const c=mkCal('📚','ci-blue','Daf Yomi','Cycle 16');
+    c.querySelector('.cal-body').innerHTML=`<div class="daf-c"><div class="daf-name">${daf.n}</div><div class="daf-page">${daf.d}</div><div class="daf-info">${jd.str}</div></div>`;
+    g.appendChild(c);
+  }
+
+  // TEHILIM
+  {
+    const c=mkCal('📜','ci-dim','Tehilim du jour',`Jour ${jd.day} du mois`);
+    c.querySelector('.cal-body').innerHTML=`<div class="teh-c"><div class="teh-chaps">Psaumes ${TEH[Math.min(jd.day-1,29)]||'—'}</div><div class="teh-sub">${jd.day} ${JM[jd.month]} ${jd.year}</div></div>`;
+    g.appendChild(c);
+  }
+
+  // FETES
+  {
+    const c=mkCal('🎉','ci-gold','Prochaines fêtes','5786 — 5787');
+    const upcoming=FETES.filter(f=>{const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());return fd>=today0;}).slice(0,8);
+    c.querySelector('.cal-body').innerHTML=upcoming.map(f=>{
+      const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());
+      const diff=Math.round((fd-today0)/86400000);
+      const isToday=diff===0,soon=diff>0&&diff<=14;
+      const badge=isToday?`<span class="badge b-today">Aujourd'hui</span>`:soon?`<span class="badge b-soon">Dans ${diff}j</span>`:'';
+      return`<div class="fete-row"><div><div class="fete-name">${f.name}${badge}</div><div class="fete-note">${f.note}</div></div><div class="fete-date">${f.date.getDate()} ${MNS[f.date.getMonth()]}</div></div>`;
+    }).join('');
+    g.appendChild(c);
+  }
+
+  // BIRKAT
+  {
+    const c=mkCal('🌙','ci-blue','Birkat Halevana','');
+    const windows=BIRKAT.filter(w=>{const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());return df>=today0;}).slice(0,3);
+    c.querySelector('.cal-body').innerHTML=windows.map(w=>{
+      const db=new Date(w.debut.getFullYear(),w.debut.getMonth(),w.debut.getDate());
+      const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());
+      const isOpen=today0>=db&&today0<=df;
+      return`<div class="birkat-row ${isOpen?'open':''}"><div class="birkat-mois">${w.mois}</div><div class="birkat-dates">${w.debut.getDate()} ${MNS[w.debut.getMonth()]} → ${w.fin.getDate()} ${MNS[w.fin.getMonth()]}</div>${isOpen?`<div class="birkat-open">🌙 Fenêtre ouverte — ce soir !</div>`:''}</div>`;
+    }).join('');
+    g.appendChild(c);
+  }
 }
 
-function buildCalendar(){
-  const now=new Date(),grid=document.getElementById('calGrid');
-  grid.innerHTML='';
-  const jd=jewishDate(now);
-  const z=getZmanim(now);
-  const omer=getOmer(now);
-  const daf=getDaf(now);
-  const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const MN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
-
-  // SHABBAT (vendredi ou samedi)
-  if(now.getDay()===5||now.getDay()===6){
-    const c=mkCard('🕯','Chabbat cette semaine','');
-    c.querySelector('.cal-body').innerHTML=`
-      <div class="shabbat-row"><span class="shabbat-label">🕯 Allumage (pas avant)</span><span class="shabbat-time">${z?fmtH(z.sunset-18/60):'—'}</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">🌇 Coucher du soleil</span><span class="shabbat-time">${z?fmtH(z.sunset):'—'}</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">⭐ 3 étoiles (fin Chabbat)</span><span class="shabbat-time">${z?fmtH(z.tzet):'—'}</span></div>
-      <div class="shabbat-row"><span class="shabbat-label">🌙 Rabénou Tam</span><span class="shabbat-time">${z?fmtH(z.tzet_rt_ovadia):'—'}</span></div>`;
-    grid.appendChild(c);
-  }
-
-  // ZMANIM
-  if(z){
-    const c=mkCard('🕰','Zmanim du jour',`${['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][now.getDay()]} ${now.getDate()} ${MN[now.getMonth()]} — Lyon`);
-    c.querySelector('.cal-body').innerHTML=`<div class="zman-grid">
-      <div class="zman-item"><div class="zman-label">🌄 Alot HaShahar</div><div class="zman-time">${fmtH(z.alot_posen)}</div><div class="zman-note">Rav Posen · 72 min</div></div>
-      <div class="zman-item"><div class="zman-label">🌅 Lever du soleil</div><div class="zman-time">${fmtH(z.sunrise)}</div><div class="zman-note">Hanetz HaHama</div></div>
-      <div class="zman-item"><div class="zman-label">📿 Début téfilin</div><div class="zman-time">${fmtH(z.misheyakir)}</div><div class="zman-note">Micheyakir</div></div>
-      <div class="zman-item"><div class="zman-label">📖 Fin Shema GR"A</div><div class="zman-time">${fmtH(z.shema_gra)}</div><div class="zman-note">Kriat Shema</div></div>
-      <div class="zman-item"><div class="zman-label">📖 Fin Shema M"A</div><div class="zman-time">${fmtH(z.shema_ma)}</div><div class="zman-note">Magen Avraham</div></div>
-      <div class="zman-item"><div class="zman-label">🙏 Fin Tefila GR"A</div><div class="zman-time">${fmtH(z.tfila_gra)}</div><div class="zman-note">Zman Tefila</div></div>
-      <div class="zman-item"><div class="zman-label">☀️ Hatsot</div><div class="zman-time">${fmtH(z.hatsot)}</div><div class="zman-note">Midi solaire</div></div>
-      <div class="zman-item"><div class="zman-label">🕌 Minha Guedola</div><div class="zman-time">${fmtH(z.minha_gedola)}</div><div class="zman-note">30 min après Hatsot</div></div>
-      <div class="zman-item"><div class="zman-label">🕌 Minha Ketana</div><div class="zman-time">${fmtH(z.minha_ketana)}</div><div class="zman-note">9.5h depuis Alot</div></div>
-      <div class="zman-item"><div class="zman-label">🌆 Plag HaMinha</div><div class="zman-time">${fmtH(z.plag)}</div><div class="zman-note">75 min avant coucher</div></div>
-      <div class="zman-item"><div class="zman-label">🌇 Coucher soleil</div><div class="zman-time">${fmtH(z.sunset)}</div><div class="zman-note">Chkiat HaHama</div></div>
-      <div class="zman-item"><div class="zman-label">🌙 3 étoiles</div><div class="zman-time">${fmtH(z.tzet)}</div><div class="zman-note">Tsét Hakokavim</div></div>
-      <div class="zman-item"><div class="zman-label">⭐ Rabénou Tam</div><div class="zman-time">${fmtH(z.tzet_rt_ovadia)}</div><div class="zman-note">Rav Ovadia · 72 min</div></div>
-      <div class="zman-item"><div class="zman-label">⏱ Heure zmanit GR"A</div><div class="zman-time">${Math.floor(z.shaot_gra)}:${String(Math.round((z.shaot_gra%1)*60)).padStart(2,'0')}</div><div class="zman-note">Heure saisonnière</div></div>
-    </div>`;
-    grid.appendChild(c);
-  }
-
-  // OMER
-  if(omer){
-    const c=mkCard('🌾','Compte de l\'Omer',jd.str);
-    c.querySelector('.cal-body').innerHTML=`<div class="omer-big">
-      <div class="omer-num">${omer.jour}</div>
-      <div class="omer-label">${omer.jour}ème jour de l'Omer — Semaine ${omer.semaine}, jour ${omer.jourSem}</div>
-      <div class="omer-sefirot">${omer.sefirot}</div>
-      <div style="font-size:11px;color:var(--text-dim);margin-top:8px">${49-omer.jour} jour${49-omer.jour>1?'s':''} jusqu'à Chavouot</div>
-    </div>`;
-    grid.appendChild(c);
-  }
-
-  // DAF YOMI
-  {
-    const c=mkCard('📚','Daf Yomi','Cycle 16');
-    c.querySelector('.cal-body').innerHTML=`<div class="daf-display">
-      <div class="daf-masechet">${daf.n}</div>
-      <div class="daf-num">${daf.d}</div>
-      <div class="daf-sub">${jd.str}</div>
-    </div>`;
-    grid.appendChild(c);
-  }
-
-  // TEHILIM
-  {
-    const c=mkCard('📜','Tehilim du jour',`${jd.day} ${JM[jd.month]} — Division mensuelle`);
-    c.querySelector('.cal-body').innerHTML=`<div class="tehilim-big">
-      <div class="tehilim-chaps">Psaumes ${getTehilim(now)}</div>
-      <div class="tehilim-label">Jour ${jd.day} du mois de ${JM[jd.month]}</div>
-    </div>`;
-    grid.appendChild(c);
-  }
-
-  // FETES
-  {
-    const c=mkCard('🎉','Prochaines fêtes','5786 — 5787');
-    const upcoming=FETES.filter(f=>{
-      const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());
-      return fd>=today0;
-    }).slice(0,8);
-    c.querySelector('.cal-body').innerHTML=upcoming.map(f=>{
-      const fd=new Date(f.date.getFullYear(),f.date.getMonth(),f.date.getDate());
-      const diff=Math.round((fd-today0)/86400000);
-      const isToday=diff===0;
-      const soon=diff>0&&diff<=7;
-      const badge=isToday?`<span class="fete-badge fete-today">Aujourd'hui !</span>`:soon?`<span class="fete-badge fete-soon">Dans ${diff}j</span>`:'';
-      return`<div class="fete-item">
-        <div><div class="fete-name">${f.name} ${badge}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">${f.note}</div></div>
-        <div style="font-size:12px;color:var(--text-dim)">${f.date.getDate()} ${MN[f.date.getMonth()]}</div>
-      </div>`;
-    }).join('');
-    grid.appendChild(c);
-  }
-
-  // BIRKAT HALEVANA
-  {
-    const c=mkCard('🌙','Birkat Halevana','Bénédiction de la nouvelle lune');
-    const windows=BIRKAT.filter(w=>{
-      const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());
-      return df>=today0;
-    }).slice(0,3);
-    c.querySelector('.cal-body').innerHTML=windows.map(w=>{
-      const db=new Date(w.debut.getFullYear(),w.debut.getMonth(),w.debut.getDate());
-      const df=new Date(w.fin.getFullYear(),w.fin.getMonth(),w.fin.getDate());
-      const isActive=today0>=db&&today0<=df;
-      return`<div class="birkat-window ${isActive?'active-win':''}">
-        <div class="birkat-label">${w.mois} ${isActive?'<span style="color:var(--success)">● Fenêtre ouverte</span>':''}</div>
-        <div class="birkat-dates">Du ${w.debut.getDate()} ${MN[w.debut.getMonth()]} au ${w.fin.getDate()} ${MN[w.fin.getMonth()]}</div>
-        ${isActive?'<div class="birkat-note">🌙 Tu peux réciter Birkat Halevana ce soir !</div>':''}
-      </div>`;
-    }).join('');
-    grid.appendChild(c);
-  }
+// ================================================================
+// TORAH / MIKVE
+// ================================================================
+function buildTorah(){
+  const mb=MB[new Date().getDate()%MB.length]||MB[0];
+  document.getElementById('mbRef').textContent=mb.ref;
+  document.getElementById('mbText').textContent=mb.text;
+  const list=document.getElementById('mikveList');
+  if(list.dataset.built)return;list.dataset.built='1';
+  MIKVAOT.forEach(m=>{
+    const bcls=m.who==='women'?'mb-w':m.who==='men'?'mb-m':'mb-b';
+    const btxt=m.who==='women'?'Femmes':m.who==='men'?'Hommes':'Mixte';
+    const c=document.createElement('div');c.className='mikve-card';
+    c.innerHTML=`<div class="mikve-hd"><div><div class="mikve-name">${m.name}</div><div class="mikve-addr">📍 ${m.addr}</div>${m.contact?`<div class="mikve-contact">👤 ${m.contact}</div>`:''}</div><span class="mbadge ${bcls}">${btxt}</span></div>`;
+    if(m.tel){c.innerHTML+=`<div class="mikve-btns"><a class="call-btn" href="tel:${m.tel}">📞 ${m.tel.replace(/(\d{2})(?=\d)/g,'$1 ')}</a><a class="wa-btn" href="https://wa.me/33${m.tel.slice(1)}" target="_blank">💬</a></div>`;}
+    list.appendChild(c);
+  });
 }
 
-function showPage(page){
-  ['Prayer','Calendar','About'].forEach(p=>document.getElementById('page'+p).classList.toggle('hidden',p.toLowerCase()!==page));
-  document.getElementById('navP').classList.toggle('active',page==='prayer');
-  document.getElementById('navC').classList.toggle('active',page==='calendar');
-  document.getElementById('navA').classList.toggle('active',page==='about');
-  if(page==='calendar')buildCalendar();
+// ================================================================
+// NAVIGATION / LANGUE / NOTIF / PARTAGE
+// ================================================================
+function showPage(idx){
+  document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.querySelectorAll('.nbtn').forEach((n,i)=>n.classList.toggle('on',i===idx));
+  activePage=idx;
+  if(idx===1)buildCalendar();
+  if(idx===2)buildTorah();
 }
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lbtn').forEach(b=>{const map={'fr':'FR','he':'עב','en':'EN'};b.classList.toggle('on',b.textContent===map[l]);});
+  updateHeader();buildDays();buildList();
+}
+function askNotif(){
+  if(!('Notification' in window)){alert('Notifications non disponibles.');return;}
+  Notification.requestPermission().then(p=>{if(p==='granted'){dismissNotif();localStorage.setItem('notif','1');alert('Notifications activées ! 🔔');}});
+}
+function dismissNotif(){document.getElementById('notifBanner').classList.add('hidden');}
+function shareWA(){const msg=encodeURIComponent(`🕍 *Minyan Lyon* — Trouve les horaires de toutes les synagogues de Lyon !\n👉 ${window.location.href}`);window.open(`https://wa.me/?text=${msg}`,'_blank');}
+function shareNative(){if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.href});}else{navigator.clipboard.writeText(window.location.href).then(()=>alert('Lien copié !'));}}
 
+// ================================================================
+// INIT
+// ================================================================
 document.addEventListener('DOMContentLoaded',()=>{
-  updateHeader();
-  buildDaySelector();
-  buildList();
-  setInterval(updateHeader,60000);
+  if(localStorage.getItem('notif')==='1')dismissNotif();
+  updateHeader();buildDays();buildList();
+  getLocation(); // Point 1 — géolocalisation
+  setInterval(updateHeader,60000);
+  setInterval(renderImprovs,60000);
+  // Tenter de lancer le compte à rebours (si zmanim disponibles)
+  buildCalendar().then(()=>{}); // Charge en arrière-plan pour le compte à rebours
 });
 </script>
+
 </body>
 </html>
