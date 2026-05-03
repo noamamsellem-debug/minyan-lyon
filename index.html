@@ -1,4 +1,5 @@
-µ<!DOCTYPE html>
+<!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -233,6 +234,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
       <button class="f-chip" onclick="setZone(this,'lyon3')">Lyon 3</button>
       <button class="f-chip" onclick="setZone(this,'lyon6')">Lyon 6</button>
       <button class="f-chip" onclick="setZone(this,'lyon7')">Lyon 7</button>
+      <button class="f-chip" onclick="setZone(this,'lyon8')">Lyon 8</button>
       <button class="f-chip" onclick="setZone(this,'lyon9')">Lyon 9</button>
       <button class="f-chip" onclick="setZone(this,'villeurb')">Villeurbanne</button>
       <button class="f-chip" onclick="setZone(this,'caluire')">Caluire</button>
@@ -332,7 +334,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 
 <script>
 const SYNS=[
-  {id:1,name:"Minian du NETS",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"mixte",zone:"villeurb",lat:45.768,lng:4.870,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45 / 5h50",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:1,name:"Minian du NETS",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.870,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45 / 5h50",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:2,name:"Yismah' Lev",addr:"14 Rue Pierre Loti, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.769,lng:4.868,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:3,name:"Torath Emeth",addr:"52 Rue Hippolyte Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.769,lng:4.875,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"5h35 / 9h00",mi:"19h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"19h30"},lundi_jeudi:{sh:"6h45",mi:"19h10",ar:"19h30"},mardi_mercredi:{sh:"6h45",mi:"19h10",ar:"19h30"}}},
   {id:4,name:"Ecole Juive",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.870,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"7h30 / 8h25",mi:null,ar:"21h39"},dimanche:{sh:"7h15",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h45",mi:"19h00",ar:"19h20"}}},
@@ -344,28 +346,26 @@ const SYNS=[
   {id:10,name:"Beth Menahem Habad",addr:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"habad",zone:"villeurb",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
   {id:11,name:"Beth Menahem Séfarade",addr:"293 Rue Francis de Pressensé, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h15",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:"21h39"},dimanche:{sh:"8h15",mi:null,ar:null},lundi_jeudi:{sh:"7h15",mi:null,ar:null},mardi_mercredi:{sh:"7h15",mi:null,ar:null}}},
   {id:12,name:"Beth Habad Charpennes",addr:"86 Cours Émile Zola, 69100 Villeurbanne",rite:"habad",zone:"villeurb",lat:45.771,lng:4.871,h:{vendredi:{sh:"7h00",mi:"19h30",ar:"19h50"},shabbat:{sh:"10h00",mi:"20h15",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h30",ar:"19h50"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"19h50"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"19h50"}}},
-  {id:13,name:"Neveh Chalom",addr:"317 Rue Duguesclin, 69007 Lyon",rite:"sefarde",zone:"lyon7",lat:45.751,lng:4.851,h:{vendredi:{sh:"7h00",mi:"18h10",ar:"18h30"},shabbat:{sh:"8h30",mi:"18h00",ar:null},dimanche:{sh:"8h00",mi:"18h45",ar:"19h05"},lundi_jeudi:{sh:"7h00",mi:"18h45",ar:"19h05"},mardi_mercredi:{sh:"7h00",mi:"18h45",ar:"19h05"}}},
-  {id:14,name:"Chaaré Tsédék",addr:"16 Rue St Mathieu, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.771,lng:4.849,h:{vendredi:{sh:"6h30",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h30",mi:"19h00",ar:"19h20"}}},
+  {id:14,name:"Chaaré Tsédék",addr:"16 Rue St Mathieu, 69008 Lyon",rite:"sefarde",zone:"lyon8",lat:45.771,lng:4.849,h:{vendredi:{sh:"6h30",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"6h30",mi:"19h00",ar:"19h20"}}},
   {id:15,name:"Mizrahi",addr:"156 Rue Cuvier, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.767,lng:4.854,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h45",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h45",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"19h20"}}},
   {id:16,name:"Or David Lyon 6",addr:"109 Rue Tronchet, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.768,lng:4.852,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:"19h30"},lundi_jeudi:{sh:"7h00",mi:"19h10",ar:"19h30"},mardi_mercredi:{sh:"7h00",mi:"19h10",ar:"19h30"}}},
-  {id:17,name:"Braha Vehatslaha",addr:"19 Rue J. Bourgey, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.769,lng:4.851,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:18,name:"CERJ",addr:"76 Rue de Fontanières, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",lat:45.773,lng:4.884,h:{vendredi:{sh:"7h00",mi:"19h30",ar:"19h50"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h30",ar:"19h50"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"19h50"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"19h50"}}},
-  {id:19,name:"Grande Synagogue de Lyon",addr:"13 Quai Tilsitt, 69002 Lyon",rite:"ashkenaze",zone:"lyon2",lat:45.757,lng:4.828,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"18h40",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h05",ar:"19h25"},lundi_jeudi:{sh:"7h00",mi:"19h05",ar:"19h25"},mardi_mercredi:{sh:"7h00",mi:"19h05",ar:"19h25"}}},
-  {id:20,name:"ACIM Beth Moché",addr:"22 Cours du Dr Long, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.769,lng:4.853,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"20h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h45",mi:null,ar:null},mardi_mercredi:{sh:"6h45",mi:null,ar:null}}},
-  {id:21,name:"Beth Israel",addr:"26 Rue Tête d'Or, 69006 Lyon",rite:"ashkenaze",zone:"lyon6",lat:45.768,lng:4.854,h:{vendredi:{sh:"7h45",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h45",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h45",mi:"19h00",ar:"19h20"}}},
+  {id:17,name:"Braha Vehatslaha",addr:"19 Rue J. Bourgey, 69008 Lyon",rite:"sefarde",zone:"lyon8",lat:45.769,lng:4.851,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
+  {id:18,name:"CERJ",addr:"76 Rue de Fontanières, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.773,lng:4.884,h:{vendredi:{sh:"7h00",mi:"19h30",ar:"19h50"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h30",ar:"19h50"},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:"19h50"},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:"19h50"}}},
+  {id:19,name:"Grande Synagogue de Lyon",addr:"13 Quai Tilsitt, 69002 Lyon",rite:"sefarde",zone:"lyon2",lat:45.757,lng:4.828,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:"9h00",mi:"18h40",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h05",ar:"19h25"},lundi_jeudi:{sh:"7h00",mi:"19h05",ar:"19h25"},mardi_mercredi:{sh:"7h00",mi:"19h05",ar:"19h25"}}},
+  {id:20,name:"ACIM Beth Moché",addr:"22 Cours du Dr Long, 69008 Lyon",rite:"sefarde",zone:"lyon8",lat:45.769,lng:4.853,h:{vendredi:{sh:"6h45",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"20h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"6h45",mi:null,ar:null},mardi_mercredi:{sh:"6h45",mi:null,ar:null}}},
+  {id:21,name:"Beth Israel",addr:"26 Rue Tête d'Or, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.768,lng:4.854,h:{vendredi:{sh:"7h45",mi:"19h00",ar:"19h20"},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h30",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h45",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h45",mi:"19h00",ar:"19h20"}}},
   {id:22,name:"Rav Hyda",addr:"501 Rue Sauvegarde Duchère, 69009 Lyon",rite:"sefarde",zone:"lyon9",lat:45.788,lng:4.792,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"9h00",mi:"21h00",ar:null},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:23,name:"Mérone",addr:"61 Rue de Greuze, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.770,lng:4.855,h:{vendredi:{sh:null,mi:"20h00",ar:"20h20"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:24,name:"Ohel Yaacov",addr:"26 Rue Cheneul, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.770,lng:4.876,h:{vendredi:{sh:"6h30",mi:"18h45",ar:"19h05"},shabbat:{sh:"8h30",mi:"20h00",ar:"21h39"},dimanche:{sh:"6h30",mi:"18h55",ar:"19h15"},lundi_jeudi:{sh:"6h30",mi:"18h55",ar:"19h15"},mardi_mercredi:{sh:"6h30",mi:"18h55",ar:"19h15"}}},
+  {id:23,name:"Mérone",addr:"61 Rue de Greuze, 69008 Lyon",rite:"sefarde",zone:"lyon8",lat:45.770,lng:4.855,h:{vendredi:{sh:null,mi:"20h00",ar:"20h20"},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
+  {id:24,name:"Ohel Yaacov",addr:"26 Rue Chevreul, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.770,lng:4.876,h:{vendredi:{sh:"6h30",mi:"18h45",ar:"19h05"},shabbat:{sh:"8h30",mi:"20h00",ar:"21h39"},dimanche:{sh:"6h30",mi:"18h55",ar:"19h15"},lundi_jeudi:{sh:"6h30",mi:"18h55",ar:"19h15"},mardi_mercredi:{sh:"6h30",mi:"18h55",ar:"19h15"}}},
   {id:25,name:"Harav Sidi Fredj Halimi",addr:"7 Rue du Dr Frappaz, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.771,lng:4.882,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
   {id:26,name:"Beth Habad Part-Dieu",addr:"119 Rue Servient, 69003 Lyon",rite:"habad",zone:"lyon3",lat:45.761,lng:4.851,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:27,name:"Chabad Lyon 6",addr:"60 Rue Crillon, 69006 Lyon",rite:"habad",zone:"lyon6",lat:45.771,lng:4.851,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"9h30",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:28,name:"Ateret Eliyaou",addr:"24 Allée Simon Saint-Jean, 69130 Écully",rite:"sefarde",zone:"ecully",lat:45.789,lng:4.768,h:{vendredi:{sh:"7h00",mi:"19h15",ar:"19h35"},shabbat:{sh:"9h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:29,name:"Yechiva Pinto Or David",addr:"41 Chemin du Chancelier, 69130 Écully",rite:"sefarde",zone:"ecully",lat:45.785,lng:4.772,h:{vendredi:{sh:"7h30",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h30",mi:null,ar:null},mardi_mercredi:{sh:"7h30",mi:null,ar:null}}},
   {id:30,name:"CI Caluire",addr:"48 Avenue Général Leclerc, 69300 Caluire",rite:"sefarde",zone:"caluire",lat:45.802,lng:4.858,h:{vendredi:{sh:null,mi:"18h45",ar:null},shabbat:{sh:"9h00",mi:"19h45",ar:"21h39"},dimanche:{sh:"8h00",mi:"18h50",ar:"19h10"},lundi_jeudi:{sh:"6h30",mi:"20h15",ar:"20h35"},mardi_mercredi:{sh:"6h30",mi:"20h15",ar:"20h35"}}},
   {id:31,name:"ACIB Bron",addr:"97 Rue de la Pagère, 69500 Bron",rite:"sefarde",zone:"banlieue",lat:45.741,lng:4.915,h:{vendredi:{sh:"6h30",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:null},dimanche:{sh:"7h30",mi:null,ar:null},lundi_jeudi:{sh:"6h30",mi:null,ar:null},mardi_mercredi:{sh:"6h30",mi:null,ar:null}}},
   {id:32,name:"AJECO Oullins",addr:"18 Rue Aulagne, 69600 Oullins",rite:"sefarde",zone:"banlieue",lat:45.715,lng:4.808,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:33,name:"ACI Meyziau",addr:"6 Avenue de la Libération, 69330 Meyzieu",rite:"sefarde",zone:"banlieue",lat:45.767,lng:5.006,h:{vendredi:{sh:null,mi:"18h00",ar:null},shabbat:{sh:"9h00",mi:"17h50",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:34,name:"Or David Écully",addr:"Écully",rite:"sefarde",zone:"ecully",lat:45.787,lng:4.770,h:{vendredi:{sh:"7h15",mi:"20h00",ar:"20h20"},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"7h15",mi:"20h00",ar:"20h20"},lundi_jeudi:{sh:"7h15",mi:"20h00",ar:"20h20"},mardi_mercredi:{sh:"7h15",mi:"20h00",ar:"20h20"}}},
+  {id:34,name:"Or David Écully",addr:"41 Chemin du Chancelier, 69130 Écully",rite:"sefarde",zone:"ecully",lat:45.787,lng:4.770,h:{vendredi:{sh:"7h15",mi:"20h00",ar:"20h20"},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"7h15",mi:"20h00",ar:"20h20"},lundi_jeudi:{sh:"7h15",mi:"20h00",ar:"20h20"},mardi_mercredi:{sh:"7h15",mi:"20h00",ar:"20h20"}}},
 ];
 
 const MIKVAOT=[
@@ -482,7 +482,31 @@ function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.
 
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
 function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0)return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
-function nextPrayer(syn,now){const dk=getDayKey(now);const today=syn.h[dk];if(!today)return null;const nowH=now.getHours()+now.getMinutes()/60;const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);const upcoming=prayers.filter(p=>p.time>=nowH-0.25);if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.25};}const tomorrow=new Date(now.getTime()+86400000);const tdk=getDayKey(tomorrow);const td=syn.h[tdk];if(!td)return null;const tp=[{type:'sh',name:'Shaharit',time:parseHour(td.sh)},{type:'mi',name:'Minha',time:parseHour(td.mi)},{type:'ar',name:'Arvit',time:parseHour(td.ar)}].filter(p=>p.time);if(tp.length)return{...tp[0],when:'demain'};return null;}
+function nextPrayer(syn,now){
+  const dk=getDayKey(now);
+  const today=syn.h[dk];
+  const nowH=now.getHours()+now.getMinutes()/60;
+  // 1. Aujourd'hui d'abord
+  if(today){
+    const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);
+    const upcoming=prayers.filter(p=>p.time>=nowH-0.25);
+    if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.25,daysAhead:0};}
+  }
+  // 2. Sinon, chercher jusqu'à 7 jours dans le futur
+  const dayShort=['dim.','lun.','mar.','mer.','jeu.','ven.','shabbat'];
+  for(let i=1;i<=7;i++){
+    const future=new Date(now.getTime()+i*86400000);
+    const fdk=getDayKey(future);
+    const fd=syn.h[fdk];
+    if(!fd)continue;
+    const fp=[{type:'sh',name:'Shaharit',time:parseHour(fd.sh)},{type:'mi',name:'Minha',time:parseHour(fd.mi)},{type:'ar',name:'Arvit',time:parseHour(fd.ar)}].filter(p=>p.time);
+    if(fp.length){
+      const dayName=i===1?'demain':dayShort[future.getDay()];
+      return{...fp[0],when:dayName,daysAhead:i};
+    }
+  }
+  return null;
+}
 
 function distance(lat1,lng1,lat2,lng2){const R=6371000;const f1=lat1*Math.PI/180,f2=lat2*Math.PI/180;const df=(lat2-lat1)*Math.PI/180,dl=(lng2-lng1)*Math.PI/180;const a=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function fmtDist(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(1)} km`;}
@@ -498,20 +522,16 @@ function buildMinyanList(){
   else if(currentFilter==='fav')entries=entries.filter(e=>favorites.includes(e.syn.id));
   if(currentZone!=='all')entries=entries.filter(e=>e.syn.zone===currentZone);
   if(userLocation){
-    // Mode "Trouver minyan maintenant" — on ne veut PAS les prières de demain
+    // Mode "Trouver minyan maintenant" — uniquement les prières d'aujourd'hui dans les heures qui viennent
     const nowH=now.getHours()+now.getMinutes()/60;
-    // 1ère tentative : prières dans les 4h qui viennent (incluant celles en cours)
-    let nearby=entries.filter(e=>e.next.when!=='demain'&&e.next.time-nowH<=4&&e.next.time-nowH>=-0.25);
-    // Si rien, élargir à 8h
-    if(nearby.length===0)nearby=entries.filter(e=>e.next.when!=='demain'&&e.next.time-nowH<=8);
-    // Si toujours rien, afficher demain matin
+    let nearby=entries.filter(e=>e.next.daysAhead===0&&e.next.time-nowH<=4&&e.next.time-nowH>=-0.25);
+    if(nearby.length===0)nearby=entries.filter(e=>e.next.daysAhead===0&&e.next.time-nowH<=8);
     if(nearby.length===0)nearby=entries;
     entries=nearby;
-    // Tri par distance — les plus proches en haut
     entries.sort((a,b)=>distance(userLocation.lat,userLocation.lng,a.syn.lat,a.syn.lng)-distance(userLocation.lat,userLocation.lng,b.syn.lat,b.syn.lng));
   }else{
-    // Tri par horaire — la prochaine prière en premier
-    entries.sort((a,b)=>{const ta=a.next.when==='demain'?a.next.time+24:a.next.time;const tb=b.next.when==='demain'?b.next.time+24:b.next.time;return ta-tb;});
+    // Tri par horaire — la prochaine prière en premier (incluant les jours futurs)
+    entries.sort((a,b)=>{const ta=a.next.daysAhead*24+a.next.time;const tb=b.next.daysAhead*24+b.next.time;return ta-tb;});
   }
   if(entries.length===0){list.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan pour ce filtre</div>';return;}
   entries.forEach((e,i)=>{
@@ -606,14 +626,14 @@ document.getElementById('obName').addEventListener('keypress',e=>{if(e.key==='En
 function updateCountdown(){
   const now=new Date();
   const all=SYNS.map(s=>({s,n:nextPrayer(s,now)})).filter(x=>x.n);
-  // Trier : on prend la prochaine en priorité (today), sinon demain
-  all.sort((a,b)=>{const ta=a.n.when==='demain'?a.n.time+24:a.n.time;const tb=b.n.when==='demain'?b.n.time+24:b.n.time;return ta-tb;});
+  // Tri : prière la plus proche dans le temps
+  all.sort((a,b)=>{const ta=a.n.daysAhead*24+a.n.time;const tb=b.n.daysAhead*24+b.n.time;return ta-tb;});
   const upcoming=all[0];
   if(!upcoming){document.getElementById('zcardCd').style.display='none';return;}
   document.getElementById('zcardCd').style.display='flex';
   const synName=upcoming.s.name.length>20?upcoming.s.name.slice(0,20)+'…':upcoming.s.name;
-  if(upcoming.n.when==='demain'){
-    document.getElementById('cdText').innerHTML=`Prochaine : <b>${upcoming.n.name}</b> demain · ${synName}`;
+  if(upcoming.n.daysAhead>=1){
+    document.getElementById('cdText').innerHTML=`Prochaine : <b>${upcoming.n.name}</b> ${upcoming.n.when} · ${synName}`;
     document.getElementById('cdTime2').textContent=fmt(upcoming.n.time);
     return;
   }
@@ -651,5 +671,6 @@ function init(){
 }
 init();
 </script>
+
 </body>
 </html>
