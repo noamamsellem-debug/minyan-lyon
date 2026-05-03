@@ -171,6 +171,13 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .detail-body ul li b{color:var(--ink);font-weight:600;}
 .detail-body .pull{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink);line-height:1.45;padding:18px 20px;background:var(--card);border-left:3px solid var(--gold);border-radius:8px;margin:18px 0;}
 .detail-body .sources{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--ink-faint);font-style:italic;line-height:1.6;}
+.h-tab{width:100%;border-collapse:collapse;margin:10px 0 18px;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line-soft);}
+.h-tab th{background:var(--bg-soft);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-soft);padding:11px 6px;text-align:center;}
+.h-tab th:first-child{text-align:left;padding-left:14px;}
+.h-tab td{padding:13px 6px;border-top:1px solid var(--line-soft);font-size:14px;text-align:center;font-family:var(--serif);font-weight:600;color:var(--ink);letter-spacing:-0.005em;}
+.h-tab td:first-child{text-align:left;padding-left:14px;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--ink-soft);}
+.h-tab td.empty{color:var(--ink-faint);font-weight:400;}
+.h-tab tr:hover{background:var(--bg-soft);}
 .fade-up{animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) backwards;}
 .fade-up:nth-child(2){animation-delay:0.04s;}
 .fade-up:nth-child(3){animation-delay:0.08s;}
@@ -490,7 +497,13 @@ function buildMinyanList(){
   else if(currentFilter==='habad')entries=entries.filter(e=>e.syn.rite==='habad');
   else if(currentFilter==='fav')entries=entries.filter(e=>favorites.includes(e.syn.id));
   if(currentZone!=='all')entries=entries.filter(e=>e.syn.zone===currentZone);
-  entries.sort((a,b)=>{const ta=a.next.when==='demain'?a.next.time+24:a.next.time;const tb=b.next.when==='demain'?b.next.time+24:b.next.time;return ta-tb;});
+  if(userLocation){
+    // Tri par distance — l'utilisateur veut les plus proches en premier
+    entries.sort((a,b)=>distance(userLocation.lat,userLocation.lng,a.syn.lat,a.syn.lng)-distance(userLocation.lat,userLocation.lng,b.syn.lat,b.syn.lng));
+  }else{
+    // Tri par horaire — la prochaine prière en premier
+    entries.sort((a,b)=>{const ta=a.next.when==='demain'?a.next.time+24:a.next.time;const tb=b.next.when==='demain'?b.next.time+24:b.next.time;return ta-tb;});
+  }
   if(entries.length===0){list.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan pour ce filtre</div>';return;}
   entries.forEach((e,i)=>{
     const distHTML=userLocation?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
@@ -516,7 +529,20 @@ function closeDetail(){document.getElementById('detailView').classList.remove('s
 
 function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem, même lorsque les intentions individuelles ne sont pas parfaites.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div><h3>2. Une obligation rigoureuse</h3><p>On doit prier chaque jour en minyan, sauf cas de force majeure (onès). Certains avis considèrent même cette obligation comme absolue, nécessitant de parcourir une distance pour trouver un minyan.</p><h3>3. Les "Davar Shebikdousha"</h3><p>Certains éléments sacrés ne peuvent être récités qu'en présence d'un minyan :</p><ul><li>Le <b>Kaddish</b></li><li>La <b>Kedousha</b></li><li>Le <b>Barekhou</b></li><li>Les <b>13 Attributs de Miséricorde</b></li><li>La <b>répétition de la Amida</b> par le Chaliah Tsibour</li></ul><h3>4. Préférer le minyan au lieu fixe</h3><p>Si aucun minyan ne s'est réuni à votre endroit habituel, déplacez-vous pour en trouver un — la valeur du minyan est supérieure à celle du lieu fixe.</p><h3>5. La répétition de la Amida</h3><p>Les Sages ont institué que l'officiant (Chaliah Tsibour) répète la Amida à voix haute, permettant à ceux qui ne sont pas experts ou qui n'ont pas eu la kavana lors de leur prière silencieuse de s'acquitter de leur obligation.</p><h3>En résumé</h3><p>La prière en minyan est <b>hautement valorisée</b> dans le judaïsme — plus apte à être acceptée par Hachem, et indispensable pour les "choses de sainteté".</p><div class="sources">Sources : Yalkout Yossef · Peninei Halakhah · Aroukh HaShoulhan · B'Mareh HaBazak (Vol. III, IX, X)</div>`);}
 
-function openSynDetail(syn){const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lundi & Jeudi'],['mardi_mercredi','Mardi & Mercredi']];let rows='';days.forEach(([k,l])=>{const h=syn.h[k];if(!h)return;const items=[];if(h.sh)items.push(`<b>Shaharit</b> ${h.sh}`);if(h.mi)items.push(`<b>Minha</b> ${h.mi}`);if(h.ar)items.push(`<b>Arvit</b> ${h.ar}`);if(items.length)rows+=`<li><b>${l}</b> — ${items.join(' · ')}</li>`;});const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';const fav=favorites.includes(syn.id);const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[syn.rite]||syn.rite;openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p><p>${syn.addr}</p>${distHTML}<button class="ob-btn" style="margin:18px 0;" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${syn.addr.replace(/'/g,"\\'")}'),'_blank')">📍 Itinéraire Google Maps</button><h3>Horaires de la semaine</h3><ul>${rows||'<li>Pas d horaires renseignés</li>'}</ul>`);}
+function openSynDetail(syn){
+  const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lun & Jeu'],['mardi_mercredi','Mar & Mer']];
+  let tableRows='';let hasAny=false;
+  days.forEach(([k,l])=>{
+    const h=syn.h[k];
+    if(!h){tableRows+=`<tr><td>${l}</td><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td></tr>`;return;}
+    if(h.sh||h.mi||h.ar)hasAny=true;
+    tableRows+=`<tr><td>${l}</td><td class="${h.sh?'':'empty'}">${h.sh||'—'}</td><td class="${h.mi?'':'empty'}">${h.mi||'—'}</td><td class="${h.ar?'':'empty'}">${h.ar||'—'}</td></tr>`;
+  });
+  const tableHTML=hasAny?`<table class="h-tab"><thead><tr><th>Jour</th><th>Shaharit</th><th>Minha</th><th>Arvit</th></tr></thead><tbody>${tableRows}</tbody></table>`:'<p style="color:var(--ink-faint);font-style:italic;">Horaires non renseignés.</p>';
+  const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';
+  const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[syn.rite]||syn.rite;
+  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p><p>${syn.addr}</p>${distHTML}<button class="ob-btn" style="margin:18px 0;" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${syn.addr.replace(/'/g,"\\'")}'),'_blank')">📍 Itinéraire Google Maps</button><h3>Horaires de la semaine</h3>${tableHTML}`);
+}
 
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.page===name));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo(0,0);if(name==='cal')buildCalendar();if(name==='torah')buildTorah();}
 
