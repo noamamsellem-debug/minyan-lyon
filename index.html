@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+µ<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -498,7 +498,16 @@ function buildMinyanList(){
   else if(currentFilter==='fav')entries=entries.filter(e=>favorites.includes(e.syn.id));
   if(currentZone!=='all')entries=entries.filter(e=>e.syn.zone===currentZone);
   if(userLocation){
-    // Tri par distance — l'utilisateur veut les plus proches en premier
+    // Mode "Trouver minyan maintenant" — on ne veut PAS les prières de demain
+    const nowH=now.getHours()+now.getMinutes()/60;
+    // 1ère tentative : prières dans les 4h qui viennent (incluant celles en cours)
+    let nearby=entries.filter(e=>e.next.when!=='demain'&&e.next.time-nowH<=4&&e.next.time-nowH>=-0.25);
+    // Si rien, élargir à 8h
+    if(nearby.length===0)nearby=entries.filter(e=>e.next.when!=='demain'&&e.next.time-nowH<=8);
+    // Si toujours rien, afficher demain matin
+    if(nearby.length===0)nearby=entries;
+    entries=nearby;
+    // Tri par distance — les plus proches en haut
     entries.sort((a,b)=>distance(userLocation.lat,userLocation.lng,a.syn.lat,a.syn.lng)-distance(userLocation.lat,userLocation.lng,b.syn.lat,b.syn.lng));
   }else{
     // Tri par horaire — la prochaine prière en premier
