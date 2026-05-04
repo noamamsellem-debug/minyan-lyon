@@ -802,7 +802,7 @@ function calcZmanimAstro(d){
   return{alot,tefilin,hanetz,shema_ma,shema_gra,tefila_ma,tefila_gra,hatsot,minha_g,minha_k,plag,shkia,tzeit,fin_shab,rt};
 }
 
-const SYNS=[
+const SYNS_DEFAULT=[
   {id:1,name:"Minian du NETS",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.87,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:2,name:"Yismah' Lev",addr:"14 Rue Pierre Loti, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.769,lng:4.868,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
   {id:3,name:"Torath Emeth",addr:"52 Rue H. Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.772,lng:4.88,h:{vendredi:{sh:"6h45",mi:"19h15",ar:null},shabbat:{sh:"5h35-9h00",mi:"19h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:null},lundi_jeudi:{sh:"6h45",mi:"19h10",ar:null},mardi_mercredi:{sh:"6h45",mi:"19h10",ar:null}}},
@@ -839,7 +839,7 @@ const SYNS=[
   {id:34,name:"Beth Hamidrach",addr:"91 Rue Magenta, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.770,lng:4.870,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:"7h45",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"19h20"}}},
 ];
 
-const MIKVAOT=[
+const MIKVAOT_DEFAULT=[
   {name:"CIV Malherbe Beer Myriam",addr:"35 Rue Racine, Villeurbanne",tel:"0652070417",contact:"Mme Benzakin",who:"both"},
   {name:"Mikveh Ecole Juive",addr:"47 Rue Jean Claude Vivant, Villeurbanne",tel:"0614610863",contact:"Mme Madar",who:"women"},
   {name:"Hayé Tahara",addr:"80 Rue Fontanières, Villeurbanne",tel:"0651156862",contact:"Mme Guedj",who:"women"},
@@ -933,6 +933,105 @@ function getDafYomi(d){
   }
   return"Nouveau cycle";
 }
+
+// === GOOGLE SHEETS LOADER ===
+const SHEET_URLS={
+  syns:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=0&single=true&output=csv",
+  mikvaot:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=1019443247&single=true&output=csv"
+};
+
+// Parser CSV simple (gère les guillemets pour les valeurs avec virgules)
+function parseCSV(text){
+  const rows=[];
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  for(const line of lines){
+    const cols=[];
+    let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){
+        if(inQ&&line[i+1]==='"'){cur+='"';i++;}
+        else inQ=!inQ;
+      }else if(c===','&&!inQ){cols.push(cur);cur='';}
+      else cur+=c;
+    }
+    cols.push(cur);
+    rows.push(cols);
+  }
+  return rows;
+}
+
+// Charger les Synagogues depuis Google Sheets
+async function loadSyns(){
+  try{
+    const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const rows=parseCSV(text);
+    if(rows.length<2)throw new Error('Pas de données');
+    // 1ère ligne = headers : id,name,addr,rite,zone,lat,lng,ven_sh,ven_mi,ven_ar,shab_sh,shab_mi,shab_ar,dim_sh,dim_mi,dim_ar,lj_sh,lj_mi,lj_ar,mm_sh,mm_mi,mm_ar
+    const newSyns=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r[0]||!r[1])continue;
+      newSyns.push({
+        id:parseInt(r[0])||i,
+        name:r[1],addr:r[2],rite:r[3]||'sefarde',zone:r[4]||'villeurb',
+        lat:parseFloat(r[5])||45.76,lng:parseFloat(r[6])||4.85,
+        h:{
+          vendredi:{sh:r[7]||null,mi:r[8]||null,ar:r[9]||null},
+          shabbat:{sh:r[10]||null,mi:r[11]||null,ar:r[12]||null},
+          dimanche:{sh:r[13]||null,mi:r[14]||null,ar:r[15]||null},
+          lundi_jeudi:{sh:r[16]||null,mi:r[17]||null,ar:r[18]||null},
+          mardi_mercredi:{sh:r[19]||null,mi:r[20]||null,ar:r[21]||null}
+        }
+      });
+    }
+    if(newSyns.length===0)throw new Error('Aucune syn valide');
+    // Cache local
+    localStorage.setItem('mlSyns',JSON.stringify(newSyns));
+    localStorage.setItem('mlSynsTime',Date.now());
+    return newSyns;
+  }catch(e){
+    console.warn('Erreur chargement syns:',e.message);
+    // Fallback : cache local
+    const cached=localStorage.getItem('mlSyns');
+    if(cached){try{return JSON.parse(cached);}catch{}}
+    // Fallback ultime : SYNS intégrées dans le code
+    return SYNS_DEFAULT;
+  }
+}
+
+// Charger les Mikvaot depuis Google Sheets
+async function loadMikvaot(){
+  try{
+    const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const rows=parseCSV(text);
+    if(rows.length<2)throw new Error('Pas de données');
+    // 1ère ligne = headers : name,addr,tel,contact,who
+    const newMik=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r[0])continue;
+      newMik.push({name:r[0],addr:r[1]||'',tel:r[2]||null,contact:r[3]||'',who:r[4]||'both'});
+    }
+    if(newMik.length===0)throw new Error('Aucun mikveh valide');
+    localStorage.setItem('mlMikvaot',JSON.stringify(newMik));
+    localStorage.setItem('mlMikvaotTime',Date.now());
+    return newMik;
+  }catch(e){
+    console.warn('Erreur chargement mikvaot:',e.message);
+    const cached=localStorage.getItem('mlMikvaot');
+    if(cached){try{return JSON.parse(cached);}catch{}}
+    return MIKVAOT_DEFAULT;
+  }
+}
+
+// === Données chargées dynamiquement (initialisées au démarrage) ===
+let SYNS=[];
+let MIKVAOT=[];
 
 let userLocation=null;
 let currentFilter='all';
@@ -1335,7 +1434,11 @@ function updateCountdown(){
   }
 }
 
-function init(){
+async function init(){
+  // 1. Charger les données depuis Google Sheets (avec fallback cache/code)
+  SYNS=await loadSyns();
+  MIKVAOT=await loadMikvaot();
+
   const userName=localStorage.getItem('mlUserName');
   if(userName){document.getElementById('userName').textContent=userName;}
   else{document.getElementById('obOverlay').classList.add('show');setTimeout(()=>document.getElementById('obName').focus(),400);}
