@@ -138,12 +138,19 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .mik-info .addr{font-size:12px;color:var(--ink-soft);margin-bottom:3px;}
 .mik-info .contact{font-size:11.5px;color:var(--ink-faint);}
 .mik-tel{padding:7px 10px;background:var(--ink);color:var(--bg);border-radius:10px;font-size:12px;font-weight:600;text-decoration:none;}
+.mik-actions{display:flex;flex-direction:column;gap:6px;}
+.mik-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--bg-soft);color:var(--ink);font-size:15px;text-decoration:none;border:1px solid var(--line);transition:transform 0.15s ease;}
+.mik-btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.mik-btn:active{transform:scale(0.92);}
+.mik-dist{font-size:11.5px;color:var(--gold);font-weight:600;margin-top:4px;letter-spacing:0.02em;}
 .compass-card{margin:8px 18px 18px;background:linear-gradient(180deg,#1B1B19 0%,#161613 100%);border-radius:var(--r-lg);padding:28px 22px;color:#F8E9C2;text-align:center;position:relative;overflow:hidden;}
 .compass-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(212,172,85,0.15) 0%,transparent 60%);pointer-events:none;}
 .compass-lbl{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(248,233,194,0.55);position:relative;z-index:1;}
-.compass-circle{width:220px;height:220px;margin:18px auto;border:2px solid rgba(212,172,85,0.3);border-radius:50%;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(212,172,85,0.08) 0%,transparent 70%);}
-.compass-needle{width:6px;height:96px;background:linear-gradient(to top,transparent 0%,transparent 50%,var(--gold) 50%,var(--gold-soft) 100%);transform-origin:center 96px;transition:transform 0.15s ease-out;border-radius:3px;position:relative;}
-.compass-needle::before{content:"";position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:14px solid var(--gold-soft);}
+.compass-circle{width:260px;height:260px;margin:18px auto;border:2px solid rgba(212,172,85,0.32);border-radius:50%;position:relative;z-index:1;background-color:#0d0d0c;background-image:radial-gradient(1.2px 1.2px at 22% 28%,rgba(248,233,194,0.55),transparent 60%),radial-gradient(1px 1px at 72% 22%,rgba(248,233,194,0.4),transparent 60%),radial-gradient(1.4px 1.4px at 50% 72%,rgba(248,233,194,0.5),transparent 60%),radial-gradient(1px 1px at 30% 84%,rgba(248,233,194,0.35),transparent 60%),radial-gradient(1.2px 1.2px at 84% 60%,rgba(248,233,194,0.45),transparent 60%),radial-gradient(0.8px 0.8px at 16% 60%,rgba(248,233,194,0.3),transparent 60%),radial-gradient(1px 1px at 60% 14%,rgba(248,233,194,0.4),transparent 60%),radial-gradient(0.8px 0.8px at 90% 80%,rgba(248,233,194,0.3),transparent 60%),radial-gradient(1px 1px at 8% 40%,rgba(248,233,194,0.35),transparent 60%),radial-gradient(0.8px 0.8px at 40% 50%,rgba(248,233,194,0.25),transparent 60%),radial-gradient(circle at 50% 50%,rgba(212,172,85,0.14) 0%,transparent 65%);overflow:hidden;box-shadow:inset 0 0 30px rgba(0,0,0,0.4);}
+.compass-circle::after{content:"";position:absolute;top:50%;left:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #0d0d0c,0 0 14px rgba(212,172,85,0.6);z-index:3;}
+.compass-needle{position:absolute;width:14px;height:128px;left:50%;top:50%;margin-left:-7px;margin-top:-128px;transform-origin:center bottom;transition:transform 0.18s cubic-bezier(0.22,0.61,0.36,1);will-change:transform;z-index:2;}
+.compass-needle::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:22px solid var(--gold);filter:drop-shadow(0 0 6px rgba(212,172,85,0.55));}
+.compass-needle::after{content:"";position:absolute;top:20px;left:50%;width:3px;height:106px;margin-left:-1.5px;background:linear-gradient(to bottom,var(--gold-soft) 0%,var(--gold) 60%,rgba(212,172,85,0.25) 100%);border-radius:3px 3px 1px 1px;}
 .compass-cardinal{position:absolute;font-family:var(--serif);font-size:14px;font-style:italic;color:rgba(248,233,194,0.5);}
 .compass-cardinal.n{top:8px;left:50%;transform:translateX(-50%);}
 .compass-cardinal.e{right:8px;top:50%;transform:translateY(-50%);color:var(--gold);font-weight:600;}
@@ -294,6 +301,19 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
       <div class="mb-head"><div class="mb-icon">📜</div><div class="mb-ref" id="mbRef">…</div></div>
       <div class="mb-text" id="mbText">…</div>
       <div class="mb-source">Mishna Broura — Orah Haïm</div>
+    </div>
+    <div class="find-wrap" style="margin-top:8px;">
+      <button class="find-btn" id="mikveFindBtn" onclick="findNearestMikve()">
+        <div class="find-ico">🛁</div>
+        <div class="find-txt"><div class="t">Trouver un mikvé</div><div class="s" id="mikveFindSub">Trier par distance</div></div>
+        <div class="find-arrow" id="mikveFindArrow">→</div>
+      </button>
+    </div>
+    <div class="filters" style="padding-top:0;">
+      <button class="f-chip mfilt on" onclick="setMikveFilter(this,'all')">Tous</button>
+      <button class="f-chip mfilt" onclick="setMikveFilter(this,'women')">♀ Femmes</button>
+      <button class="f-chip mfilt" onclick="setMikveFilter(this,'men')">♂ Hommes</button>
+      <button class="f-chip mfilt" onclick="setMikveFilter(this,'both')">⚭ Mixte</button>
     </div>
     <div class="section-title"><div class="t">Mikvaot de Lyon</div></div>
     <div id="mikvaotList"></div>
@@ -1263,42 +1283,146 @@ function buildCalendar(){
   document.getElementById('eventsList').innerHTML=evHTML;
 }
 
-function buildTorah(){const idx=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000)%MB.length;const mb=MB[idx];document.getElementById('mbRef').textContent=mb.ref;document.getElementById('mbText').textContent=mb.text;const list=document.getElementById('mikvaotList');list.innerHTML='';MIKVAOT.forEach((m,i)=>{const cls={women:'women',men:'men',both:'both'}[m.who];const ico={women:'♀',men:'♂',both:'⚭'}[m.who];const card=document.createElement('div');card.className='mik-card'+(i===0?' first':'');card.innerHTML=`<div class="mik-pill ${cls}">${ico}</div><div class="mik-info"><div class="name">${m.name}</div><div class="addr">${m.addr}</div><div class="contact">${m.contact}</div></div>${m.tel?`<a class="mik-tel" href="tel:${m.tel}">📞 Appeler</a>`:''}`;list.appendChild(card);});}
+// === MIKVAOT — coordonnées approximatives Lyon (par adresse) ===
+const MIKVE_COORDS={
+  "CIV Malherbe Beer Myriam":[45.770,4.882],
+  "Mikveh Ecole Juive":[45.769,4.880],
+  "Hayé Tahara":[45.766,4.890],
+  "Yéchiva Pinto":[45.770,4.876],
+  "Mikveh de la Duchère":[45.787,4.800],
+  "Mikveh Neveh Chalom":[45.751,4.851],
+  "Mikveh Haya Mouchka":[45.766,4.847],
+  "Mikveh d'Écully":[45.776,4.770],
+  "Mikveh Eshel":[45.745,4.910],
+  "Chaaré Tsédék":[45.731,4.860],
+  "Mikveh Mazal":[45.776,4.770],
+  "Beth Menahem (Hommes)":[45.768,4.897]
+};
+let mikveFilter='all';
+let mikveGeoMode=false;
+let mikveUserLocation=null;
+
+function setMikveFilter(btn,f){
+  mikveFilter=f;
+  btn.parentElement.querySelectorAll('.f-chip.mfilt').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  buildTorah();
+}
+
+function findNearestMikve(){
+  if(mikveGeoMode){
+    mikveGeoMode=false;mikveUserLocation=null;
+    const btn=document.getElementById('mikveFindBtn');
+    if(btn){btn.classList.remove('active');document.getElementById('mikveFindArrow').textContent='→';document.getElementById('mikveFindSub').textContent='Trier par distance';}
+    buildTorah();
+    return;
+  }
+  if(!navigator.geolocation){alert('Géolocalisation non disponible');return;}
+  document.getElementById('mikveFindSub').textContent='Localisation…';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    mikveUserLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    mikveGeoMode=true;
+    document.getElementById('mikveFindBtn').classList.add('active');
+    document.getElementById('mikveFindArrow').textContent='✕';
+    document.getElementById('mikveFindSub').textContent='Trié par distance · Toucher pour annuler';
+    buildTorah();
+    setTimeout(()=>{document.getElementById('mikvaotList').scrollIntoView({behavior:'smooth',block:'start'});},150);
+  },()=>{document.getElementById('mikveFindSub').textContent='Localisation impossible';setTimeout(()=>{document.getElementById('mikveFindSub').textContent='Trier par distance';},2000);});
+}
+
+function buildTorah(){
+  // Mishna Broura du jour
+  const idx=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000)%MB.length;
+  const mb=MB[idx];
+  const refEl=document.getElementById('mbRef');const textEl=document.getElementById('mbText');
+  if(refEl)refEl.textContent=mb.ref;
+  if(textEl)textEl.textContent=mb.text;
+  // Mikvaot list
+  const list=document.getElementById('mikvaotList');
+  if(!list||!MIKVAOT||!MIKVAOT.length)return;
+  list.innerHTML='';
+  let mikvaot=MIKVAOT.slice();
+  if(mikveFilter!=='all')mikvaot=mikvaot.filter(m=>m.who===mikveFilter);
+  if(mikveGeoMode&&mikveUserLocation){
+    mikvaot=mikvaot.map(m=>{const c=MIKVE_COORDS[m.name]||[45.76,4.85];return{...m,_dist:distance(mikveUserLocation.lat,mikveUserLocation.lng,c[0],c[1])};});
+    mikvaot.sort((a,b)=>a._dist-b._dist);
+  }
+  if(mikvaot.length===0){list.innerHTML='<div style="padding:30px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun mikvé pour ce filtre</div>';return;}
+  mikvaot.forEach((m,i)=>{
+    const cls={women:'women',men:'men',both:'both'}[m.who];
+    const ico={women:'♀',men:'♂',both:'⚭'}[m.who];
+    const distHTML=(mikveGeoMode&&m._dist!=null)?`<div class="mik-dist">${fmtDist(m._dist)} · ${fmtWalk(m._dist)}</div>`:'';
+    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.addr)}`;
+    const card=document.createElement('div');
+    card.className='mik-card'+(i===0?' first':'');
+    card.innerHTML=`
+      <div class="mik-pill ${cls}">${ico}</div>
+      <div class="mik-info">
+        <div class="name">${m.name}</div>
+        <div class="addr">${m.addr}</div>
+        <div class="contact">${m.contact}</div>
+        ${distHTML}
+      </div>
+      <div class="mik-actions">
+        ${m.tel?`<a class="mik-btn primary" href="tel:${m.tel}" onclick="event.stopPropagation()">📞</a>`:''}
+        <a class="mik-btn" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍</a>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
 
 const JERU_LAT=31.78,JERU_LNG=35.23;
 function calcBearing(lat1,lng1,lat2,lng2){const dLng=(lng2-lng1)*Math.PI/180;const la1=lat1*Math.PI/180,la2=lat2*Math.PI/180;const y=Math.sin(dLng)*Math.cos(la2);const x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLng);return((Math.atan2(y,x)*180/Math.PI)+360)%360;}
-const JERUSALEM_BEARING=Math.round(calcBearing(LYON_LAT,LYON_LNG,JERU_LAT,JERU_LNG));
-document.getElementById('compassDeg').innerHTML=`${JERUSALEM_BEARING}<span class="deg">°</span>`;
+let userCompassLat=LYON_LAT,userCompassLng=LYON_LNG;
+let JERUSALEM_BEARING=Math.round(calcBearing(userCompassLat,userCompassLng,JERU_LAT,JERU_LNG));
 let compassActive=false;
 let compassListeners=[];
+let smoothedDir=null;
+const COMPASS_SMOOTH_ALPHA=0.15;
+
+function updateBearingDisplay(){
+  const el=document.getElementById('compassDeg');
+  if(el)el.innerHTML=`${JERUSALEM_BEARING}<span class="deg">°</span>`;
+}
+updateBearingDisplay();
+
+function refreshUserPosition(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userCompassLat=pos.coords.latitude;
+    userCompassLng=pos.coords.longitude;
+    JERUSALEM_BEARING=Math.round(calcBearing(userCompassLat,userCompassLng,JERU_LAT,JERU_LNG));
+    if(!compassActive)updateBearingDisplay();
+  },()=>{},{enableHighAccuracy:false,timeout:6000,maximumAge:600000});
+}
 
 function startCompass(){
   if(compassActive){
-    // Désactiver
     compassListeners.forEach(fn=>{
       window.removeEventListener('deviceorientationabsolute',fn,true);
       window.removeEventListener('deviceorientation',fn,true);
     });
     compassListeners=[];
     compassActive=false;
+    smoothedDir=null;
     document.getElementById('compassNeedle').style.transform=`rotate(0deg)`;
-    document.getElementById('compassDeg').innerHTML=`${JERUSALEM_BEARING}<span class="deg">°</span>`;
-    document.getElementById('compassTowards').textContent="vers l'Est ★ Jérusalem";
+    updateBearingDisplay();
+    document.getElementById('compassTowards').textContent="vers Jérusalem ★";
     document.querySelector('.compass-btn').textContent='Activer la boussole';
     return;
   }
   if(!window.DeviceOrientationEvent){
-    alert('Boussole non disponible sur cet appareil. Réoriente ton téléphone vers l\'Est : Jérusalem est à environ '+JERUSALEM_BEARING+'° de Lyon.');
+    alert('Boussole non disponible sur cet appareil. Jérusalem est à environ '+JERUSALEM_BEARING+'° depuis ta position.');
     return;
   }
+  refreshUserPosition();
   // iOS 13+ requiert une demande de permission explicite
   if(typeof DeviceOrientationEvent.requestPermission==='function'){
     DeviceOrientationEvent.requestPermission().then(p=>{
       if(p==='granted')initCompass();
-      else alert('Permission refusée. Tu peux la réactiver dans Réglages → Safari → Mouvement.');
-    }).catch(err=>{
-      alert('Erreur : '+err.message);
-    });
+      else alert('Permission refusée. Active-la dans Réglages → Safari → Mouvement et orientation.');
+    }).catch(err=>{alert('Erreur boussole : '+err.message);});
   }else{
     initCompass();
   }
@@ -1306,8 +1430,9 @@ function startCompass(){
 
 function initCompass(){
   compassActive=true;
+  smoothedDir=null;
   document.querySelector('.compass-btn').textContent='Désactiver la boussole';
-  document.getElementById('compassTowards').textContent='Tourne lentement ton téléphone...';
+  document.getElementById('compassTowards').textContent='Tourne lentement ton téléphone…';
   const fn=handleCompass;
   compassListeners.push(fn);
   window.addEventListener('deviceorientationabsolute',fn,true);
@@ -1319,17 +1444,28 @@ function handleCompass(e){
   if(alpha===undefined||alpha===null){
     alpha=e.alpha;
     if(alpha===null||alpha===undefined)return;
-    alpha=360-alpha;
+    alpha=(360-alpha)%360;
   }
-  const direction=(JERUSALEM_BEARING-alpha+360)%360;
-  document.getElementById('compassNeedle').style.transform=`rotate(${direction}deg)`;
-  document.getElementById('compassDeg').innerHTML=`${Math.round(direction)}<span class="deg">°</span>`;
-  if(direction<8||direction>352){
-    document.getElementById('compassTowards').innerHTML='✓ <span style="color:var(--gold);">Face à Jérusalem</span>';
-  }else if(direction<45||direction>315){
-    document.getElementById('compassTowards').textContent='Presque... continue';
+  const raw=(JERUSALEM_BEARING-alpha+360)%360;
+  if(smoothedDir===null){
+    smoothedDir=raw;
   }else{
-    document.getElementById('compassTowards').textContent="Tourne vers l'Est ★ Jérusalem";
+    let diff=raw-smoothedDir;
+    if(diff>180)diff-=360;
+    else if(diff<-180)diff+=360;
+    smoothedDir=(smoothedDir+COMPASS_SMOOTH_ALPHA*diff+360)%360;
+  }
+  const dir=smoothedDir;
+  document.getElementById('compassNeedle').style.transform=`rotate(${dir}deg)`;
+  document.getElementById('compassDeg').innerHTML=`${Math.round(dir)}<span class="deg">°</span>`;
+  const off=Math.min(dir,360-dir);
+  const towards=document.getElementById('compassTowards');
+  if(off<=3){
+    towards.innerHTML='✓ <span style="color:var(--gold);font-weight:600;">Face à Jérusalem</span>';
+  }else if(off<=15){
+    towards.textContent='Presque… continue';
+  }else{
+    towards.textContent='Tourne vers Jérusalem ★';
   }
 }
 
