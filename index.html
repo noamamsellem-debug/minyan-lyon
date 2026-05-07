@@ -224,6 +224,28 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .imp-mode-btn.on{background:var(--ink);color:var(--bg);}
 .imp-status-badge{display:inline-block;padding:3px 8px;border-radius:99px;font-size:10.5px;font-weight:600;letter-spacing:0.03em;background:rgba(212,172,85,0.15);color:#8B6F2A;margin-bottom:14px;}
 .imp-status-badge.online{background:rgba(123,168,117,0.18);color:#4F7349;}
+/* Section '⚡ Minyans improvisés' dans la liste 'Trouver un minyan' */
+.imp-section-title{margin:14px 18px 10px;display:flex;align-items:center;gap:8px;}
+.imp-section-title .bolt{font-size:16px;}
+.imp-section-title .t{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-0.005em;}
+.imp-section-title .count{margin-left:auto;font-size:11px;color:var(--ink-soft);background:var(--bg-soft);padding:3px 9px;border-radius:99px;font-weight:600;}
+.imp-find-card{margin:0 18px 10px;background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:transform 0.15s ease;border:none;color:#5C3D1F;position:relative;}
+.imp-find-card:active{transform:scale(0.985);}
+.imp-find-card::before{content:"⚡";position:absolute;top:12px;right:14px;font-size:14px;opacity:0.6;}
+.imp-find-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;padding-right:18px;}
+.imp-find-name{font-family:var(--serif);font-size:15px;font-weight:600;color:#5C3D1F;}
+.imp-find-when{font-size:11.5px;color:#7A5530;margin-top:1px;}
+.imp-find-pill{padding:3px 8px;background:rgba(92,61,31,0.85);color:#FCE4CC;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:0.04em;flex-shrink:0;}
+.imp-find-pill.complet{background:#4F7349;}
+.imp-find-addr{font-size:11.5px;color:#7A5530;margin-bottom:8px;}
+.imp-find-progress{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.imp-find-progress-bar{flex:1;height:5px;background:rgba(92,61,31,0.18);border-radius:99px;overflow:hidden;}
+.imp-find-progress-fill{height:100%;background:#5C3D1F;border-radius:99px;}
+.imp-find-progress-fill.complet{background:#4F7349;}
+.imp-find-progress-text{font-size:11px;font-weight:700;color:#5C3D1F;min-width:34px;text-align:right;}
+.imp-find-actions{display:flex;gap:6px;}
+.imp-find-btn{flex:1;padding:7px;border-radius:8px;border:1.5px solid #5C3D1F;background:#5C3D1F;color:#FCE4CC;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.imp-find-btn.secondary{background:transparent;color:#5C3D1F;}
 .detail{position:fixed;inset:0;max-width:430px;margin:0 auto;background:var(--bg);z-index:300;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);overflow-y:auto;display:flex;flex-direction:column;}
 .detail.show{transform:translateX(0);}
 .detail-header{position:sticky;top:0;background:rgba(244,239,230,0.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft);padding:14px 18px;display:flex;align-items:center;gap:14px;z-index:10;}
@@ -1246,6 +1268,80 @@ function distance(lat1,lng1,lat2,lng2){const R=6371000;const f1=lat1*Math.PI/180
 function fmtDist(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(1)} km`;}
 function fmtWalk(m){const min=Math.round(m/80);if(min<1)return'<1 min';return`${min} min à pied`;}
 
+// Cache des minyans improvisés pour la liste "Trouver un minyan" (rafraîchi via fetch async)
+let CACHED_IMPROMPTU=[];
+
+async function refreshImpromptuCacheForList(){
+  try{
+    let list=await fbReadMinyans();
+    list=cleanExpiredMinyans(list);
+    CACHED_IMPROMPTU=list;
+    // Si on est sur la page minyans avec geolocMode actif, on rafraîchit la liste
+    const active=document.querySelector('.page.on');
+    if(active&&active.dataset.page==='minyan'&&geolocMode){
+      buildMinyanList();
+    }
+  }catch(e){console.warn('refreshImpromptuCacheForList:',e.message);}
+}
+
+function buildImpromptuFindHTML(){
+  if(!geolocMode||CACHED_IMPROMPTU.length===0)return '';
+  const now=Date.now();
+  const inFourHours=now+4*60*60*1000;
+  const inEightHours=now+8*60*60*1000;
+  // Filtrer : minyans à venir (pas expirés, et pas trop loin dans le futur)
+  let upcoming=CACHED_IMPROMPTU.filter(m=>m&&m.timestamp&&m.timestamp+45*60*1000>now);
+  // Priorité : 4h → 8h → tout
+  let scope=upcoming.filter(m=>m.timestamp<=inFourHours);
+  if(scope.length===0)scope=upcoming.filter(m=>m.timestamp<=inEightHours);
+  if(scope.length===0)scope=upcoming;
+  if(scope.length===0)return '';
+  // Tri par distance si user location connue, sinon par timestamp
+  if(userLocation){
+    // Pas de coords précises pour les improvisés (lieu = texte libre), tri par timestamp
+    scope.sort((a,b)=>a.timestamp-b.timestamp);
+  }else{
+    scope.sort((a,b)=>a.timestamp-b.timestamp);
+  }
+  const userId=getUserId();
+  let html=`<div class="imp-section-title"><span class="bolt">⚡</span><span class="t">Minyans improvisés</span><span class="count">${scope.length} en cours</span></div>`;
+  for(const m of scope){
+    const total=m.confirmes||1;
+    const manque=Math.max(10-total,0);
+    const complet=manque===0;
+    const pct=Math.min((total/10)*100,100);
+    const participants=Array.isArray(m.participants)?m.participants:[];
+    const isJoined=participants.includes(userId);
+    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;
+    html+=`<div class="imp-find-card" onclick="openSignal()">
+      <div class="imp-find-card-head">
+        <div>
+          <div class="imp-find-name">${escapeHtml(m.type)} · ${escapeHtml(m.heure)}</div>
+          <div class="imp-find-when">${fmtImpDateTime(m.timestamp)}</div>
+        </div>
+        <div class="imp-find-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div>
+      </div>
+      <div class="imp-find-addr">📍 ${escapeHtml(m.lieu)}</div>
+      <div class="imp-find-progress">
+        <div class="imp-find-progress-bar"><div class="imp-find-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div>
+        <div class="imp-find-progress-text">${total}/10</div>
+      </div>
+      <div class="imp-find-actions" onclick="event.stopPropagation();">
+        ${complet&&!isJoined
+          ?'<button class="imp-find-btn" disabled style="opacity:0.6;">Complet</button>'
+          :`<button class="imp-find-btn ${isJoined?'secondary':''}" onclick="joinMinyanFromList('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}
+        <a class="imp-find-btn secondary" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation();" style="text-decoration:none;text-align:center;">📍 Maps</a>
+      </div>
+    </div>`;
+  }
+  return html;
+}
+
+async function joinMinyanFromList(id){
+  await joinMinyan(id);
+  await refreshImpromptuCacheForList();
+}
+
 function buildMinyanList(){
   const now=new Date();
   const list=document.getElementById('minyanList');list.innerHTML='';
@@ -1271,7 +1367,14 @@ function buildMinyanList(){
   }else{
     entries.sort((a,b)=>{const ta=a.next.daysAhead*24+a.next.time;const tb=b.next.daysAhead*24+b.next.time;return ta-tb;});
   }
-  if(entries.length===0){list.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>';return;}
+  // === SECTION MINYANS IMPROVISÉS (en haut, uniquement en mode 'Trouver un minyan') ===
+  const impHTML=buildImpromptuFindHTML();
+  if(impHTML){
+    list.insertAdjacentHTML('beforeend',impHTML);
+    // Séparateur
+    list.insertAdjacentHTML('beforeend','<div class="imp-section-title" style="margin-top:18px;"><span class="t">Synagogues</span></div>');
+  }
+  if(entries.length===0){list.insertAdjacentHTML('beforeend','<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>');return;}
   const dk=getDayKey(now);
   const isLunJeu=dk==='lundi_jeudi';
   const nowH=now.getHours()+now.getMinutes()/60;
@@ -1334,6 +1437,8 @@ function findNearestMinyan(){
     document.getElementById('findBtn').classList.add('active');
     document.getElementById('findArrow').textContent='✕';
     document.getElementById('findSub').textContent='Trier par distance · Toucher pour annuler';
+    // Charger les minyans improvisés en parallèle (rafraîchira la liste quand prêt)
+    refreshImpromptuCacheForList();
     buildMinyanList();
     setTimeout(()=>{document.querySelector('#minyanList').scrollIntoView({behavior:'smooth',block:'start'});},150);
   },err=>{
