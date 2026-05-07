@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -189,6 +190,40 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .ob-input:focus{border-color:var(--ink);}
 .ob-btn{width:100%;padding:16px;background:var(--ink);color:var(--bg);border:none;border-radius:14px;font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.15s ease;}
 .ob-btn:active{transform:scale(0.985);}
+/* === MINYAN IMPROVISÉ === */
+.imp-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 8px;}
+.imp-card{padding:22px 16px;border-radius:var(--r-lg);text-align:center;cursor:pointer;transition:transform 0.15s ease;border:1.5px solid var(--line);background:var(--card);}
+.imp-card:active{transform:scale(0.97);}
+.imp-card.create{background:linear-gradient(135deg,#1B1B19 0%,#2a2a26 100%);color:var(--bg);border-color:transparent;}
+.imp-card.join{background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);color:#5C3D1F;border-color:transparent;}
+.imp-card .ico{font-size:32px;margin-bottom:8px;display:block;}
+.imp-card .ttl{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px;}
+.imp-card .sub{font-size:11.5px;opacity:0.8;line-height:1.3;}
+.imp-list{margin-top:8px;}
+.imp-item{background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px;}
+.imp-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.imp-item-name{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink);}
+.imp-item-when{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.imp-item-pill{padding:5px 11px;background:var(--gold);color:#1B1B19;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;flex-shrink:0;}
+.imp-item-pill.complet{background:#7BA875;color:#fff;}
+.imp-item-addr{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.imp-item-progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.imp-progress-bar{flex:1;height:6px;background:var(--line-soft);border-radius:99px;overflow:hidden;}
+.imp-progress-fill{height:100%;background:var(--gold);border-radius:99px;transition:width 0.3s ease;}
+.imp-progress-fill.complet{background:#7BA875;}
+.imp-progress-text{font-size:12px;font-weight:600;color:var(--ink);min-width:48px;text-align:right;}
+.imp-item-actions{display:flex;gap:8px;}
+.imp-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:transform 0.15s ease;}
+.imp-btn:active{transform:scale(0.97);}
+.imp-btn.secondary{background:transparent;color:var(--ink);}
+.imp-btn.complet{background:#7BA875;border-color:#7BA875;cursor:default;opacity:0.8;}
+.imp-btn-maps{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:13px;cursor:pointer;font-family:var(--sans);text-decoration:none;display:flex;align-items:center;}
+.imp-empty{text-align:center;padding:40px 20px;color:var(--ink-faint);font-style:italic;font-size:13px;}
+.imp-mode-toggle{display:flex;gap:6px;background:var(--bg-soft);padding:4px;border-radius:99px;margin-bottom:14px;}
+.imp-mode-btn{flex:1;padding:8px 14px;background:transparent;border:none;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);transition:all 0.18s ease;}
+.imp-mode-btn.on{background:var(--ink);color:var(--bg);}
+.imp-status-badge{display:inline-block;padding:3px 8px;border-radius:99px;font-size:10.5px;font-weight:600;letter-spacing:0.03em;background:rgba(212,172,85,0.15);color:#8B6F2A;margin-bottom:14px;}
+.imp-status-badge.online{background:rgba(123,168,117,0.18);color:#4F7349;}
 .detail{position:fixed;inset:0;max-width:430px;margin:0 auto;background:var(--bg);z-index:300;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);overflow-y:auto;display:flex;flex-direction:column;}
 .detail.show{transform:translateX(0);}
 .detail-header{position:sticky;top:0;background:rgba(244,239,230,0.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft);padding:14px 18px;display:flex;align-items:center;gap:14px;z-index:10;}
@@ -959,11 +994,36 @@ function getDafYomi(d){
   return"Nouveau cycle";
 }
 
-// === GOOGLE SHEETS LOADER ===
+// === GOOGLE SHEETS LOADER (Stale-While-Revalidate + Weekly Snapshot) ===
 const SHEET_URLS={
   syns:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=0&single=true&output=csv",
   mikvaot:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=1019443247&single=true&output=csv"
 };
+
+// === SNAPSHOT HEBDOMADAIRE ===
+// Le sheet est mis à jour chaque jeudi vers 23h. On considère que la "semaine de référence"
+// commence le jeudi 23h59. Pour calculer la semaine en cours, on prend le dernier jeudi 23h59 passé.
+function getCurrentWeekKey(){
+  const now=new Date();
+  // 4 = jeudi (0=dim, 1=lun, ..., 4=jeu, 5=ven, 6=sam)
+  const d=new Date(now);
+  // Reculer jusqu'au dernier jeudi 23h59
+  const day=d.getDay();
+  // Combien de jours pour reculer au jeudi le plus récent (ou aujourd'hui si on est jeudi après 23h59)
+  let daysBack;
+  if(day===4){// jeudi
+    if(d.getHours()<23||(d.getHours()===23&&d.getMinutes()<59))daysBack=7;
+    else daysBack=0;
+  }else if(day>4){// ven, sam
+    daysBack=day-4;
+  }else{// dim, lun, mar, mer
+    daysBack=day+3;
+  }
+  d.setDate(d.getDate()-daysBack);
+  d.setHours(23,59,0,0);
+  // Format YYYY-MM-DD comme clé de semaine
+  return d.toISOString().slice(0,10);
+}
 
 // Parser CSV simple (gère les guillemets pour les valeurs avec virgules)
 function parseCSV(text){
@@ -986,72 +1046,149 @@ function parseCSV(text){
   return rows;
 }
 
-// Charger les Synagogues depuis Google Sheets
-async function loadSyns(){
+// Parse rows -> SYNS array
+function parseSynsRows(rows){
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r[0]||!r[1])continue;
+    out.push({
+      id:parseInt(r[0])||i,
+      name:r[1],addr:r[2],rite:r[3]||'sefarde',zone:r[4]||'villeurb',
+      lat:parseFloat(r[5])||45.76,lng:parseFloat(r[6])||4.85,
+      h:{
+        vendredi:{sh:r[7]||null,mi:r[8]||null,ar:r[9]||null},
+        shabbat:{sh:r[10]||null,mi:r[11]||null,ar:r[12]||null},
+        dimanche:{sh:r[13]||null,mi:r[14]||null,ar:r[15]||null},
+        lundi_jeudi:{sh:r[16]||null,mi:r[17]||null,ar:r[18]||null},
+        mardi_mercredi:{sh:r[19]||null,mi:r[20]||null,ar:r[21]||null}
+      }
+    });
+  }
+  return out;
+}
+function parseMikvaotRows(rows){
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r[0])continue;
+    out.push({name:r[0],addr:r[1]||'',tel:r[2]||null,contact:r[3]||'',who:r[4]||'both'});
+  }
+  return out;
+}
+
+// Charge SYNCHRONEMENT depuis cache localStorage, sinon fallback aux SYNS_DEFAULT du code
+function loadSynsSync(){
   try{
+    const cached=localStorage.getItem('mlSyns');
+    if(cached){
+      const parsed=JSON.parse(cached);
+      if(Array.isArray(parsed)&&parsed.length>0){
+        const wk=localStorage.getItem('mlSynsWeek');
+        const cur=getCurrentWeekKey();
+        console.log(`[Minyan-Lyon] Cache SYNS chargé · semaine snapshot: ${wk||'?'} · semaine courante: ${cur} · ${parsed.length} syn`);
+        return parsed;
+      }
+    }
+  }catch{}
+  console.log('[Minyan-Lyon] Pas de cache SYNS — fallback SYNS_DEFAULT (code intégré)');
+  return SYNS_DEFAULT;
+}
+function loadMikvaotSync(){
+  try{
+    const cached=localStorage.getItem('mlMikvaot');
+    if(cached){
+      const parsed=JSON.parse(cached);
+      if(Array.isArray(parsed)&&parsed.length>0)return parsed;
+    }
+  }catch{}
+  return MIKVAOT_DEFAULT;
+}
+
+// Décide si on doit revalider : OUI si snapshot manquant OU snapshot d'une semaine antérieure
+function shouldRevalidate(weekKeyStorageKey){
+  const stored=localStorage.getItem(weekKeyStorageKey);
+  if(!stored)return true;
+  return stored!==getCurrentWeekKey();
+}
+
+// Revalidation ASYNCHRONE en arrière-plan (Google Sheets), met à jour SYNS/MIKVAOT et rafraîchit l'UI
+// + Sauvegarde le snapshot avec la clé de semaine courante
+async function revalidateSyns(force){
+  // Si snapshot déjà à jour pour cette semaine et pas forcé → on ne refetch pas (économie)
+  if(!force&&!shouldRevalidate('mlSynsWeek')){
+    console.log('[Minyan-Lyon] SYNS snapshot semaine OK, skip revalidation');
+    return;
+  }
+  try{
+    console.log('[Minyan-Lyon] Revalidation SYNS en cours…');
     const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
     const rows=parseCSV(text);
     if(rows.length<2)throw new Error('Pas de données');
-    // 1ère ligne = headers : id,name,addr,rite,zone,lat,lng,ven_sh,ven_mi,ven_ar,shab_sh,shab_mi,shab_ar,dim_sh,dim_mi,dim_ar,lj_sh,lj_mi,lj_ar,mm_sh,mm_mi,mm_ar
-    const newSyns=[];
-    for(let i=1;i<rows.length;i++){
-      const r=rows[i];
-      if(!r[0]||!r[1])continue;
-      newSyns.push({
-        id:parseInt(r[0])||i,
-        name:r[1],addr:r[2],rite:r[3]||'sefarde',zone:r[4]||'villeurb',
-        lat:parseFloat(r[5])||45.76,lng:parseFloat(r[6])||4.85,
-        h:{
-          vendredi:{sh:r[7]||null,mi:r[8]||null,ar:r[9]||null},
-          shabbat:{sh:r[10]||null,mi:r[11]||null,ar:r[12]||null},
-          dimanche:{sh:r[13]||null,mi:r[14]||null,ar:r[15]||null},
-          lundi_jeudi:{sh:r[16]||null,mi:r[17]||null,ar:r[18]||null},
-          mardi_mercredi:{sh:r[19]||null,mi:r[20]||null,ar:r[21]||null}
-        }
-      });
-    }
+    const newSyns=parseSynsRows(rows);
     if(newSyns.length===0)throw new Error('Aucune syn valide');
-    // Cache local
-    localStorage.setItem('mlSyns',JSON.stringify(newSyns));
+    const newJSON=JSON.stringify(newSyns);
+    const oldJSON=localStorage.getItem('mlSyns');
+    localStorage.setItem('mlSyns',newJSON);
     localStorage.setItem('mlSynsTime',Date.now());
-    return newSyns;
+    localStorage.setItem('mlSynsWeek',getCurrentWeekKey());
+    console.log(`[Minyan-Lyon] ✓ Snapshot SYNS pris pour semaine ${getCurrentWeekKey()} · ${newSyns.length} syn`);
+    if(newJSON!==oldJSON){
+      SYNS=newSyns;
+      refreshActivePage();
+    }
   }catch(e){
-    console.warn('Erreur chargement syns:',e.message);
-    // Fallback : cache local
-    const cached=localStorage.getItem('mlSyns');
-    if(cached){try{return JSON.parse(cached);}catch{}}
-    // Fallback ultime : SYNS intégrées dans le code
-    return SYNS_DEFAULT;
+    console.warn('[Minyan-Lyon] Revalidation syns échouée (cache utilisé):',e.message);
   }
 }
-
-// Charger les Mikvaot depuis Google Sheets
-async function loadMikvaot(){
+async function revalidateMikvaot(force){
+  if(!force&&!shouldRevalidate('mlMikvaotWeek')){
+    return;
+  }
   try{
     const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
     const rows=parseCSV(text);
     if(rows.length<2)throw new Error('Pas de données');
-    // 1ère ligne = headers : name,addr,tel,contact,who
-    const newMik=[];
-    for(let i=1;i<rows.length;i++){
-      const r=rows[i];
-      if(!r[0])continue;
-      newMik.push({name:r[0],addr:r[1]||'',tel:r[2]||null,contact:r[3]||'',who:r[4]||'both'});
-    }
+    const newMik=parseMikvaotRows(rows);
     if(newMik.length===0)throw new Error('Aucun mikveh valide');
-    localStorage.setItem('mlMikvaot',JSON.stringify(newMik));
+    const newJSON=JSON.stringify(newMik);
+    const oldJSON=localStorage.getItem('mlMikvaot');
+    localStorage.setItem('mlMikvaot',newJSON);
     localStorage.setItem('mlMikvaotTime',Date.now());
-    return newMik;
+    localStorage.setItem('mlMikvaotWeek',getCurrentWeekKey());
+    if(newJSON!==oldJSON){
+      MIKVAOT=newMik;
+      refreshActivePage();
+    }
   }catch(e){
-    console.warn('Erreur chargement mikvaot:',e.message);
-    const cached=localStorage.getItem('mlMikvaot');
-    if(cached){try{return JSON.parse(cached);}catch{}}
-    return MIKVAOT_DEFAULT;
+    console.warn('[Minyan-Lyon] Revalidation mikvaot échouée (cache utilisé):',e.message);
   }
+}
+
+// Force la revalidation toutes les heures pour attraper le passage du jeudi 23h59
+// (ne fait un fetch réel que si la clé de semaine a changé, sinon return immédiat)
+function startWeeklySnapshotChecker(){
+  setInterval(()=>{
+    revalidateSyns(false);
+    revalidateMikvaot(false);
+  },60*60*1000); // toutes les heures
+}
+
+// Rafraîchit la page active après mise à jour silencieuse des données
+function refreshActivePage(){
+  try{
+    const active=document.querySelector('.page.on');
+    const name=active?active.dataset.page:null;
+    if(name==='tefila'&&typeof buildTefila==='function')buildTefila();
+    if(name==='torah'&&typeof buildTorah==='function')buildTorah();
+    if(name==='home'){
+      if(typeof updateCountdown==='function')updateCountdown();
+    }
+  }catch(e){console.warn('refreshActivePage:',e.message);}
 }
 
 // === Données chargées dynamiquement (initialisées au démarrage) ===
@@ -1487,41 +1624,258 @@ function handleCompass(e){
   }
 }
 
-function openSignal(){
-  openDetail('Signaler un minyan',`
-    <h2>Signaler un <span class="em">minyan improvisé</span></h2>
-    <p>Partage rapidement avec la communauté un minyan en cours d'organisation.</p>
-    <h3>Lieu</h3>
-    <input type="text" id="sigLieu" class="ob-input" placeholder="Ex: 12 rue Boutin, chez David"/>
-    <h3>Heure prévue</h3>
-    <input type="text" id="sigHeure" class="ob-input" placeholder="Ex: 19h30"/>
-    <h3>Type de prière</h3>
-    <select id="sigType" class="ob-input">
-      <option value="Shaharit">Shaharit</option>
-      <option value="Minha" selected>Minha</option>
-      <option value="Arvit">Arvit</option>
-    </select>
-    <h3>Places restantes</h3>
-    <input type="text" id="sigPlaces" class="ob-input" placeholder="Ex: 3 personnes manquantes"/>
-    <button class="ob-btn" style="margin-top:18px;" onclick="shareSignal()">📤 Partager via WhatsApp</button>
-    <p class="sources">Le message sera prêt à envoyer dans WhatsApp. Tu choisiras le groupe ou la personne.</p>
-  `);
+// ===========================================================================
+// MINYAN IMPROVISÉ — Système collaboratif (Firebase Realtime DB + fallback localStorage)
+// ===========================================================================
+//
+// Pour activer le mode partagé entre tous les utilisateurs :
+//   1. Aller sur https://console.firebase.google.com et créer un projet gratuit
+//   2. Ajouter une "Realtime Database" en mode test (lecture/écriture publique)
+//   3. Aller dans Project Settings → Web app, et copier la config
+//   4. Coller les valeurs ci-dessous (databaseURL et apiKey suffisent)
+//
+// SI VIDE → Mode local automatique (chaque utilisateur voit ses propres minyanim).
+// SI REMPLI → Mode partagé temps réel (tous voient les mêmes minyanim).
+const FIREBASE_CONFIG={
+  databaseURL:"",  // Ex: "https://minyan-lyon-default-rtdb.europe-west1.firebasedatabase.app"
+  apiKey:""        // Ex: "AIzaSyAbcDef..."
+};
+const FB_ENABLED=()=>!!FIREBASE_CONFIG.databaseURL;
+
+// Sauvegarder/charger les minyanim improvisés
+async function fbWriteMinyans(list){
+  if(!FB_ENABLED()){
+    localStorage.setItem('mlImpromptu',JSON.stringify(list));
+    return true;
+  }
+  try{
+    const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+    const res=await fetch(url,{method:'PUT',body:JSON.stringify(list)});
+    return res.ok;
+  }catch(e){console.warn('Firebase write fail:',e.message);return false;}
+}
+async function fbReadMinyans(){
+  if(!FB_ENABLED()){
+    try{return JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{return [];}
+  }
+  try{
+    const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+    const res=await fetch(url,{cache:'no-cache'});
+    if(!res.ok)return [];
+    const data=await res.json();
+    if(!data)return [];
+    return Array.isArray(data)?data:Object.values(data);
+  }catch(e){console.warn('Firebase read fail:',e.message);return [];}
 }
 
-function shareSignal(){
-  const lieu=document.getElementById('sigLieu').value.trim();
-  const heure=document.getElementById('sigHeure').value.trim();
-  const type=document.getElementById('sigType').value;
-  const places=document.getElementById('sigPlaces').value.trim();
-  if(!lieu||!heure){alert('Lieu et heure obligatoires');return;}
-  const userName=localStorage.getItem('mlUserName')||'Anonyme';
-  let msg=`🕍 *Minyan improvisé* 🕍\n\n`;
-  msg+=`📿 *${type}* à *${heure}*\n`;
-  msg+=`📍 ${lieu}\n`;
-  if(places)msg+=`👥 ${places}\n`;
-  msg+=`\n_Signalé par ${userName} via Minyan Lyon_\n${window.location.href}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+// Nettoyer les minyans expirés (45 min après l'heure prévue)
+function cleanExpiredMinyans(list){
+  const now=Date.now();
+  return list.filter(m=>{
+    if(!m||!m.timestamp)return false;
+    return (m.timestamp+45*60*1000)>now;
+  });
 }
+
+// Identifiant unique de cet utilisateur (pour suivre les +1 et empêcher de double-cliquer)
+function getUserId(){
+  let id=localStorage.getItem('mlUserId');
+  if(!id){id='u'+Date.now()+Math.random().toString(36).slice(2,8);localStorage.setItem('mlUserId',id);}
+  return id;
+}
+
+// Construire un timestamp depuis date (YYYY-MM-DD) + heure (HH:MM)
+function buildTimestamp(dateStr,heureStr){
+  // heureStr accepté formats : "9h00", "09h00", "09:00", "9:00"
+  const cleanH=heureStr.replace('h',':').replace(/\s/g,'');
+  const [h,m]=cleanH.split(':').map(s=>parseInt(s)||0);
+  const [yy,mm,dd]=dateStr.split('-').map(s=>parseInt(s));
+  return new Date(yy,mm-1,dd,h,m,0).getTime();
+}
+
+let currentImpMode='join'; // 'join' ou 'create'
+
+function openSignal(){
+  const todayStr=new Date().toISOString().slice(0,10);
+  openDetail('Minyan improvisé',`
+    <h2>Minyan <span class="em">improvisé</span></h2>
+    <p>Créer un nouveau minyan ou rejoindre un minyan existant.</p>
+    <span class="imp-status-badge ${FB_ENABLED()?'online':''}" id="impStatusBadge">${FB_ENABLED()?'● Mode partagé · temps réel':'● Mode local · visible uniquement par toi'}</span>
+    <div class="imp-mode-toggle">
+      <button class="imp-mode-btn on" id="impModeJoin" onclick="setImpMode('join')">Rejoindre</button>
+      <button class="imp-mode-btn" id="impModeCreate" onclick="setImpMode('create')">Créer</button>
+    </div>
+    <div id="impJoinSection">
+      <div id="impList"><div class="imp-empty">Chargement…</div></div>
+    </div>
+    <div id="impCreateSection" style="display:none;">
+      <h3>Lieu</h3>
+      <input type="text" id="impLieu" class="ob-input" placeholder="Ex: 12 rue Boutin, chez David"/>
+      <h3>Date</h3>
+      <input type="date" id="impDate" class="ob-input" value="${todayStr}"/>
+      <h3>Heure</h3>
+      <input type="text" id="impHeure" class="ob-input" placeholder="Ex: 19h30"/>
+      <h3>Type de prière</h3>
+      <select id="impType" class="ob-input">
+        <option value="Shaharit">Shaharit (matin)</option>
+        <option value="Minha" selected>Minha (après-midi)</option>
+        <option value="Arvit">Arvit (soir)</option>
+      </select>
+      <h3>Combien de personnes déjà confirmées ?</h3>
+      <input type="number" id="impConfirmes" class="ob-input" placeholder="Ex: 5" min="1" max="10" value="1"/>
+      <p class="sources" style="margin-bottom:18px;">Il faut 10 hommes pour le minyan. L'app calculera automatiquement combien il manque.</p>
+      <button class="ob-btn" onclick="createMinyan()">✡ Créer le minyan</button>
+    </div>
+  `);
+  setImpMode('join');
+  loadImpromptu();
+}
+
+function setImpMode(mode){
+  currentImpMode=mode;
+  const join=document.getElementById('impJoinSection');
+  const create=document.getElementById('impCreateSection');
+  const btnJ=document.getElementById('impModeJoin');
+  const btnC=document.getElementById('impModeCreate');
+  if(!join||!create)return;
+  if(mode==='join'){
+    join.style.display='block';create.style.display='none';
+    btnJ.classList.add('on');btnC.classList.remove('on');
+    loadImpromptu();
+  }else{
+    join.style.display='none';create.style.display='block';
+    btnJ.classList.remove('on');btnC.classList.add('on');
+  }
+}
+
+async function createMinyan(){
+  const lieu=document.getElementById('impLieu').value.trim();
+  const date=document.getElementById('impDate').value;
+  const heure=document.getElementById('impHeure').value.trim();
+  const type=document.getElementById('impType').value;
+  const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;
+  if(!lieu||!heure||!date){alert('Lieu, date et heure obligatoires');return;}
+  const timestamp=buildTimestamp(date,heure);
+  if(timestamp<Date.now()-15*60*1000){alert('La date/heure doit être dans le futur');return;}
+  const userId=getUserId();
+  const userName=localStorage.getItem('mlUserName')||'Anonyme';
+  const newMinyan={
+    id:'m'+Date.now()+Math.random().toString(36).slice(2,6),
+    lieu,date,heure,type,
+    confirmes:Math.min(Math.max(confirmes,1),10),
+    timestamp,
+    createdBy:userId,
+    createdByName:userName,
+    createdAt:Date.now(),
+    participants:[userId] // le créateur compte comme 1 participant
+  };
+  // Ajuster confirmes pour inclure le créateur
+  if(newMinyan.confirmes<1)newMinyan.confirmes=1;
+  let list=await fbReadMinyans();
+  list=cleanExpiredMinyans(list);
+  list.push(newMinyan);
+  const ok=await fbWriteMinyans(list);
+  if(ok){
+    setImpMode('join');
+    setTimeout(()=>loadImpromptu(),300);
+  }else{
+    alert('Erreur lors de l\'enregistrement. Réessaye.');
+  }
+}
+
+async function joinMinyan(id){
+  let list=await fbReadMinyans();
+  list=cleanExpiredMinyans(list);
+  const userId=getUserId();
+  const m=list.find(x=>x&&x.id===id);
+  if(!m){alert('Ce minyan n\'existe plus');loadImpromptu();return;}
+  if(!Array.isArray(m.participants))m.participants=[];
+  if(m.participants.includes(userId)){
+    // Déjà inscrit → on retire (toggle)
+    m.participants=m.participants.filter(p=>p!==userId);
+    m.confirmes=Math.max((m.confirmes||1)-1,0);
+  }else{
+    if((m.confirmes||0)>=10){alert('Ce minyan est déjà complet !');return;}
+    m.participants.push(userId);
+    m.confirmes=(m.confirmes||0)+1;
+  }
+  await fbWriteMinyans(list);
+  loadImpromptu();
+}
+
+async function deleteMinyan(id){
+  if(!confirm('Supprimer ce minyan ?'))return;
+  let list=await fbReadMinyans();
+  list=list.filter(m=>m&&m.id!==id);
+  await fbWriteMinyans(list);
+  loadImpromptu();
+}
+
+function fmtImpDateTime(ts){
+  const d=new Date(ts);
+  const now=new Date();
+  const isToday=d.toDateString()===now.toDateString();
+  const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);
+  const isTomorrow=d.toDateString()===tomorrow.toDateString();
+  const hh=String(d.getHours()).padStart(2,'0');
+  const mm=String(d.getMinutes()).padStart(2,'0');
+  if(isToday)return `Aujourd'hui à ${hh}h${mm}`;
+  if(isTomorrow)return `Demain à ${hh}h${mm}`;
+  const days=['dim','lun','mar','mer','jeu','ven','sam'];
+  return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} à ${hh}h${mm}`;
+}
+
+async function loadImpromptu(){
+  const list=document.getElementById('impList');
+  if(!list)return;
+  list.innerHTML='<div class="imp-empty">Chargement…</div>';
+  let minyans=await fbReadMinyans();
+  minyans=cleanExpiredMinyans(minyans);
+  // Ré-écrire la liste nettoyée si des minyans ont expiré
+  await fbWriteMinyans(minyans);
+  if(minyans.length===0){
+    list.innerHTML='<div class="imp-empty">Aucun minyan improvisé en cours.<br>Sois le premier à en créer un !</div>';
+    return;
+  }
+  // Trier par date/heure (le plus proche en premier)
+  minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  const userId=getUserId();
+  let html='';
+  for(const m of minyans){
+    const total=m.confirmes||1;
+    const manque=Math.max(10-total,0);
+    const complet=manque===0;
+    const pct=Math.min((total/10)*100,100);
+    const participants=Array.isArray(m.participants)?m.participants:[];
+    const isJoined=participants.includes(userId);
+    const isCreator=m.createdBy===userId;
+    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;
+    html+=`<div class="imp-item">
+      <div class="imp-item-head">
+        <div>
+          <div class="imp-item-name">${escapeHtml(m.type)}</div>
+          <div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div>
+        </div>
+        <div class="imp-item-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div>
+      </div>
+      <div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>
+      <div class="imp-item-progress">
+        <div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div>
+        <div class="imp-progress-text">${total}/10</div>
+      </div>
+      <div class="imp-item-actions">
+        ${complet&&!isJoined
+          ?'<button class="imp-btn complet" disabled>Minyan complet ✓</button>'
+          :`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Je participe (annuler)':'+1 Je participe'}</button>`}
+        <a class="imp-btn-maps" href="${mapsUrl}" target="_blank">📍</a>
+        ${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}
+      </div>
+    </div>`;
+  }
+  list.innerHTML=html;
+}
+
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function shareApp(){const txt=encodeURIComponent('🕍 *Minyan Lyon* — Tous les minyanim de Lyon, zmanim, mikvaot et plus. '+window.location.href);if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.href}).catch(()=>{});}else{window.open(`https://wa.me/?text=${txt}`,'_blank');}}
 function openProfile(){openDetail('Profil',`<h2>Votre <span class="em">profil</span></h2><p>Prénom actuel : <b>${localStorage.getItem('mlUserName')||'(non défini)'}</b></p><input type="text" class="ob-input" id="profileName" placeholder="Modifier votre prénom" value="${localStorage.getItem('mlUserName')||''}"><button class="ob-btn" onclick="updateName()">Enregistrer</button><h3>Favoris</h3><p>${favorites.length} synagogue${favorites.length>1?'s':''} en favori${favorites.length>1?'s':''}</p>`);}
 function updateName(){const v=document.getElementById('profileName').value.trim();if(!v)return;localStorage.setItem('mlUserName',v);document.getElementById('userName').textContent=v;closeDetail();}
@@ -1589,9 +1943,25 @@ function updateCountdown(){
 }
 
 async function init(){
-  // 1. Charger les données depuis Google Sheets (avec fallback cache/code)
-  SYNS=await loadSyns();
-  MIKVAOT=await loadMikvaot();
+  // 1. Charger SYNCHRONEMENT depuis le cache (ou fallback DEFAULT) → affichage instantané
+  SYNS=loadSynsSync();
+  MIKVAOT=loadMikvaotSync();
+
+  // 2. Lancer la revalidation Google Sheets en ARRIÈRE-PLAN (sans bloquer l'UI)
+  //    Ne refetch QUE si la semaine a changé (ou snapshot manquant) → économie de bande passante.
+  revalidateSyns(false);
+  revalidateMikvaot(false);
+
+  // 3. Démarrer le checker horaire pour attraper le passage du jeudi 23h59 sans recharger
+  startWeeklySnapshotChecker();
+
+  // 4. Quand l'utilisateur revient sur l'onglet → re-vérifier la semaine (cas onglet ouvert plusieurs jours)
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden){
+      revalidateSyns(false);
+      revalidateMikvaot(false);
+    }
+  });
 
   const userName=localStorage.getItem('mlUserName');
   if(userName){document.getElementById('userName').textContent=userName;}
@@ -1640,5 +2010,6 @@ async function init(){
 }
 init();
 </script>
+
 </body>
 </html>
