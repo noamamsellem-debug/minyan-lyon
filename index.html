@@ -215,17 +215,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .imp-item-pill{padding:5px 11px;background:var(--gold);color:#1B1B19;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;flex-shrink:0;}
 .imp-item-pill.complet{background:#7BA875;color:#fff;}
 .imp-item-addr{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.imp-item-contact{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.imp-item-contact a{color:var(--ink);font-weight:600;text-decoration:none;}
 .imp-item-progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .imp-progress-bar{flex:1;height:6px;background:var(--line-soft);border-radius:99px;overflow:hidden;}
 .imp-progress-fill{height:100%;background:var(--gold);border-radius:99px;transition:width 0.3s ease;}
 .imp-progress-fill.complet{background:#7BA875;}
 .imp-progress-text{font-size:12px;font-weight:600;color:var(--ink);min-width:48px;text-align:right;}
-.imp-item-actions{display:flex;gap:8px;}
-.imp-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:transform 0.15s ease;}
+.imp-item-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.imp-btn{flex:1;min-width:120px;padding:10px;border-radius:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:transform 0.15s ease;}
 .imp-btn:active{transform:scale(0.97);}
 .imp-btn.secondary{background:transparent;color:var(--ink);}
 .imp-btn.complet{background:#7BA875;border-color:#7BA875;cursor:default;opacity:0.8;}
-.imp-btn-maps{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:13px;cursor:pointer;font-family:var(--sans);text-decoration:none;display:flex;align-items:center;}
+.imp-btn-maps{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:13px;cursor:pointer;font-family:var(--sans);text-decoration:none;display:flex;align-items:center;justify-content:center;min-width:42px;}
+.imp-btn-maps.active-notif{background:rgba(212,172,85,0.25);border-color:var(--gold);color:#8B6F2A;}
 .imp-empty{text-align:center;padding:40px 20px;color:var(--ink-faint);font-style:italic;font-size:13px;}
 .imp-mode-toggle{display:flex;gap:6px;background:var(--bg-soft);padding:4px;border-radius:99px;margin-bottom:14px;}
 .imp-mode-btn{flex:1;padding:8px 14px;background:transparent;border:none;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);transition:all 0.18s ease;}
@@ -451,7 +454,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 
 <script>
 // === ZMANIM RAW DATA depuis PDF Rav Posen ===
-// Heures en GMT+1 (heure d'hiver). +1h en heure d'été (mars-octobre)
 const ZMANIM_DATA={
 "09-01":["04:27","06:01","08:33","09:20","09:55","12:40","13:14","16:34","17:57","19:19","19:57","20:06","20:54"],
 "09-02":["04:28","06:02","08:33","09:21","09:55","12:40","13:14","16:32","17:55","19:17","19:55","20:04","20:52"],
@@ -823,32 +825,25 @@ const ZMANIM_DATA={
 // Détecter si on est en heure d'été en France
 function isDST(d){
   const y=d.getFullYear();
-  // Heure d'été en France : dernier dimanche de mars 2h -> dernier dimanche d'octobre 3h
   const lsm=new Date(y,2,31);lsm.setDate(31-lsm.getDay());lsm.setHours(2,0,0,0);
   const lso=new Date(y,9,31);lso.setDate(31-lso.getDay());lso.setHours(3,0,0,0);
   return d>=lsm && d<lso;
 }
 
-// Convertir "HH:MM" en nombre flottant (heures)
 function timeToFloat(str){
   if(!str)return null;
   const [h,m]=str.split(':').map(Number);
   return h+m/60;
 }
 
-// Calculer les zmanim depuis le tableau du PDF
 function calcZmanim(date){
   const m=String(date.getMonth()+1).padStart(2,'0');
   const d=String(date.getDate()).padStart(2,'0');
   const key=`${m}-${d}`;
   const data=ZMANIM_DATA[key];
-  if(!data){
-    // Fallback : calcul astronomique (en théorie ne devrait jamais arriver)
-    return calcZmanimAstro(date);
-  }
+  if(!data){return calcZmanimAstro(date);}
   const offset=isDST(date)?1:0;
   const conv=(s)=>{const f=timeToFloat(s);return f===null?null:f+offset;};
-  // [alot, hanetz, shema_ma, shema_gra, fin_tefila_gra, hatsot, minha_g, minha_k, plag, shkia, tseit, sortie_shab, rt]
   const alot=conv(data[0]);
   const hanetz=conv(data[1]);
   const shema_ma=conv(data[2]);
@@ -862,13 +857,11 @@ function calcZmanim(date){
   const tzeit=conv(data[10]);
   const fin_shab=conv(data[11]);
   const rt=conv(data[12]);
-  // Estimer les autres : tefilin (entre alot et hanetz, ~30% du chemin), tefila_ma proportionnel
   const tefilin=alot+(hanetz-alot)*0.55;
   const tefila_ma=shema_ma+(tefila_gra-shema_gra);
   return {alot,tefilin,hanetz,shema_ma,shema_gra,tefila_ma,tefila_gra,hatsot,minha_g,minha_k,plag,shkia,tzeit,fin_shab,rt};
 }
 
-// Garde l'ancien calcul astronomique en fallback (renommé)
 function calcZmanimAstro(d){
   const y=d.getFullYear(),m=d.getMonth()+1,dy=d.getDate();
   const tz=getTZOffset(d)/60;
@@ -997,19 +990,11 @@ const BIRKAT=[
   {mois:"Tichri 5787",debut:new Date(2026,8,16),fin:new Date(2026,8,25)}
 ];
 
-// Daf Yomi — référence : 3 mai 2026 = Houllin 3 (cycle 14)
 const DAF_REF=new Date(2026,4,3);
 const DAF_LIST=[
-  {n:"Houllin",s:3,e:142},
-  {n:"Bekhorot",s:2,e:61},
-  {n:"Erkhin",s:2,e:34},
-  {n:"Temourah",s:2,e:34},
-  {n:"Krithot",s:2,e:28},
-  {n:"Meïla",s:2,e:22},
-  {n:"Kinim",s:22,e:25},
-  {n:"Tamid",s:25,e:33},
-  {n:"Midot",s:33,e:37},
-  {n:"Nidda",s:2,e:73}
+  {n:"Houllin",s:3,e:142},{n:"Bekhorot",s:2,e:61},{n:"Erkhin",s:2,e:34},{n:"Temourah",s:2,e:34},
+  {n:"Krithot",s:2,e:28},{n:"Meïla",s:2,e:22},{n:"Kinim",s:22,e:25},{n:"Tamid",s:25,e:33},
+  {n:"Midot",s:33,e:37},{n:"Nidda",s:2,e:73}
 ];
 function getDafYomi(d){
   const t=new Date(d);t.setHours(0,0,0,0);
@@ -1024,38 +1009,15 @@ function getDafYomi(d){
   return"Nouveau cycle";
 }
 
-// === GOOGLE SHEETS LOADER (Stale-While-Revalidate + Weekly Snapshot) ===
+
 const SHEET_URLS={
   syns:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=0&single=true&output=csv",
   mikvaot:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=1019443247&single=true&output=csv"
 };
 
-// === SNAPSHOT HEBDOMADAIRE ===
-// Le sheet est mis à jour chaque jeudi vers 23h. On considère que la "semaine de référence"
-// commence le jeudi 23h59. Pour calculer la semaine en cours, on prend le dernier jeudi 23h59 passé.
-function getCurrentWeekKey(){
-  const now=new Date();
-  // 4 = jeudi (0=dim, 1=lun, ..., 4=jeu, 5=ven, 6=sam)
-  const d=new Date(now);
-  // Reculer jusqu'au dernier jeudi 23h59
-  const day=d.getDay();
-  // Combien de jours pour reculer au jeudi le plus récent (ou aujourd'hui si on est jeudi après 23h59)
-  let daysBack;
-  if(day===4){// jeudi
-    if(d.getHours()<23||(d.getHours()===23&&d.getMinutes()<59))daysBack=7;
-    else daysBack=0;
-  }else if(day>4){// ven, sam
-    daysBack=day-4;
-  }else{// dim, lun, mar, mer
-    daysBack=day+3;
-  }
-  d.setDate(d.getDate()-daysBack);
-  d.setHours(23,59,0,0);
-  // Format YYYY-MM-DD comme clé de semaine
-  return d.toISOString().slice(0,10);
-}
+// === PATCH 3 : TTL 5 minutes au lieu du snapshot hebdomadaire ===
+const SHEET_TTL_MS=5*60*1000;
 
-// Parser CSV simple (gère les guillemets pour les valeurs avec virgules)
 function parseCSV(text){
   const rows=[];
   const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
@@ -1076,7 +1038,6 @@ function parseCSV(text){
   return rows;
 }
 
-// Parse rows -> SYNS array
 function parseSynsRows(rows){
   const out=[];
   for(let i=1;i<rows.length;i++){
@@ -1107,21 +1068,18 @@ function parseMikvaotRows(rows){
   return out;
 }
 
-// Charge SYNCHRONEMENT depuis cache localStorage, sinon fallback aux SYNS_DEFAULT du code
 function loadSynsSync(){
   try{
     const cached=localStorage.getItem('mlSyns');
     if(cached){
       const parsed=JSON.parse(cached);
       if(Array.isArray(parsed)&&parsed.length>0){
-        const wk=localStorage.getItem('mlSynsWeek');
-        const cur=getCurrentWeekKey();
-        console.log(`[Minyan-Lyon] Cache SYNS chargé · semaine snapshot: ${wk||'?'} · semaine courante: ${cur} · ${parsed.length} syn`);
+        console.log(`[Minyan-Lyon] Cache SYNS chargé · ${parsed.length} syn`);
         return parsed;
       }
     }
   }catch{}
-  console.log('[Minyan-Lyon] Pas de cache SYNS — fallback SYNS_DEFAULT (code intégré)');
+  console.log('[Minyan-Lyon] Pas de cache SYNS — fallback SYNS_DEFAULT');
   return SYNS_DEFAULT;
 }
 function loadMikvaotSync(){
@@ -1135,24 +1093,22 @@ function loadMikvaotSync(){
   return MIKVAOT_DEFAULT;
 }
 
-// Décide si on doit revalider : OUI si snapshot manquant OU snapshot d'une semaine antérieure
-function shouldRevalidate(weekKeyStorageKey){
-  const stored=localStorage.getItem(weekKeyStorageKey);
+// PATCH 3 : TTL temps-based au lieu de week-based
+function shouldRevalidate(timeStorageKey){
+  const stored=localStorage.getItem(timeStorageKey);
   if(!stored)return true;
-  return stored!==getCurrentWeekKey();
+  const age=Date.now()-parseInt(stored);
+  return age>SHEET_TTL_MS;
 }
 
-// Revalidation ASYNCHRONE en arrière-plan (Google Sheets), met à jour SYNS/MIKVAOT et rafraîchit l'UI
-// + Sauvegarde le snapshot avec la clé de semaine courante
 async function revalidateSyns(force){
-  // Si snapshot déjà à jour pour cette semaine et pas forcé → on ne refetch pas (économie)
-  if(!force&&!shouldRevalidate('mlSynsWeek')){
-    console.log('[Minyan-Lyon] SYNS snapshot semaine OK, skip revalidation');
+  if(!force&&!shouldRevalidate('mlSynsTime')){
     return;
   }
   try{
-    console.log('[Minyan-Lyon] Revalidation SYNS en cours…');
-    const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
+    console.log('[Minyan-Lyon] Revalidation SYNS…');
+    const url=SHEET_URLS.syns+'&_cb='+Date.now();
+    const res=await fetch(url,{cache:'no-store'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1163,22 +1119,22 @@ async function revalidateSyns(force){
     const oldJSON=localStorage.getItem('mlSyns');
     localStorage.setItem('mlSyns',newJSON);
     localStorage.setItem('mlSynsTime',Date.now());
-    localStorage.setItem('mlSynsWeek',getCurrentWeekKey());
-    console.log(`[Minyan-Lyon] ✓ Snapshot SYNS pris pour semaine ${getCurrentWeekKey()} · ${newSyns.length} syn`);
+    console.log(`[Minyan-Lyon] ✓ SYNS rafraîchi · ${newSyns.length} syn`);
     if(newJSON!==oldJSON){
       SYNS=newSyns;
       refreshActivePage();
     }
   }catch(e){
-    console.warn('[Minyan-Lyon] Revalidation syns échouée (cache utilisé):',e.message);
+    console.warn('[Minyan-Lyon] Revalidation syns échouée:',e.message);
   }
 }
 async function revalidateMikvaot(force){
-  if(!force&&!shouldRevalidate('mlMikvaotWeek')){
+  if(!force&&!shouldRevalidate('mlMikvaotTime')){
     return;
   }
   try{
-    const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
+    const url=SHEET_URLS.mikvaot+'&_cb='+Date.now();
+    const res=await fetch(url,{cache:'no-store'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1189,26 +1145,23 @@ async function revalidateMikvaot(force){
     const oldJSON=localStorage.getItem('mlMikvaot');
     localStorage.setItem('mlMikvaot',newJSON);
     localStorage.setItem('mlMikvaotTime',Date.now());
-    localStorage.setItem('mlMikvaotWeek',getCurrentWeekKey());
     if(newJSON!==oldJSON){
       MIKVAOT=newMik;
       refreshActivePage();
     }
   }catch(e){
-    console.warn('[Minyan-Lyon] Revalidation mikvaot échouée (cache utilisé):',e.message);
+    console.warn('[Minyan-Lyon] Revalidation mikvaot échouée:',e.message);
   }
 }
 
-// Force la revalidation toutes les heures pour attraper le passage du jeudi 23h59
-// (ne fait un fetch réel que si la clé de semaine a changé, sinon return immédiat)
-function startWeeklySnapshotChecker(){
+// PATCH 3 : checker toutes les 5 minutes
+function startSheetRefreshChecker(){
   setInterval(()=>{
     revalidateSyns(false);
     revalidateMikvaot(false);
-  },60*60*1000); // toutes les heures
+  },SHEET_TTL_MS);
 }
 
-// Rafraîchit la page active après mise à jour silencieuse des données
 function refreshActivePage(){
   try{
     const active=document.querySelector('.page.on');
@@ -1221,7 +1174,6 @@ function refreshActivePage(){
   }catch(e){console.warn('refreshActivePage:',e.message);}
 }
 
-// === Données chargées dynamiquement (initialisées au démarrage) ===
 let SYNS=[];
 let MIKVAOT=[];
 
@@ -1236,27 +1188,23 @@ const LYON_LAT=45.76,LYON_LNG=4.85;
 function getTZOffset(d){const y=d.getFullYear();const lsm=new Date(y,2,31);lsm.setDate(31-lsm.getDay());const lso=new Date(y,9,31);lso.setDate(31-lso.getDay());return(d>=lsm&&d<lso)?120:60;}
 function julianDay(y,m,d){if(m<=2){y--;m+=12;}const a=Math.floor(y/100),b=2-a+Math.floor(a/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+b-1524.5;}
 function sunTime(y,m,d,zenith,isRise){const jd=julianDay(y,m,d);const T=(jd-2451545.0)/36525;const L=((280.46646+T*(36000.76983+0.0003032*T))%360+360)%360;const M=((357.52911+T*(35999.05029-0.0001537*T))%360+360)%360;const Mr=M*Math.PI/180;const C=Math.sin(Mr)*(1.914602-T*(0.004817+0.000014*T))+Math.sin(2*Mr)*(0.019993-0.000101*T)+Math.sin(3*Mr)*0.000289;const tL=L+C;const omega=125.04-1934.136*T;const lambda=tL-0.00569-0.00478*Math.sin(omega*Math.PI/180);const eps=23.439291-0.0130042*T;const decl=Math.asin(Math.sin(eps*Math.PI/180)*Math.sin(lambda*Math.PI/180));const H=Math.acos((Math.cos(zenith*Math.PI/180)-Math.sin(LYON_LAT*Math.PI/180)*Math.sin(decl))/(Math.cos(LYON_LAT*Math.PI/180)*Math.cos(decl)));const Hd=H*180/Math.PI;const eqT=(lambda-0.0057183-Math.atan2(Math.cos(eps*Math.PI/180)*Math.sin(lambda*Math.PI/180),Math.cos(lambda*Math.PI/180))*180/Math.PI)*4;return(720-4*(LYON_LNG+(isRise?Hd:-Hd))-eqT)/60;}
-
 function fmt(h){if(!isFinite(h))return'—';const H=Math.floor(h),M=Math.round((h-H)*60);if(M===60)return`${H+1}:00`;return`${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`;}
 
 const HEB_MONTHS=['Tishri','Heshvan','Kislev','Tevet','Shevat','Adar','Nissan','Iyar','Sivan','Tammouz','Av','Eloul'];
 const DAYS_FR=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 function getJewishDate(d){const ref=new Date(2026,4,3);const refH={day:16,month:7,year:5786};const diff=Math.floor((d-ref)/86400000);let day=refH.day+diff,month=refH.month,year=refH.year;const ml=[30,29,30,29,30,30,30,29,30,29,30,29];while(day>ml[month]){day-=ml[month];month++;if(month>=12){month=0;year++;}}while(day<1){month--;if(month<0){month=11;year--;}day+=ml[month];}return{day,month,year,monthName:HEB_MONTHS[month]};}
 function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.day-15;if(j.month===7)return 15+j.day;if(j.month===8&&j.day<=5)return 44+j.day;return null;}
-
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
 function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0)return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
 function nextPrayer(syn,now){
   const dk=getDayKey(now);
   const today=syn.h[dk];
   const nowH=now.getHours()+now.getMinutes()/60;
-  // 1. Aujourd'hui d'abord
   if(today){
     const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);
     const upcoming=prayers.filter(p=>p.time>=nowH-0.25);
     if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.25,daysAhead:0};}
   }
-  // 2. Sinon, chercher jusqu'à 7 jours dans le futur
   const dayShort=['dim.','lun.','mar.','mer.','jeu.','ven.','shabbat'];
   for(let i=1;i<=7;i++){
     const future=new Date(now.getTime()+i*86400000);
@@ -1271,12 +1219,10 @@ function nextPrayer(syn,now){
   }
   return null;
 }
-
 function distance(lat1,lng1,lat2,lng2){const R=6371000;const f1=lat1*Math.PI/180,f2=lat2*Math.PI/180;const df=(lat2-lat1)*Math.PI/180,dl=(lng2-lng1)*Math.PI/180;const a=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function fmtDist(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(1)} km`;}
 function fmtWalk(m){const min=Math.round(m/80);if(min<1)return'<1 min';return`${min} min à pied`;}
 
-// Cache des minyans improvisés pour la liste "Trouver un minyan" (rafraîchi via fetch async)
 let CACHED_IMPROMPTU=[];
 
 async function refreshImpromptuCacheForList(){
@@ -1284,7 +1230,6 @@ async function refreshImpromptuCacheForList(){
     let list=await fbReadMinyans();
     list=cleanExpiredMinyans(list);
     CACHED_IMPROMPTU=list;
-    // Si on est sur la page minyans avec geolocMode actif, on rafraîchit la liste
     const active=document.querySelector('.page.on');
     if(active&&active.dataset.page==='minyan'&&geolocMode){
       buildMinyanList();
@@ -1292,25 +1237,18 @@ async function refreshImpromptuCacheForList(){
   }catch(e){console.warn('refreshImpromptuCacheForList:',e.message);}
 }
 
+// PATCH 2 : Fenêtre élargie 24h / 48h (au lieu de 4h / 8h)
 function buildImpromptuFindHTML(){
   if(!geolocMode||CACHED_IMPROMPTU.length===0)return '';
   const now=Date.now();
-  const inFourHours=now+4*60*60*1000;
-  const inEightHours=now+8*60*60*1000;
-  // Filtrer : minyans à venir (pas expirés, et pas trop loin dans le futur)
+  const inOneDay=now+24*60*60*1000;
+  const inTwoDays=now+48*60*60*1000;
   let upcoming=CACHED_IMPROMPTU.filter(m=>m&&m.timestamp&&m.timestamp+45*60*1000>now);
-  // Priorité : 4h → 8h → tout
-  let scope=upcoming.filter(m=>m.timestamp<=inFourHours);
-  if(scope.length===0)scope=upcoming.filter(m=>m.timestamp<=inEightHours);
+  let scope=upcoming.filter(m=>m.timestamp<=inOneDay);
+  if(scope.length===0)scope=upcoming.filter(m=>m.timestamp<=inTwoDays);
   if(scope.length===0)scope=upcoming;
   if(scope.length===0)return '';
-  // Tri par distance si user location connue, sinon par timestamp
-  if(userLocation){
-    // Pas de coords précises pour les improvisés (lieu = texte libre), tri par timestamp
-    scope.sort((a,b)=>a.timestamp-b.timestamp);
-  }else{
-    scope.sort((a,b)=>a.timestamp-b.timestamp);
-  }
+  scope.sort((a,b)=>a.timestamp-b.timestamp);
   const userId=getUserId();
   let html=`<div class="imp-section-title"><span class="bolt">⚡</span><span class="t">Minyans improvisés</span><span class="count">${scope.length} en cours</span></div>`;
   for(const m of scope){
@@ -1359,13 +1297,11 @@ function buildMinyanList(){
   else if(currentFilter==='habad')entries=entries.filter(e=>e.syn.rite==='habad');
   else if(currentFilter==='fav')entries=entries.filter(e=>favorites.includes(e.syn.id));
   if(currentZone!=='all')entries=entries.filter(e=>e.syn.zone===currentZone);
-  // Recherche par nom
   if(searchQuery){
     const q=searchQuery.toLowerCase();
     entries=entries.filter(e=>e.syn.name.toLowerCase().includes(q)||e.syn.addr.toLowerCase().includes(q));
   }
   if(geolocMode&&userLocation){
-    // Mode "Trouver minyan" — uniquement prières d'aujourd'hui dans les 4h à venir
     const nowH=now.getHours()+now.getMinutes()/60;
     let nearby=entries.filter(e=>e.next.daysAhead===0&&e.next.time-nowH<=4&&e.next.time-nowH>=-0.25);
     if(nearby.length===0)nearby=entries.filter(e=>e.next.daysAhead===0&&e.next.time-nowH<=8);
@@ -1375,11 +1311,9 @@ function buildMinyanList(){
   }else{
     entries.sort((a,b)=>{const ta=a.next.daysAhead*24+a.next.time;const tb=b.next.daysAhead*24+b.next.time;return ta-tb;});
   }
-  // === SECTION MINYANS IMPROVISÉS (en haut, uniquement en mode 'Trouver un minyan') ===
   const impHTML=buildImpromptuFindHTML();
   if(impHTML){
     list.insertAdjacentHTML('beforeend',impHTML);
-    // Séparateur
     list.insertAdjacentHTML('beforeend','<div class="imp-section-title" style="margin-top:18px;"><span class="t">Synagogues</span></div>');
   }
   if(entries.length===0){list.insertAdjacentHTML('beforeend','<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>');return;}
@@ -1391,7 +1325,6 @@ function buildMinyanList(){
     const fav=favorites.includes(e.syn.id);
     const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[e.syn.rite]||e.syn.rite;
     const distHTML=userLocation?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
-    // Construire les 3 cells horaires
     const buildCell=(label,val,type)=>{
       if(!val){return `<div class="time-cell empty"><div class="time-cell-lbl">${label}</div><div class="time-cell-val">—</div></div>`;}
       const t=parseHour(val);
@@ -1429,7 +1362,6 @@ function toggleFav(id,e){e.stopPropagation();const i=favorites.indexOf(id);if(i>
 
 function findNearestMinyan(){
   if(geolocMode){
-    // 2e clic = annuler
     geolocMode=false;userLocation=null;
     document.getElementById('findBtn').classList.remove('active');
     document.getElementById('findArrow').textContent='→';
@@ -1445,7 +1377,6 @@ function findNearestMinyan(){
     document.getElementById('findBtn').classList.add('active');
     document.getElementById('findArrow').textContent='✕';
     document.getElementById('findSub').textContent='Trier par distance · Toucher pour annuler';
-    // Charger les minyans improvisés en parallèle (rafraîchira la liste quand prêt)
     refreshImpromptuCacheForList();
     buildMinyanList();
     setTimeout(()=>{document.querySelector('#minyanList').scrollIntoView({behavior:'smooth',block:'start'});},150);
@@ -1500,6 +1431,14 @@ function openSynDetail(syn){
 
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.page===name));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo(0,0);if(name==='cal')buildCalendar();if(name==='torah')buildTorah();}
 
+// PATCH 1 : Tehilim selon agenda hébraïque (découpage mensuel hébraïque)
+const TEHILIM_SPLIT=[
+  [1,9],[10,17],[18,22],[23,28],[29,34],[35,38],[39,43],[44,48],[49,54],[55,59],
+  [60,65],[66,68],[69,71],[72,76],[77,78],[79,82],[83,87],[88,89],[90,96],[97,103],
+  [104,105],[106,107],[108,112],[113,118],[119,1],[119,2],[120,134],[135,139]
+];
+const HEB_ML=[30,29,30,29,30,30,30,29,30,29,30,29];
+
 function buildCalendar(){
   const z=calcZmanim(new Date());
   const j=getJewishDate(new Date());
@@ -1508,27 +1447,37 @@ function buildCalendar(){
   document.getElementById('calOmer').innerHTML=omer?`${omer}<sup>e</sup> de l'Omer`:`${j.day} ${j.monthName}`;
   const items=[['Alot HaShahar',z.alot],['Talith / Téfilin',z.tefilin],['Hanetz',z.hanetz],['Fin Shema M"A',z.shema_ma],['Fin Shema GR"A',z.shema_gra],['Fin Tefila',z.tefila_gra],['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],['Plag HaMinha',z.plag],['Chkia',z.shkia],['Tseit Hacohavim',z.tzeit],['Fin Shabbat',z.fin_shab],['Rabbeinou Tam',z.rt]];
   document.getElementById('calZmanimGrid').innerHTML=items.map(([l,h])=>`<div><div class="zi-lbl">${l}</div><div class="zi-val">${fmt(h)}</div></div>`).join('');
-  // Card Shabbat
   const dow=new Date().getDay();
   const shabContainer=document.getElementById('shabContainer');
   if(dow===5||dow===6){
     const candles=z.shkia-18/60;
     shabContainer.innerHTML=`<div class="shab-card"><div class="shab-lbl">🕯 Shabbat cette semaine</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(z.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(z.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(z.rt)}</div></div></div></div>`;
   }else{shabContainer.innerHTML='';}
-  // Tehilim : 150 chapitres répartis sur les jours du mois
-  const todayT=new Date();
-  const daysInMonth=new Date(todayT.getFullYear(),todayT.getMonth()+1,0).getDate();
-  const dayOfMonth=todayT.getDate();
-  const baseChaps=Math.floor(150/daysInMonth);
-  const extraChaps=150%daysInMonth;
-  let tehStart=(dayOfMonth-1)*baseChaps+Math.min(dayOfMonth-1,extraChaps)+1;
-  const todayChaps=baseChaps+(dayOfMonth<=extraChaps?1:0);
-  let tehEnd=tehStart+todayChaps-1;
-  if(tehEnd>150)tehEnd=150;
-  const tehTxt=tehStart===tehEnd?`Chapitre ${tehStart}`:`Chapitres ${tehStart}-${tehEnd}`;
+
+  // === PATCH 1 : Tehilim selon le jour du mois HÉBRAÏQUE ===
+  const monthLen=HEB_ML[j.month];
+  let tehTxt='';
+  if(j.day<=28){
+    const split=TEHILIM_SPLIT[j.day-1];
+    if(split[0]===119&&split[1]<=22){
+      tehTxt=`Téhilim 119 — partie ${split[1]} · ${j.day} ${j.monthName}`;
+    }else if(split[0]===split[1]){
+      tehTxt=`Chapitre ${split[0]} · ${j.day} ${j.monthName}`;
+    }else{
+      tehTxt=`Chapitres ${split[0]}-${split[1]} · ${j.day} ${j.monthName}`;
+    }
+  }else if(j.day===29){
+    if(monthLen===29){
+      tehTxt=`Chapitres 140-150 · 29 ${j.monthName}`;
+    }else{
+      tehTxt=`Chapitres 140-144 · 29 ${j.monthName}`;
+    }
+  }else if(j.day===30){
+    tehTxt=`Chapitres 145-150 · 30 ${j.monthName}`;
+  }
   document.getElementById('dafWhen').textContent=getDafYomi(new Date());
   document.getElementById('tehWhen').textContent=tehTxt;
-  // Fêtes + Birkat HaLevana
+
   const today0=new Date();today0.setHours(0,0,0,0);
   const upcomingFetes=FETES.filter(f=>f.date>=today0).slice(0,6);
   const inBirkat=BIRKAT.find(b=>{const t=new Date();t.setHours(0,0,0,0);return t>=b.debut&&t<=b.fin;});
@@ -1538,7 +1487,6 @@ function buildCalendar(){
   document.getElementById('eventsList').innerHTML=evHTML;
 }
 
-// === MIKVAOT — coordonnées approximatives Lyon (par adresse) ===
 const MIKVE_COORDS={
   "CIV Malherbe Beer Myriam":[45.770,4.882],
   "Mikveh Ecole Juive":[45.769,4.880],
@@ -1586,13 +1534,11 @@ function findNearestMikve(){
 }
 
 function buildTorah(){
-  // Mishna Broura du jour
   const idx=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000)%MB.length;
   const mb=MB[idx];
   const refEl=document.getElementById('mbRef');const textEl=document.getElementById('mbText');
   if(refEl)refEl.textContent=mb.ref;
   if(textEl)textEl.textContent=mb.text;
-  // Mikvaot list
   const list=document.getElementById('mikvaotList');
   if(!list||!MIKVAOT||!MIKVAOT.length)return;
   list.innerHTML='';
@@ -1636,7 +1582,6 @@ let compassListeners=[];
 let smoothedRose=null;
 const COMPASS_SMOOTH_ALPHA=0.18;
 
-// Positionne le marker ★ sur la rose à JERUSALEM_BEARING° depuis le N (sens horaire)
 function positionJerusalemMarker(){
   const m=document.getElementById('compassMarkerJ');
   if(m)m.style.transform=`translate(-50%,-50%) rotate(${JERUSALEM_BEARING}deg) translateY(-105px)`;
@@ -1680,7 +1625,6 @@ function startCompass(){
     return;
   }
   refreshUserPosition();
-  // iOS 13+ requiert une demande de permission explicite
   if(typeof DeviceOrientationEvent.requestPermission==='function'){
     DeviceOrientationEvent.requestPermission().then(p=>{
       if(p==='granted')initCompass();
@@ -1703,16 +1647,12 @@ function initCompass(){
 }
 
 function handleCompass(e){
-  // alpha = orientation du téléphone (0=Nord, augmente vers l'Est, sens horaire après normalisation)
   let alpha=e.webkitCompassHeading;
   if(alpha===undefined||alpha===null){
     alpha=e.alpha;
     if(alpha===null||alpha===undefined)return;
     alpha=(360-alpha)%360;
   }
-  // Le cadran tourne dans le sens OPPOSÉ au téléphone pour que N reste pointé vers le Nord physique.
-  // Conséquence : le marker ★ Jérusalem (placé à JERUSALEM_BEARING° sur la rose) se retrouve en haut de l'écran
-  // exactement quand l'utilisateur est face à Jérusalem (alpha == JERUSALEM_BEARING).
   const targetRose=-alpha;
   if(smoothedRose===null){
     smoothedRose=targetRose;
@@ -1723,7 +1663,6 @@ function handleCompass(e){
     smoothedRose=smoothedRose+COMPASS_SMOOTH_ALPHA*diff;
   }
   document.getElementById('compassRose').style.transform=`rotate(${smoothedRose}deg)`;
-  // Affichage degré : écart entre l'orientation actuelle et la direction de Jérusalem
   const dirToJ=(JERUSALEM_BEARING-alpha+360)%360;
   document.getElementById('compassDeg').innerHTML=`${Math.round(dirToJ)}<span class="deg">°</span>`;
   const off=Math.min(dirToJ,360-dirToJ);
@@ -1737,25 +1676,12 @@ function handleCompass(e){
   }
 }
 
-// ===========================================================================
-// MINYAN IMPROVISÉ — Système collaboratif (Firebase Realtime DB + fallback localStorage)
-// ===========================================================================
-//
-// Pour activer le mode partagé entre tous les utilisateurs :
-//   1. Aller sur https://console.firebase.google.com et créer un projet gratuit
-//   2. Ajouter une "Realtime Database" en mode test (lecture/écriture publique)
-//   3. Aller dans Project Settings → Web app, et copier la config
-//   4. Coller les valeurs ci-dessous (databaseURL et apiKey suffisent)
-//
-// SI VIDE → Mode local automatique (chaque utilisateur voit ses propres minyanim).
-// SI REMPLI → Mode partagé temps réel (tous voient les mêmes minyanim).
 const FIREBASE_CONFIG={
   databaseURL:"https://minyan-lyon-default-rtdb.europe-west1.firebasedatabase.app",
   apiKey:"AIzaSyCSdL1hUifNyctlFvtX9ZH8ztsz6fA4GG4"
 };
 const FB_ENABLED=()=>!!FIREBASE_CONFIG.databaseURL;
 
-// Sauvegarder/charger les minyanim improvisés
 async function fbWriteMinyans(list){
   if(!FB_ENABLED()){
     localStorage.setItem('mlImpromptu',JSON.stringify(list));
@@ -1781,7 +1707,6 @@ async function fbReadMinyans(){
   }catch(e){console.warn('Firebase read fail:',e.message);return [];}
 }
 
-// Nettoyer les minyans expirés (45 min après l'heure prévue)
 function cleanExpiredMinyans(list){
   const now=Date.now();
   return list.filter(m=>{
@@ -1790,24 +1715,22 @@ function cleanExpiredMinyans(list){
   });
 }
 
-// Identifiant unique de cet utilisateur (pour suivre les +1 et empêcher de double-cliquer)
 function getUserId(){
   let id=localStorage.getItem('mlUserId');
   if(!id){id='u'+Date.now()+Math.random().toString(36).slice(2,8);localStorage.setItem('mlUserId',id);}
   return id;
 }
 
-// Construire un timestamp depuis date (YYYY-MM-DD) + heure (HH:MM)
 function buildTimestamp(dateStr,heureStr){
-  // heureStr accepté formats : "9h00", "09h00", "09:00", "9:00"
   const cleanH=heureStr.replace('h',':').replace(/\s/g,'');
   const [h,m]=cleanH.split(':').map(s=>parseInt(s)||0);
   const [yy,mm,dd]=dateStr.split('-').map(s=>parseInt(s));
   return new Date(yy,mm-1,dd,h,m,0).getTime();
 }
 
-let currentImpMode='join'; // 'join' ou 'create'
+let currentImpMode='join';
 
+// PATCH 4a : Ajout du champ "Contact (optionnel)" dans le formulaire de création
 function openSignal(){
   const todayStr=new Date().toISOString().slice(0,10);
   openDetail('Minyan improvisé',`
@@ -1834,6 +1757,8 @@ function openSignal(){
         <option value="Minha" selected>Minha (après-midi)</option>
         <option value="Arvit">Arvit (soir)</option>
       </select>
+      <h3>Contact (optionnel)</h3>
+      <input type="text" id="impContact" class="ob-input" placeholder="Tél ou nom (ex: 06 12 34 56 78)"/>
       <h3>Combien de personnes déjà confirmées ?</h3>
       <input type="number" id="impConfirmes" class="ob-input" placeholder="Ex: 5" min="1" max="10" value="1"/>
       <p class="sources" style="margin-bottom:18px;">Il faut 10 hommes pour le minyan. L'app calculera automatiquement combien il manque.</p>
@@ -1861,11 +1786,13 @@ function setImpMode(mode){
   }
 }
 
+// PATCH 4b : Capture du contact dans createMinyan
 async function createMinyan(){
   const lieu=document.getElementById('impLieu').value.trim();
   const date=document.getElementById('impDate').value;
   const heure=document.getElementById('impHeure').value.trim();
   const type=document.getElementById('impType').value;
+  const contact=document.getElementById('impContact').value.trim();
   const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;
   if(!lieu||!heure||!date){alert('Lieu, date et heure obligatoires');return;}
   const timestamp=buildTimestamp(date,heure);
@@ -1875,14 +1802,14 @@ async function createMinyan(){
   const newMinyan={
     id:'m'+Date.now()+Math.random().toString(36).slice(2,6),
     lieu,date,heure,type,
+    contact:contact||null,
     confirmes:Math.min(Math.max(confirmes,1),10),
     timestamp,
     createdBy:userId,
     createdByName:userName,
     createdAt:Date.now(),
-    participants:[userId] // le créateur compte comme 1 participant
+    participants:[userId]
   };
-  // Ajuster confirmes pour inclure le créateur
   if(newMinyan.confirmes<1)newMinyan.confirmes=1;
   let list=await fbReadMinyans();
   list=cleanExpiredMinyans(list);
@@ -1904,7 +1831,6 @@ async function joinMinyan(id){
   if(!m){alert('Ce minyan n\'existe plus');loadImpromptu();return;}
   if(!Array.isArray(m.participants))m.participants=[];
   if(m.participants.includes(userId)){
-    // Déjà inscrit → on retire (toggle)
     m.participants=m.participants.filter(p=>p!==userId);
     m.confirmes=Math.max((m.confirmes||1)-1,0);
   }else{
@@ -1938,19 +1864,18 @@ function fmtImpDateTime(ts){
   return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} à ${hh}h${mm}`;
 }
 
+// PATCH 4c : loadImpromptu avec contact + share + notif buttons
 async function loadImpromptu(){
   const list=document.getElementById('impList');
   if(!list)return;
   list.innerHTML='<div class="imp-empty">Chargement…</div>';
   let minyans=await fbReadMinyans();
   minyans=cleanExpiredMinyans(minyans);
-  // Ré-écrire la liste nettoyée si des minyans ont expiré
   await fbWriteMinyans(minyans);
   if(minyans.length===0){
     list.innerHTML='<div class="imp-empty">Aucun minyan improvisé en cours.<br>Sois le premier à en créer un !</div>';
     return;
   }
-  // Trier par date/heure (le plus proche en premier)
   minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
   const userId=getUserId();
   let html='';
@@ -1963,6 +1888,8 @@ async function loadImpromptu(){
     const isJoined=participants.includes(userId);
     const isCreator=m.createdBy===userId;
     const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;
+    const hasReminder=ACTIVE_REMINDERS[m.id]?true:false;
+    const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
     html+=`<div class="imp-item">
       <div class="imp-item-head">
         <div>
@@ -1972,6 +1899,7 @@ async function loadImpromptu(){
         <div class="imp-item-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div>
       </div>
       <div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>
+      ${contactHTML}
       <div class="imp-item-progress">
         <div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div>
         <div class="imp-progress-text">${total}/10</div>
@@ -1980,12 +1908,108 @@ async function loadImpromptu(){
         ${complet&&!isJoined
           ?'<button class="imp-btn complet" disabled>Minyan complet ✓</button>'
           :`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Je participe (annuler)':'+1 Je participe'}</button>`}
-        <a class="imp-btn-maps" href="${mapsUrl}" target="_blank">📍</a>
+        <a class="imp-btn-maps" href="${mapsUrl}" target="_blank" title="Itinéraire">📍</a>
+        <button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>
+        <button class="imp-btn-maps ${hasReminder?'active-notif':''}" onclick="toggleMinyanReminder('${m.id}')" title="Rappel 15 min avant">${hasReminder?'✓':'🔔'}</button>
         ${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}
       </div>
     </div>`;
   }
   list.innerHTML=html;
+}
+
+// === PATCH 4d : Système de notifications + partage ===
+const ACTIVE_REMINDERS={};
+
+async function toggleMinyanReminder(id){
+  // Si déjà actif → désactiver
+  if(ACTIVE_REMINDERS[id]){
+    clearTimeout(ACTIVE_REMINDERS[id]);
+    delete ACTIVE_REMINDERS[id];
+    saveReminderIds();
+    loadImpromptu();
+    return;
+  }
+  // Demander permission notif
+  if(!('Notification' in window)){
+    alert('Les notifications ne sont pas supportées sur ce navigateur.');
+    return;
+  }
+  if(Notification.permission==='default'){
+    const p=await Notification.requestPermission();
+    if(p!=='granted'){alert('Permission refusée.');return;}
+  }else if(Notification.permission==='denied'){
+    alert('Notifications bloquées. Active-les dans les réglages du navigateur.');
+    return;
+  }
+  // Récupérer le minyan
+  const list=await fbReadMinyans();
+  const m=list.find(x=>x&&x.id===id);
+  if(!m){alert('Ce minyan n\'existe plus');return;}
+  const remindAt=m.timestamp-15*60*1000;
+  const delay=remindAt-Date.now();
+  if(delay<=0){alert('Trop tard pour un rappel 15 min avant.');return;}
+  const timeoutId=setTimeout(()=>{
+    try{
+      new Notification('🕍 Minyan dans 15 min',{
+        body:`${m.type} · ${m.lieu}`,
+        icon:'/favicon.ico'
+      });
+    }catch(e){console.warn(e);}
+    delete ACTIVE_REMINDERS[id];
+    saveReminderIds();
+  },delay);
+  ACTIVE_REMINDERS[id]=timeoutId;
+  saveReminderIds();
+  loadImpromptu();
+}
+
+function saveReminderIds(){
+  const ids=Object.keys(ACTIVE_REMINDERS);
+  localStorage.setItem('mlReminders',JSON.stringify(ids));
+}
+
+async function reloadReminders(){
+  // Au démarrage, ré-armer les setTimeout pour les minyans qui ont encore un rappel programmé
+  let ids=[];
+  try{ids=JSON.parse(localStorage.getItem('mlReminders')||'[]');}catch{}
+  if(!ids.length)return;
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const list=await fbReadMinyans();
+  for(const id of ids){
+    const m=list.find(x=>x&&x.id===id);
+    if(!m)continue;
+    const remindAt=m.timestamp-15*60*1000;
+    const delay=remindAt-Date.now();
+    if(delay<=0)continue;
+    const timeoutId=setTimeout(()=>{
+      try{
+        new Notification('🕍 Minyan dans 15 min',{
+          body:`${m.type} · ${m.lieu}`,
+          icon:'/favicon.ico'
+        });
+      }catch(e){console.warn(e);}
+      delete ACTIVE_REMINDERS[id];
+      saveReminderIds();
+    },delay);
+    ACTIVE_REMINDERS[id]=timeoutId;
+  }
+}
+
+async function shareMinyan(id){
+  const list=await fbReadMinyans();
+  const m=list.find(x=>x&&x.id===id);
+  if(!m){alert('Ce minyan n\'existe plus');return;}
+  const total=m.confirmes||1;
+  const manque=Math.max(10-total,0);
+  const manqueText=manque===0?'COMPLET ✓':`il manque ${manque} personne${manque>1?'s':''}`;
+  const contactText=m.contact?`\nContact : ${m.contact}`:'';
+  const txt=`🕍 *Minyan improvisé* — ${m.type}\n📅 ${fmtImpDateTime(m.timestamp)}\n📍 ${m.lieu}${contactText}\n👥 ${total}/10 (${manqueText})\n\nVia Minyan Lyon : ${window.location.href}`;
+  if(navigator.share){
+    navigator.share({title:'Minyan improvisé · '+m.type,text:txt}).catch(()=>{});
+  }else{
+    window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`,'_blank');
+  }
 }
 
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -2000,7 +2024,6 @@ function updateCountdown(){
   const now=new Date();
   const z=calcZmanim(now);
   const nowH=now.getHours()+now.getMinutes()/60;
-  // Étapes principales de la journée
   const steps=[
     {name:'Alot HaShahar',time:z.alot},
     {name:'Hanetz',time:z.hanetz},
@@ -2011,17 +2034,13 @@ function updateCountdown(){
     {name:'Chkia',time:z.shkia},
     {name:'Tseit Hacohavim',time:z.tzeit}
   ];
-  // Trouver la prochaine étape de zmanim
   const nextStep=steps.find(s=>s.time>nowH);
-  // Trouver la prochaine prière dans une syn
   const all=SYNS.map(s=>({s,n:nextPrayer(s,now)})).filter(x=>x.n);
   all.sort((a,b)=>{const ta=a.n.daysAhead*24+a.n.time;const tb=b.n.daysAhead*24+b.n.time;return ta-tb;});
   const upcomingPrayer=all[0];
 
-  // Choisir quoi afficher : le plus pertinent selon le contexte
   let displayItem=null;
   if(nextStep&&upcomingPrayer&&upcomingPrayer.n.daysAhead===0){
-    // Si la prière est avant la prochaine étape de zmanim, afficher la prière
     if(upcomingPrayer.n.time<nextStep.time){
       displayItem={name:upcomingPrayer.n.name,time:upcomingPrayer.n.time,isPrayer:true};
     }else{
@@ -2056,19 +2075,15 @@ function updateCountdown(){
 }
 
 async function init(){
-  // 1. Charger SYNCHRONEMENT depuis le cache (ou fallback DEFAULT) → affichage instantané
   SYNS=loadSynsSync();
   MIKVAOT=loadMikvaotSync();
 
-  // 2. Lancer la revalidation Google Sheets en ARRIÈRE-PLAN (sans bloquer l'UI)
-  //    Ne refetch QUE si la semaine a changé (ou snapshot manquant) → économie de bande passante.
   revalidateSyns(false);
   revalidateMikvaot(false);
 
-  // 3. Démarrer le checker horaire pour attraper le passage du jeudi 23h59 sans recharger
-  startWeeklySnapshotChecker();
+  // PATCH 3 : checker 5 min au lieu de 1h
+  startSheetRefreshChecker();
 
-  // 4. Quand l'utilisateur revient sur l'onglet → re-vérifier la semaine (cas onglet ouvert plusieurs jours)
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
       revalidateSyns(false);
@@ -2086,7 +2101,6 @@ async function init(){
   document.getElementById('topDate').innerHTML=`<span class="candle">🕯</span>&nbsp;${dateFR.toUpperCase()} · ${j.day} ${j.monthName.toUpperCase()} ${j.year}`;
   document.getElementById('zDate').innerHTML=omer?`${j.day} ${j.monthName} · ${omer}<sup>e</sup> Omer`:`${j.day} ${j.monthName} ${j.year}`;
   const z=calcZmanim(new Date());
-  // Choisir les 6 zmanim les plus pertinents selon l'heure
   const nowH=new Date().getHours()+new Date().getMinutes()/60;
   const allZ=[
     ['Alot',z.alot],['Talith',z.tefilin],['Hanetz',z.hanetz],
@@ -2094,15 +2108,12 @@ async function init(){
     ['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],
     ['Plag',z.plag],['Chkia',z.shkia],['Tseit',z.tzeit],['RT',z.rt]
   ];
-  // Trouver les 2 zmanim passés et les 4 à venir (ou ajuster)
   let upcomingZ=allZ.filter(([_,t])=>t>=nowH-0.1).slice(0,6);
   if(upcomingZ.length<6){
-    // Compléter avec les passés récents
     const pastZ=allZ.filter(([_,t])=>t<nowH-0.1).slice(-(6-upcomingZ.length));
     upcomingZ=[...pastZ,...upcomingZ];
   }
   if(upcomingZ.length<6){
-    // Cas extrême (fin de nuit) : afficher demain
     upcomingZ=allZ.slice(0,6);
   }
   upcomingZ=upcomingZ.slice(0,6);
@@ -2120,6 +2131,9 @@ async function init(){
   updateFindBtnText();
   setInterval(updateCountdown,30000);
   setInterval(updateFindBtnText,60000);
+
+  // PATCH 4f : Re-charger les rappels notifs au démarrage
+  reloadReminders();
 }
 init();
 </script>
