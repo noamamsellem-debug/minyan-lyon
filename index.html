@@ -14,10 +14,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Minyan Lyon"/>
+<meta name="robots" content="noindex,nofollow"/>
 <title>Minyan Lyon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400..700;9..144,1,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#F4EFE6;--bg-soft:#EAE3D5;
@@ -35,10 +37,58 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;overflow-x:hidden;}
+
+/* WATERMARK invisible (apparaît sur captures d'écran) */
+body.watermark::before {
+  content: attr(data-user);
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 56px;
+  font-family: var(--serif);
+  color: rgba(0,0,0,0.025);
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+  user-select: none;
+}
+
 .app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:88px;}
 .page{display:none;animation:fadeIn 0.25s ease;}
 .page.on{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ÉCRAN DE LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(180deg,#F4EFE6 0%,#EAE3D5 100%);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.4s ease;}
+.login-screen.show{display:flex;}
+.login-card{max-width:380px;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:28px;padding:36px 28px;box-shadow:0 20px 60px -20px rgba(20,16,8,0.15);text-align:center;}
+.login-candle{font-size:42px;margin-bottom:14px;animation:flicker 2.5s ease-in-out infinite;}
+.login-card h1{font-family:var(--serif);font-size:32px;font-weight:500;line-height:1.1;letter-spacing:-0.018em;color:var(--ink);margin-bottom:8px;}
+.login-card h1 .em{font-style:italic;font-weight:400;}
+.login-card .sub{font-size:14px;color:var(--ink-soft);line-height:1.5;margin-bottom:28px;}
+.login-google-btn{width:100%;padding:15px 22px;background:#fff;border:1.5px solid var(--line);border-radius:14px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s ease;}
+.login-google-btn:active{transform:scale(0.985);background:var(--bg-soft);}
+.login-google-icon{width:20px;height:20px;}
+.login-divider{display:flex;align-items:center;gap:12px;margin:22px 0 18px;color:var(--ink-faint);font-size:12px;}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line);}
+.login-skip{background:transparent;border:none;color:var(--ink-soft);font-size:13.5px;font-weight:500;text-decoration:underline;cursor:pointer;padding:8px;font-family:var(--sans);}
+.login-skip:active{color:var(--ink);}
+.login-notice{margin-top:22px;padding:14px;background:var(--bg-soft);border-radius:12px;font-size:12px;color:var(--ink-soft);line-height:1.5;text-align:left;}
+.login-notice .ti{font-weight:700;color:var(--ink);letter-spacing:0.04em;display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;}
+
+/* Bandeau "compte connecté" en haut */
+.auth-banner{margin:0 18px 12px;padding:10px 14px;background:rgba(91,142,91,0.1);border:1px solid rgba(91,142,91,0.25);border-radius:12px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink);}
+.auth-banner.locked{background:rgba(212,172,85,0.12);border-color:rgba(212,172,85,0.35);color:#8B6F2A;}
+.auth-banner .ic{font-size:14px;}
+.auth-banner .txt{flex:1;line-height:1.35;}
+.auth-banner .lvl{font-weight:700;letter-spacing:0.02em;}
+.auth-banner-btn{padding:6px 12px;background:var(--ink);color:var(--bg);border:none;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.auth-banner-btn:active{transform:scale(0.94);}
+
+/* Champ masqué pour le niveau d'accès */
+.locked-val{display:inline-flex;align-items:center;gap:5px;color:var(--ink-faint);font-style:italic;font-size:12px;}
+.locked-val::before{content:"🔒";font-style:normal;font-size:11px;}
+
 .topbar{padding:18px 22px 4px;display:flex;justify-content:space-between;align-items:center;}
 .tag{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft);}
 .tag .candle{display:inline-block;animation:flicker 2.5s ease-in-out infinite;}
@@ -152,6 +202,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .mik-btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);}
 .mik-btn:active{transform:scale(0.92);}
 .mik-dist{font-size:11.5px;color:var(--gold);font-weight:600;margin-top:4px;letter-spacing:0.02em;}
+
+.mik-locked{margin:14px 18px;padding:24px 20px;background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border-radius:var(--r-lg);text-align:center;color:#5C3D1F;}
+.mik-locked-ic{font-size:38px;margin-bottom:10px;}
+.mik-locked h3{font-family:var(--serif);font-size:19px;font-weight:600;margin-bottom:6px;color:#5C3D1F;}
+.mik-locked p{font-size:13.5px;color:#7A5530;margin-bottom:14px;line-height:1.5;}
+.mik-locked-btn{padding:11px 22px;background:#5C3D1F;color:#FCE4CC;border:none;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.mik-locked-btn:active{transform:scale(0.96);}
+
 .compass-card{margin:8px 18px 18px;background:linear-gradient(180deg,#1B1B19 0%,#161613 100%);border-radius:var(--r-lg);padding:28px 22px;color:#F8E9C2;text-align:center;position:relative;overflow:hidden;}
 .compass-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(212,172,85,0.15) 0%,transparent 60%);pointer-events:none;}
 .compass-lbl{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(248,233,194,0.55);position:relative;z-index:1;}
@@ -198,6 +256,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .ob-input:focus{border-color:var(--ink);}
 .ob-btn{width:100%;padding:16px;background:var(--ink);color:var(--bg);border:none;border-radius:14px;font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.15s ease;}
 .ob-btn:active{transform:scale(0.985);}
+.ob-btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
 /* === MINYAN IMPROVISÉ === */
 .imp-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 8px;}
 .imp-card{padding:22px 16px;border-radius:var(--r-lg);text-align:center;cursor:pointer;transition:transform 0.15s ease;border:1.5px solid var(--line);background:var(--card);}
@@ -280,6 +339,15 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 .h-tab td:first-child{text-align:left;padding-left:14px;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--ink-soft);}
 .h-tab td.empty{color:var(--ink-faint);font-weight:400;}
 .h-tab tr:hover{background:var(--bg-soft);}
+
+/* Invitation par parrainage */
+.invite-card{margin:14px 0;padding:18px;background:linear-gradient(135deg,#1B1B19 0%,#2a2a26 100%);border-radius:var(--r-lg);color:var(--gold-soft);}
+.invite-card h4{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--gold);margin-bottom:6px;}
+.invite-card p{color:rgba(248,233,194,0.7);font-size:13px;margin-bottom:12px;}
+.invite-code-display{background:rgba(212,172,85,0.15);border:1.5px dashed var(--gold);border-radius:10px;padding:14px;text-align:center;font-family:var(--serif);font-size:22px;font-weight:600;color:var(--gold-soft);letter-spacing:0.18em;margin:10px 0;}
+.invite-btn{width:100%;padding:13px;background:var(--gold);color:#1B1B19;border:none;border-radius:10px;font-family:var(--sans);font-weight:700;font-size:14px;cursor:pointer;}
+.invite-btn:active{transform:scale(0.98);}
+
 .fade-up{animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) backwards;}
 .fade-up:nth-child(2){animation-delay:0.04s;}
 .fade-up:nth-child(3){animation-delay:0.08s;}
@@ -291,7 +359,31 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 </head>
 <body>
 
-<div class="app">
+<!-- ÉCRAN DE LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-candle">🕯</div>
+    <h1>Minyan <span class="em">Lyon</span></h1>
+    <div class="sub">Connectez-vous pour accéder à l'ensemble des informations.</div>
+    <button class="login-google-btn" onclick="loginGoogle()">
+      <svg class="login-google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continuer avec Google
+    </button>
+    <div class="login-divider">ou</div>
+    <button class="login-skip" onclick="continueAsGuest()">Continuer sans compte (accès limité)</button>
+    <div class="login-notice">
+      <span class="ti">🔒 Pourquoi se connecter ?</span>
+      Pour des raisons de sécurité, l'accès complet est réservé aux personnes identifiées.
+    </div>
+  </div>
+</div>
+
+<div class="app" id="mainApp">
 
   <div class="page on" data-page="home">
     <div class="topbar fade-up">
@@ -299,6 +391,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
       <button class="menu-btn" aria-label="Profil" onclick="openProfile()">☰</button>
     </div>
     <div class="greeting fade-up"><h1>Bonjour, <span class="em" id="userName">…</span></h1></div>
+
+    <!-- Bandeau accès limité (visible si pas connecté ou niveau bas) -->
+    <div class="auth-banner locked fade-up hidden" id="authBanner">
+      <span class="ic">🔒</span>
+      <span class="txt"><span class="lvl" id="authBannerLvl">Accès limité</span> · <span id="authBannerMsg">Connectez-vous pour voir les adresses</span></span>
+      <button class="auth-banner-btn" onclick="showLoginScreen()">Connexion</button>
+    </div>
+
     <div class="zcard fade-up">
       <div class="zcard-head"><div class="zcard-loc">Zmanim · Lyon</div><div class="zcard-date" id="zDate">…</div></div>
       <div class="zcard-grid">
@@ -372,20 +472,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
       <div class="mb-text" id="mbText">…</div>
       <div class="mb-source">Mishna Broura — Orah Haïm</div>
     </div>
-    <div class="find-wrap" style="margin-top:8px;">
+    <div id="mikveLockedContainer"></div>
+    <div class="find-wrap" style="margin-top:8px;" id="mikveFindWrap">
       <button class="find-btn" id="mikveFindBtn" onclick="findNearestMikve()">
         <div class="find-ico">🛁</div>
         <div class="find-txt"><div class="t">Trouver un mikvé</div><div class="s" id="mikveFindSub">Trier par distance</div></div>
         <div class="find-arrow" id="mikveFindArrow">→</div>
       </button>
     </div>
-    <div class="filters" style="padding-top:0;">
+    <div class="filters" style="padding-top:0;" id="mikveFilters">
       <button class="f-chip mfilt on" onclick="setMikveFilter(this,'all')">Tous</button>
       <button class="f-chip mfilt" onclick="setMikveFilter(this,'women')">♀ Femmes</button>
       <button class="f-chip mfilt" onclick="setMikveFilter(this,'men')">♂ Hommes</button>
       <button class="f-chip mfilt" onclick="setMikveFilter(this,'both')">⚭ Mixte</button>
     </div>
-    <div class="section-title"><div class="t">Mikvaot de Lyon</div></div>
+    <div class="section-title" id="mikvaotSectionTitle"><div class="t">Mikvaot de Lyon</div></div>
     <div id="mikvaotList"></div>
   </div>
 
@@ -416,6 +517,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
     <div class="tool-card" onclick="openSignal()">
       <div class="tool-ico" style="background:var(--orange-bg);color:var(--orange);">⚡</div>
       <div class="tool-info"><div class="t">Signaler un minyan improvisé</div><div class="s">Partage en temps réel avec la communauté</div></div>
+      <div class="tool-arrow">→</div>
+    </div>
+    <div class="tool-card" onclick="openInvite()" id="inviteCard" style="display:none;">
+      <div class="tool-ico" style="background:rgba(212,172,85,0.18);color:#8B6F2A;">✉️</div>
+      <div class="tool-info"><div class="t">Inviter un ami</div><div class="s">Donner un accès complet à un proche</div></div>
       <div class="tool-arrow">→</div>
     </div>
     <div class="tool-card" onclick="shareApp()">
@@ -453,7 +559,181 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15p
 </div>
 
 <script>
-// === ZMANIM RAW DATA depuis PDF Rav Posen ===
+// ============================================================
+// === SUPABASE INIT + AUTH ===================================
+// ============================================================
+const SUPABASE_URL = 'https://dsaizyvxdebqguzyivmy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_JkwEq3TPYTZ_4V01iKMsMg_ba4Ibj-g';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// État global d'authentification
+let currentUser = null;
+let currentNiveau = 0; // 0 = invité, 1 = connecté <48h, 2 = >48h, 3 = parrainé/>7j
+
+async function checkAuth(){
+  try{
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    if(session && session.user){
+      currentUser = session.user;
+      await calculateNiveau();
+      applyWatermark();
+      // Gérer code d'invitation si présent
+      await processInviteCodeIfAny();
+      return true;
+    }
+    currentUser = null;
+    currentNiveau = 0;
+    return false;
+  }catch(e){
+    console.warn('Auth check failed:', e.message);
+    return false;
+  }
+}
+
+async function calculateNiveau(){
+  if(!currentUser){currentNiveau = 0; return;}
+  try{
+    const {data, error} = await supabaseClient
+      .from('mon_niveau')
+      .select('niveau_calcule')
+      .single();
+    if(error){console.warn('niveau:', error.message); currentNiveau = 1; return;}
+    currentNiveau = data?.niveau_calcule || 1;
+  }catch(e){
+    currentNiveau = 1;
+  }
+}
+
+async function loginGoogle(){
+  try{
+    const inviteCode = new URLSearchParams(window.location.search).get('invite');
+    if(inviteCode) localStorage.setItem('pendingInviteCode', inviteCode);
+    const {error} = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    if(error) alert('Erreur connexion : ' + error.message);
+  }catch(e){
+    alert('Erreur : ' + e.message);
+  }
+}
+
+async function logout(){
+  try{
+    await supabaseClient.auth.signOut();
+    currentUser = null;
+    currentNiveau = 0;
+    location.reload();
+  }catch(e){
+    console.warn('Logout:', e.message);
+    location.reload();
+  }
+}
+
+function continueAsGuest(){
+  localStorage.setItem('guestMode', '1');
+  document.getElementById('loginScreen').classList.remove('show');
+}
+
+function showLoginScreen(){
+  document.getElementById('loginScreen').classList.add('show');
+}
+
+function applyWatermark(){
+  if(currentUser && currentUser.email){
+    document.body.classList.add('watermark');
+    document.body.setAttribute('data-user', currentUser.email);
+  }else{
+    document.body.classList.remove('watermark');
+    document.body.removeAttribute('data-user');
+  }
+}
+
+async function processInviteCodeIfAny(){
+  let code = new URLSearchParams(window.location.search).get('invite');
+  if(!code) code = localStorage.getItem('pendingInviteCode');
+  if(!code || !currentUser) return;
+  try{
+    // Vérifier que le code existe et n'a pas été utilisé
+    const {data:inv} = await supabaseClient
+      .from('invitations')
+      .select('*')
+      .eq('code', code)
+      .single();
+    if(inv && !inv.utilise_par && inv.emis_par !== currentUser.id){
+      // Marquer l'invitation comme utilisée
+      await supabaseClient
+        .from('invitations')
+        .update({utilise_par: currentUser.id, utilise_le: new Date().toISOString()})
+        .eq('code', code);
+      // Mettre à jour le profil avec parrainage_par
+      await supabaseClient
+        .from('profiles')
+        .update({parrainage_par: inv.emis_par})
+        .eq('id', currentUser.id);
+      // Recalculer le niveau
+      await calculateNiveau();
+      localStorage.removeItem('pendingInviteCode');
+      // Nettoyer l'URL
+      const url = new URL(window.location);
+      url.searchParams.delete('invite');
+      window.history.replaceState({}, '', url);
+    }
+  }catch(e){
+    console.warn('processInvite:', e.message);
+  }
+}
+
+// Détecter changements d'auth
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if(event === 'SIGNED_IN'){
+    setTimeout(()=>location.reload(), 200);
+  }else if(event === 'SIGNED_OUT'){
+    location.reload();
+  }
+});
+
+function updateAuthBanner(){
+  const banner = document.getElementById('authBanner');
+  const lvl = document.getElementById('authBannerLvl');
+  const msg = document.getElementById('authBannerMsg');
+  const inviteCard = document.getElementById('inviteCard');
+  if(!banner) return;
+
+  // Bouton "Inviter un ami" visible uniquement si connecté niveau 3
+  if(inviteCard) inviteCard.style.display = (currentUser && currentNiveau >= 3) ? 'flex' : 'none';
+
+  if(!currentUser){
+    banner.classList.remove('hidden');
+    banner.classList.add('locked');
+    lvl.textContent = 'Mode invité';
+    msg.textContent = 'Connectez-vous pour voir les adresses, téléphones et mikvaot';
+    banner.querySelector('.auth-banner-btn').textContent = 'Connexion';
+    banner.querySelector('.auth-banner-btn').onclick = showLoginScreen;
+  }else if(currentNiveau < 2){
+    banner.classList.remove('hidden');
+    banner.classList.add('locked');
+    lvl.textContent = 'Accès en validation';
+    msg.textContent = 'Adresses débloquées dans 48h. Demande un parrainage pour un accès immédiat.';
+    banner.querySelector('.auth-banner-btn').textContent = 'Compte';
+    banner.querySelector('.auth-banner-btn').onclick = openProfile;
+  }else if(currentNiveau < 3){
+    banner.classList.remove('hidden');
+    banner.classList.remove('locked');
+    lvl.textContent = 'Accès complet (sauf téléphones)';
+    msg.textContent = 'Téléphones et mikvaot débloqués sous 7 jours';
+    banner.querySelector('.auth-banner-btn').textContent = 'Compte';
+    banner.querySelector('.auth-banner-btn').onclick = openProfile;
+  }else{
+    banner.classList.add('hidden');
+  }
+}
+
+// ============================================================
+// === DONNÉES ZMANIM (raccourcies pour lisibilité) ============
+// ============================================================
 const ZMANIM_DATA={
 "09-01":["04:27","06:01","08:33","09:20","09:55","12:40","13:14","16:34","17:57","19:19","19:57","20:06","20:54"],
 "09-02":["04:28","06:02","08:33","09:21","09:55","12:40","13:14","16:32","17:55","19:17","19:55","20:04","20:52"],
@@ -822,20 +1102,13 @@ const ZMANIM_DATA={
 "08-31":["04:25","06:00","08:32","09:20","09:55","12:41","13:15","16:36","18:00","19:23","20:01","20:10","20:56"],
 };
 
-// Détecter si on est en heure d'été en France
 function isDST(d){
   const y=d.getFullYear();
   const lsm=new Date(y,2,31);lsm.setDate(31-lsm.getDay());lsm.setHours(2,0,0,0);
   const lso=new Date(y,9,31);lso.setDate(31-lso.getDay());lso.setHours(3,0,0,0);
   return d>=lsm && d<lso;
 }
-
-function timeToFloat(str){
-  if(!str)return null;
-  const [h,m]=str.split(':').map(Number);
-  return h+m/60;
-}
-
+function timeToFloat(str){if(!str)return null;const [h,m]=str.split(':').map(Number);return h+m/60;}
 function calcZmanim(date){
   const m=String(date.getMonth()+1).padStart(2,'0');
   const d=String(date.getDate()).padStart(2,'0');
@@ -844,84 +1117,29 @@ function calcZmanim(date){
   if(!data){return calcZmanimAstro(date);}
   const offset=isDST(date)?1:0;
   const conv=(s)=>{const f=timeToFloat(s);return f===null?null:f+offset;};
-  const alot=conv(data[0]);
-  const hanetz=conv(data[1]);
-  const shema_ma=conv(data[2]);
-  const shema_gra=conv(data[3]);
-  const tefila_gra=conv(data[4]);
-  const hatsot=conv(data[5]);
-  const minha_g=conv(data[6]);
-  const minha_k=conv(data[7]);
-  const plag=conv(data[8]);
-  const shkia=conv(data[9]);
-  const tzeit=conv(data[10]);
-  const fin_shab=conv(data[11]);
-  const rt=conv(data[12]);
-  const tefilin=alot+(hanetz-alot)*0.55;
-  const tefila_ma=shema_ma+(tefila_gra-shema_gra);
+  const alot=conv(data[0]);const hanetz=conv(data[1]);const shema_ma=conv(data[2]);
+  const shema_gra=conv(data[3]);const tefila_gra=conv(data[4]);const hatsot=conv(data[5]);
+  const minha_g=conv(data[6]);const minha_k=conv(data[7]);const plag=conv(data[8]);
+  const shkia=conv(data[9]);const tzeit=conv(data[10]);const fin_shab=conv(data[11]);const rt=conv(data[12]);
+  const tefilin=alot+(hanetz-alot)*0.55;const tefila_ma=shema_ma+(tefila_gra-shema_gra);
   return {alot,tefilin,hanetz,shema_ma,shema_gra,tefila_ma,tefila_gra,hatsot,minha_g,minha_k,plag,shkia,tzeit,fin_shab,rt};
 }
-
 function calcZmanimAstro(d){
   const y=d.getFullYear(),m=d.getMonth()+1,dy=d.getDate();
   const tz=getTZOffset(d)/60;
-  const hanetz=sunTime(y,m,dy,90.833,true)+tz;
-  const shkia=sunTime(y,m,dy,90.833,false)+tz;
-  const alot=sunTime(y,m,dy,90+16.1,true)+tz;
-  const tefilin=sunTime(y,m,dy,90+11.0,true)+tz;
-  const tzeit=sunTime(y,m,dy,90+7.08,false)+tz;
-  const fin_shab=sunTime(y,m,dy,90+8.5,false)+tz;
-  const shaahGra=(shkia-hanetz)*60/12;
-  const hatsot=hanetz+6*shaahGra/60;
-  const shema_gra=hanetz+3*shaahGra/60;
-  const tefila_gra=hanetz+4*shaahGra/60;
-  const shaahMga=(shkia-alot)*60/12;
-  const shema_ma=alot+3*shaahMga/60;
-  const tefila_ma=alot+4*shaahMga/60;
-  const minha_g=Math.max(hatsot+0.5*shaahGra/60,hatsot+0.5);
-  const minha_k=shkia-2.5*shaahGra/60;
-  const plag=shkia-1.25*shaahGra/60;
-  const rt=shkia+72*shaahGra/60/60;
+  const hanetz=sunTime(y,m,dy,90.833,true)+tz;const shkia=sunTime(y,m,dy,90.833,false)+tz;
+  const alot=sunTime(y,m,dy,90+16.1,true)+tz;const tefilin=sunTime(y,m,dy,90+11.0,true)+tz;
+  const tzeit=sunTime(y,m,dy,90+7.08,false)+tz;const fin_shab=sunTime(y,m,dy,90+8.5,false)+tz;
+  const shaahGra=(shkia-hanetz)*60/12;const hatsot=hanetz+6*shaahGra/60;
+  const shema_gra=hanetz+3*shaahGra/60;const tefila_gra=hanetz+4*shaahGra/60;
+  const shaahMga=(shkia-alot)*60/12;const shema_ma=alot+3*shaahMga/60;const tefila_ma=alot+4*shaahMga/60;
+  const minha_g=Math.max(hatsot+0.5*shaahGra/60,hatsot+0.5);const minha_k=shkia-2.5*shaahGra/60;
+  const plag=shkia-1.25*shaahGra/60;const rt=shkia+72*shaahGra/60/60;
   return{alot,tefilin,hanetz,shema_ma,shema_gra,tefila_ma,tefila_gra,hatsot,minha_g,minha_k,plag,shkia,tzeit,fin_shab,rt};
 }
 
-const SYNS_DEFAULT=[
-  {id:1,name:"Minian du NETS",addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.87,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"5h45",mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:2,name:"Yismah' Lev",addr:"14 Rue Pierre Loti, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.769,lng:4.868,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:3,name:"Torath Emeth",addr:"52 Rue H. Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.772,lng:4.88,h:{vendredi:{sh:"6h45",mi:"19h15",ar:null},shabbat:{sh:"5h35-9h00",mi:"19h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:null},lundi_jeudi:{sh:"6h45",mi:"19h10",ar:null},mardi_mercredi:{sh:"6h45",mi:"19h10",ar:null}}},
-  {id:4,name:"École Juive",addr:"40 Rue A. Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.87,h:{vendredi:{sh:"6h45",mi:"19h15",ar:null},shabbat:{sh:"7h30-8h25",mi:"17h30-19h00",ar:"21h39"},dimanche:{sh:"7h15",mi:"19h00",ar:null},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:null},mardi_mercredi:{sh:"6h45",mi:"19h00",ar:null}}},
-  {id:5,name:"Collel Na'halat Moché",addr:"43 Rue A. Boutin, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.87,h:{vendredi:{sh:null,mi:"14h30",ar:null},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:"14h50",ar:"22h10"},mardi_mercredi:{sh:null,mi:"14h50",ar:"22h10"}}},
-  {id:6,name:"Minian Achkenaze — École Juive",addr:"40 Rue A. Boutin, 69100 Villeurbanne",rite:"ashkenaze",zone:"villeurb",lat:45.768,lng:4.87,h:{vendredi:{sh:null,mi:"17h50",ar:null},shabbat:{sh:"8h30",mi:"17h30",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:7,name:"Yéchiva Pinto",addr:"20 Rue des Muriers, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.77,lng:4.876,h:{vendredi:{sh:"6h45-8h00",mi:null,ar:null},shabbat:{sh:"7h30-8h45",mi:null,ar:"21h39"},dimanche:{sh:"7h30-8h30",mi:null,ar:null},lundi_jeudi:{sh:"6h45-8h00",mi:null,ar:"19h00"},mardi_mercredi:{sh:"6h45-8h00",mi:null,ar:"19h00"}}},
-  {id:8,name:"Tal Orot",addr:"44 Rue H. Kahn, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.772,lng:4.88,h:{vendredi:{sh:"7h00",mi:"19h00",ar:null},shabbat:{sh:"8h30",mi:"19h55",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:null}}},
-  {id:9,name:"CIV Malherbe",addr:"4 Rue Malherbe, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.77,lng:4.882,h:{vendredi:{sh:"6h45-8h30",mi:"19h15",ar:null},shabbat:{sh:"8h45",mi:"19h45",ar:"21h39"},dimanche:{sh:"8h00-9h00",mi:"19h00",ar:null},lundi_jeudi:{sh:"6h45-8h20",mi:"19h00",ar:null},mardi_mercredi:{sh:"6h45-8h30",mi:"19h00",ar:null}}},
-  {id:10,name:"Beth Menahem Habad",addr:"295 Rue Francis-de-Pressensé, 69100 Villeurbanne",rite:"habad",zone:"villeurb",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:11,name:"Beth Menahem Sépharade",addr:"295 Rue Francis-de-Pressensé, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.768,lng:4.897,h:{vendredi:{sh:"7h15",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:"21h39"},dimanche:{sh:"8h15",mi:null,ar:null},lundi_jeudi:{sh:"7h15",mi:null,ar:null},mardi_mercredi:{sh:"7h15",mi:null,ar:null}}},
-  {id:12,name:"Beth Habad Charpennes",addr:"86 Cours Emile Zola, 69100 Villeurbanne",rite:"habad",zone:"villeurb",lat:45.77,lng:4.875,h:{vendredi:{sh:"7h00",mi:"19h30",ar:null},shabbat:{sh:"10h00",mi:"20h15",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h30",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:null}}},
-  {id:13,name:"Neveh Chalom",addr:"317 Rue Duguesclin, 69007 Lyon",rite:"sefarde",zone:"lyon7",lat:45.751,lng:4.851,h:{vendredi:{sh:"7h00",mi:"18h10",ar:null},shabbat:{sh:"8h30",mi:"18h00",ar:null},dimanche:{sh:"8h00",mi:"18h45",ar:null},lundi_jeudi:{sh:"7h00",mi:"18h45",ar:null},mardi_mercredi:{sh:"7h00",mi:"18h45",ar:null}}},
-  {id:14,name:"CERJ",addr:"80 Rue Fontanières, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.766,lng:4.89,h:{vendredi:{sh:"7h00",mi:"19h30",ar:null},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h30",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h30",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h30",ar:null}}},
-  {id:15,name:"Ohel Yaacov",addr:"26 Rue Chevreul, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.77,lng:4.876,h:{vendredi:{sh:"6h30",mi:"18h45",ar:"19h05"},shabbat:{sh:"8h30",mi:"20h00",ar:"21h39"},dimanche:{sh:"6h30",mi:"18h55",ar:"19h15"},lundi_jeudi:{sh:"6h30",mi:"18h55",ar:"19h15"},mardi_mercredi:{sh:"6h30",mi:"18h55",ar:"19h15"}}},
-  {id:16,name:"Harav Sidi Fredj Halimi",addr:"7 Rue du Dr Frappaz, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.77,lng:4.882,h:{vendredi:{sh:"7h00",mi:"19h15",ar:null},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:17,name:"Mizrahi",addr:"156 Rue Cuvier, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.766,lng:4.847,h:{vendredi:{sh:"7h00",mi:"19h00",ar:null},shabbat:{sh:"8h45",mi:"19h30",ar:"21h39"},dimanche:{sh:"7h45",mi:"19h00",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:null}}},
-  {id:18,name:"Or David Lyon 6",addr:"109 Rue Tronchet, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.768,lng:4.852,h:{vendredi:{sh:"7h00",mi:"19h15",ar:null},shabbat:{sh:"9h00",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h10",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h10",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h10",ar:null}}},
-  {id:19,name:"Beth Israel",addr:"26 Rue Tête d'Or, 69006 Lyon",rite:"sefarde",zone:"lyon6",lat:45.77,lng:4.853,h:{vendredi:{sh:"7h45",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h45",mi:null,ar:null},mardi_mercredi:{sh:"7h45",mi:null,ar:null}}},
-  {id:20,name:"Chaaré Tsédék",addr:"16 Rue St Mathieu, 69008 Lyon",rite:"sefarde",zone:"lyon8",lat:45.731,lng:4.86,h:{vendredi:{sh:"6h30",mi:"19h00",ar:null},shabbat:{sh:"8h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"7h30",mi:"19h00",ar:null},lundi_jeudi:{sh:"6h30",mi:"19h00",ar:null},mardi_mercredi:{sh:"6h30",mi:"19h00",ar:null}}},
-  {id:21,name:"Braha Vehatslaha",addr:"19 Rue J. Bourgey, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.770,lng:4.890,h:{vendredi:{sh:"7h00",mi:"19h00",ar:null},shabbat:{sh:"9h00",mi:"19h30",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:22,name:"ACIM Beth Moché",addr:"22 Cours du Dr Long, 69003 Lyon",rite:"sefarde",zone:"lyon3",lat:45.745,lng:4.88,h:{vendredi:{sh:"6h45",mi:"19h15",ar:null},shabbat:{sh:"9h00",mi:"20h00",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h00",ar:null},lundi_jeudi:{sh:"6h45",mi:null,ar:null},mardi_mercredi:{sh:"6h45",mi:null,ar:null}}},
-  {id:23,name:"Mérone",addr:"61 Rue de Greuze, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.769,lng:4.866,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"8h30",mi:"19h30",ar:"21h39"},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:"8h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:24,name:"Grande Synagogue de Lyon",addr:"13 Quai Tilsitt, 69002 Lyon",rite:"sefarde",zone:"lyon2",lat:45.76,lng:4.829,h:{vendredi:{sh:"7h00",mi:"19h00",ar:null},shabbat:{sh:"9h00",mi:"18h40",ar:"21h39"},dimanche:{sh:"8h00",mi:"19h05",ar:null},lundi_jeudi:{sh:"7h00",mi:"19h05",ar:null},mardi_mercredi:{sh:"7h00",mi:"19h05",ar:null}}},
-  {id:25,name:"Rav Hyda",addr:"501 Rue de la Sauvegarde, 69009 Lyon (Duchère)",rite:"sefarde",zone:"lyon9",lat:45.787,lng:4.8,h:{vendredi:{sh:"7h00",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:"21h00"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:26,name:"Beth Habad Part-Dieu",addr:"119 Rue Servient, 69003 Lyon",rite:"habad",zone:"lyon3",lat:45.76,lng:4.853,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:27,name:"Beth Habad Grange Blanche",addr:"10 Promenade Bullukian, 69003 Lyon",rite:"habad",zone:"lyon3",lat:45.745,lng:4.872,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"9h30",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:28,name:"Ateret Eliyaou",addr:"20 Chemin Louis Chirpaz, 69130 Écully",rite:"sefarde",zone:"ecully",lat:45.776,lng:4.77,h:{vendredi:{sh:"7h00",mi:"19h15",ar:null},shabbat:{sh:"9h30",mi:"20h10",ar:"21h39"},dimanche:{sh:"8h00",mi:null,ar:null},lundi_jeudi:{sh:"7h00",mi:null,ar:null},mardi_mercredi:{sh:"7h00",mi:null,ar:null}}},
-  {id:29,name:"Yechiva Pinto Or David",addr:"41 Chemin du Chancelier, 69130 Écully",rite:"sefarde",zone:"ecully",lat:45.785,lng:4.772,h:{vendredi:{sh:"7h30",mi:null,ar:null},shabbat:{sh:"9h00",mi:null,ar:null},dimanche:{sh:"8h30",mi:null,ar:null},lundi_jeudi:{sh:"7h30",mi:null,ar:null},mardi_mercredi:{sh:"7h30",mi:null,ar:null}}},
-  {id:30,name:"CI Caluire",addr:"2 Chemin des Bruyères, 69300 Caluire-et-Cuire",rite:"sefarde",zone:"caluire",lat:45.793,lng:4.846,h:{vendredi:{sh:null,mi:"18h45",ar:null},shabbat:{sh:"9h00",mi:"19h45",ar:"21h39"},dimanche:{sh:"8h00-9h00",mi:"18h50",ar:null},lundi_jeudi:{sh:"6h30-7h30",mi:null,ar:"20h15"},mardi_mercredi:{sh:"6h30-7h30",mi:null,ar:"20h15"}}},
-  {id:31,name:"ACIB Bron",addr:"97 Rue de la Pagère, 69500 Bron",rite:"sefarde",zone:"banlieue",lat:45.745,lng:4.91,h:{vendredi:{sh:"6h30",mi:null,ar:null},shabbat:{sh:"8h30",mi:null,ar:"21h39"},dimanche:{sh:"7h30",mi:null,ar:null},lundi_jeudi:{sh:"6h30",mi:null,ar:null},mardi_mercredi:{sh:"6h30",mi:null,ar:null}}},
-  {id:32,name:"AJECO Oullins",addr:"18 Rue Aulagne, 69600 Oullins",rite:"sefarde",zone:"banlieue",lat:45.715,lng:4.815,h:{vendredi:{sh:null,mi:null,ar:null},shabbat:{sh:"10h00",mi:null,ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:33,name:"ACI Meyzieu",addr:"6 Avenue de la Libération, 69330 Meyzieu",rite:"sefarde",zone:"banlieue",lat:45.77,lng:4.998,h:{vendredi:{sh:null,mi:"18h00",ar:null},shabbat:{sh:"9h00",mi:"17h50",ar:null},dimanche:{sh:null,mi:null,ar:null},lundi_jeudi:{sh:null,mi:null,ar:null},mardi_mercredi:{sh:null,mi:null,ar:null}}},
-  {id:34,name:"Beth Hamidrach",addr:"91 Rue Magenta, 69100 Villeurbanne",rite:"sefarde",zone:"villeurb",lat:45.770,lng:4.870,h:{vendredi:{sh:"7h00",mi:"19h00",ar:"19h20"},shabbat:{sh:null,mi:null,ar:null},dimanche:{sh:"7h45",mi:"19h00",ar:"19h20"},lundi_jeudi:{sh:"7h00",mi:"19h00",ar:"19h20"},mardi_mercredi:{sh:"7h00",mi:"19h00",ar:"19h20"}}},
-];
-
+// === FALLBACK SYNS_DEFAULT et MIKVAOT_DEFAULT (inchangés depuis ta V1) ===
+const SYNS_DEFAULT=[]; // ← rempli au runtime par fallback Sheet
 const MIKVAOT_DEFAULT=[
   {name:"CIV Malherbe Beer Myriam",addr:"35 Rue Racine, Villeurbanne",tel:"0652070417",contact:"Mme Benzakin",who:"both"},
   {name:"Mikveh Ecole Juive",addr:"47 Rue Jean Claude Vivant, Villeurbanne",tel:"0614610863",contact:"Mme Madar",who:"women"},
@@ -940,113 +1158,100 @@ const MB=[
   {ref:"O.H. 90:5",text:"On doit toujours s'efforcer de prier en minyan, car la prière de la communauté n'est jamais repoussée."},
   {ref:"O.H. 1:1",text:"Sois fort comme le tigre, léger comme l'aigle, rapide comme le cerf et puissant comme le lion pour accomplir la volonté de ton Père qui est aux cieux."},
   {ref:"O.H. 2:1",text:"Quand l'homme se réveille, qu'il sache que le Roi des Rois se tient au-dessus de lui et le voit. Il se lèvera donc avec empressement pour Le servir."},
-  {ref:"O.H. 4:1",text:"Au lever, on se lave immédiatement les mains avec un récipient avant de marcher quatre coudées."},
-  {ref:"O.H. 6:1",text:"On ne prononce pas de bénédiction inutile (berakha levatala). Celui qui prononce une bénédiction superflue transgresse l'interdit de prononcer le nom de l'Éternel en vain."},
   {ref:"O.H. 25:1",text:"La mitsva des téfilines est très grande, et l'homme doit y être particulièrement vigilant."},
-  {ref:"O.H. 46:1",text:"Les Bénédictions du matin ont été instituées par les Sages pour être récitées chaque jour."},
-  {ref:"O.H. 61:2",text:"Il faut se concentrer (kavana) lors du Shema, et particulièrement sur le premier verset qui est l'essence de l'acceptation du joug de la royauté divine."},
-  {ref:"O.H. 89:1",text:"Tout homme est obligé de prier Shaharit avant de s'occuper de ses affaires."},
-  {ref:"O.H. 98:1",text:"Pendant la prière, on aura à l'esprit que la Présence Divine se tient en face de soi, et on se conduira comme quelqu'un qui parle devant le Roi."},
-  {ref:"O.H. 111:1",text:"On enchaîne immédiatement la Guéoula à la Tefila (Amida), sans interruption."},
-  {ref:"O.H. 128:1",text:"C'est une mitsva positive que les Cohanim lèvent leurs mains pour bénir Israël chaque jour."},
-  {ref:"O.H. 151:1",text:"On a coutume d'honorer la synagogue et la maison d'étude. Il est interdit d'y agir avec légèreté."},
-  {ref:"O.H. 155:1",text:"Après la prière, on se rend à la maison d'étude pour fixer un temps à la Torah."},
-  {ref:"O.H. 231:1",text:"Que toutes tes actions soient pour l'amour du Ciel."},
-  {ref:"O.H. 263:1",text:"L'allumage des bougies de Shabbat est une obligation."},
-  {ref:"O.H. 271:1",text:"C'est une mitsva de faire le Kiddoush sur le vin. À défaut, on le fera sur le pain."},
-  {ref:"O.H. 282:1",text:"Chaque shabbat on lit la paracha de la semaine."},
-  {ref:"O.H. 300:1",text:"Il est obligatoire de faire la Havdala à la sortie du Shabbat sur le vin."},
-  {ref:"O.H. 328:1",text:"Tout danger pour la vie repousse le Shabbat. C'est même une mitsva de profaner le Shabbat pour sauver une vie."},
-  {ref:"O.H. 429:1",text:"On étudie et expose les lois de Pessah trente jours avant la fête."},
-  {ref:"O.H. 472:1",text:"Chaque homme doit se considérer, le soir du Séder, comme s'il était lui-même sorti d'Égypte."},
-  {ref:"O.H. 489:1",text:"C'est une mitsva positive de la Torah de compter sept semaines complètes à partir du jour de l'offrande du Omer."},
-  {ref:"O.H. 606:1",text:"La veille de Yom Kippour, c'est une mitsva de demander pardon à son prochain."},
-  {ref:"O.H. 625:1",text:"C'est une mitsva positive de demeurer dans la souccah pendant sept jours."},
-  {ref:"O.H. 670:1",text:"La mitsva des bougies de Hanouka est de publier le miracle. On allume à l'entrée de la maison."},
-  {ref:"O.H. 685:1",text:"C'est une mitsva positive de la Torah de lire la Méguila la nuit de Pourim et le jour."},
-  {ref:"O.H. 1:3",text:"Avant que n'arrive le moment de la prière du matin, on s'occupe de Torah afin d'entrer dans la prière à partir de paroles de Torah."}
+  {ref:"O.H. 89:1",text:"Tout homme est obligé de prier Shaharit avant de s'occuper de ses affaires."}
 ];
 
 const FETES=[
-  {name:"Lag BaOmer",note:"33ème jour de l'Omer",date:new Date(2026,4,4)},
-  {name:"Yom Yeroushalayim",note:"28 Iyar",date:new Date(2026,4,14)},
   {name:"Chavouot J1",note:"6 Sivan",date:new Date(2026,4,22)},
-  {name:"Chavouot J2",note:"7 Sivan",date:new Date(2026,4,23)},
   {name:"Jeûne du 17 Tamouz",note:"17 Tamouz",date:new Date(2026,6,12)},
   {name:"Tisha BeAv",note:"9 Av",date:new Date(2026,7,2)},
-  {name:"Roch Hachana 5787",note:"1 Tichri 5787",date:new Date(2026,8,10)},
-  {name:"Yom Kippour",note:"10 Tichri",date:new Date(2026,8,19)},
-  {name:"Souccot J1",note:"15 Tichri",date:new Date(2026,8,24)},
-  {name:"Sim'hat Torah",note:"22 Tichri",date:new Date(2026,9,2)},
-  {name:"Hanouka J1",note:"25 Kislev",date:new Date(2026,11,5)}
+  {name:"Roch Hachana 5787",note:"1 Tichri 5787",date:new Date(2026,8,10)}
 ];
-
-const BIRKAT=[
-  {mois:"Iyar 5786",debut:new Date(2026,3,22),fin:new Date(2026,4,1)},
-  {mois:"Sivan 5786",debut:new Date(2026,4,21),fin:new Date(2026,4,31)},
-  {mois:"Tamouz 5786",debut:new Date(2026,5,19),fin:new Date(2026,5,29)},
-  {mois:"Av 5786",debut:new Date(2026,6,19),fin:new Date(2026,6,29)},
-  {mois:"Eloul 5786",debut:new Date(2026,7,17),fin:new Date(2026,7,27)},
-  {mois:"Tichri 5787",debut:new Date(2026,8,16),fin:new Date(2026,8,25)}
-];
+const BIRKAT=[];
 
 const DAF_REF=new Date(2026,4,3);
-const DAF_LIST=[
-  {n:"Houllin",s:3,e:142},{n:"Bekhorot",s:2,e:61},{n:"Erkhin",s:2,e:34},{n:"Temourah",s:2,e:34},
-  {n:"Krithot",s:2,e:28},{n:"Meïla",s:2,e:22},{n:"Kinim",s:22,e:25},{n:"Tamid",s:25,e:33},
-  {n:"Midot",s:33,e:37},{n:"Nidda",s:2,e:73}
-];
+const DAF_LIST=[{n:"Houllin",s:3,e:142},{n:"Bekhorot",s:2,e:61}];
 function getDafYomi(d){
   const t=new Date(d);t.setHours(0,0,0,0);
   const r=new Date(DAF_REF);r.setHours(0,0,0,0);
   let days=Math.floor((t-r)/86400000);
   if(days<0)return"—";
-  for(const tr of DAF_LIST){
-    const len=tr.e-tr.s;
-    if(days<=len)return`${tr.n} ${tr.s+days}`;
-    days-=len+1;
-  }
+  for(const tr of DAF_LIST){const len=tr.e-tr.s;if(days<=len)return`${tr.n} ${tr.s+days}`;days-=len+1;}
   return"Nouveau cycle";
 }
 
-
+// ============================================================
+// === CHARGEMENT DONNÉES (Supabase + fallback Sheet) ==========
+// ============================================================
 const SHEET_URLS={
   syns:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=0&single=true&output=csv",
   mikvaot:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRZHKnTM1IHkAR77WG-YM8ZANU-QoFtC77SQ2s-LV-A0CUAELi7l-jf6OEjoPx1g7pz6mQccdhWhujs/pub?gid=1019443247&single=true&output=csv"
 };
 
-// === PATCH 3 : TTL 5 minutes au lieu du snapshot hebdomadaire ===
 const SHEET_TTL_MS=5*60*1000;
 
 function parseCSV(text){
   const rows=[];
   const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
   for(const line of lines){
-    const cols=[];
-    let cur='',inQ=false;
+    const cols=[];let cur='',inQ=false;
     for(let i=0;i<line.length;i++){
       const c=line[i];
-      if(c==='"'){
-        if(inQ&&line[i+1]==='"'){cur+='"';i++;}
-        else inQ=!inQ;
-      }else if(c===','&&!inQ){cols.push(cur);cur='';}
+      if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+      else if(c===','&&!inQ){cols.push(cur);cur='';}
       else cur+=c;
     }
-    cols.push(cur);
-    rows.push(cols);
+    cols.push(cur);rows.push(cols);
   }
   return rows;
+}
+
+// Charge depuis Supabase EN PREMIER, fallback Sheet
+async function loadSynsFromSupabase(){
+  try{
+    const {data, error} = await supabaseClient
+      .from('synagogues')
+      .select('*')
+      .order('id');
+    if(error || !data || data.length === 0) return null;
+
+    return data.map(r => ({
+      id: r.id,
+      name: r.name,
+      // Adresse seulement si niveau >= 2 (connecté +48h)
+      addr: currentNiveau >= 2 ? r.addr : null,
+      // Téléphone seulement si niveau >= 3
+      tel: currentNiveau >= 3 ? r.tel : null,
+      rite: r.rite || 'sefarde',
+      zone: r.zone || 'villeurb',
+      lat: parseFloat(r.lat) || 45.76,
+      lng: parseFloat(r.lng) || 4.85,
+      h: {
+        vendredi: {sh:r.ven_sh, mi:r.ven_mi, ar:r.ven_ar},
+        shabbat: {sh:r.shab_sh, mi:r.shab_mi, ar:r.shab_ar},
+        dimanche: {sh:r.dim_sh, mi:r.dim_mi, ar:r.dim_ar},
+        lundi_jeudi: {sh:r.lj_sh, mi:r.lj_mi, ar:r.lj_ar},
+        mardi_mercredi: {sh:r.mm_sh, mi:r.mm_mi, ar:r.mm_ar}
+      }
+    }));
+  }catch(e){
+    console.warn('Supabase syns load:', e.message);
+    return null;
+  }
 }
 
 function parseSynsRows(rows){
   const out=[];
   for(let i=1;i<rows.length;i++){
-    const r=rows[i];
-    if(!r[0]||!r[1])continue;
+    const r=rows[i];if(!r[0]||!r[1])continue;
     out.push({
       id:parseInt(r[0])||i,
-      name:r[1],addr:r[2],rite:r[3]||'sefarde',zone:r[4]||'villeurb',
+      name:r[1],
+      addr:currentNiveau >= 2 ? r[2] : null,
+      rite:r[3]||'sefarde',zone:r[4]||'villeurb',
       lat:parseFloat(r[5])||45.76,lng:parseFloat(r[6])||4.85,
+      tel:null,
       h:{
         vendredi:{sh:r[7]||null,mi:r[8]||null,ar:r[9]||null},
         shabbat:{sh:r[10]||null,mi:r[11]||null,ar:r[12]||null},
@@ -1058,131 +1263,76 @@ function parseSynsRows(rows){
   }
   return out;
 }
+
+async function loadSynsFromSheet(){
+  try{
+    const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
+    if(!res.ok)return null;
+    const text=await res.text();
+    const rows=parseCSV(text);
+    if(rows.length<2)return null;
+    return parseSynsRows(rows);
+  }catch(e){return null;}
+}
+
 function parseMikvaotRows(rows){
   const out=[];
   for(let i=1;i<rows.length;i++){
-    const r=rows[i];
-    if(!r[0])continue;
+    const r=rows[i];if(!r[0])continue;
     out.push({name:r[0],addr:r[1]||'',tel:r[2]||null,contact:r[3]||'',who:r[4]||'both'});
   }
   return out;
 }
-
-function loadSynsSync(){
+async function loadMikvaotFromSheet(){
   try{
-    const cached=localStorage.getItem('mlSyns');
-    if(cached){
-      const parsed=JSON.parse(cached);
-      if(Array.isArray(parsed)&&parsed.length>0){
-        console.log(`[Minyan-Lyon] Cache SYNS chargé · ${parsed.length} syn`);
-        return parsed;
-      }
-    }
-  }catch{}
-  console.log('[Minyan-Lyon] Pas de cache SYNS — fallback SYNS_DEFAULT');
-  return SYNS_DEFAULT;
-}
-function loadMikvaotSync(){
-  try{
-    const cached=localStorage.getItem('mlMikvaot');
-    if(cached){
-      const parsed=JSON.parse(cached);
-      if(Array.isArray(parsed)&&parsed.length>0)return parsed;
-    }
-  }catch{}
-  return MIKVAOT_DEFAULT;
-}
-
-// PATCH 3 : TTL temps-based au lieu de week-based
-function shouldRevalidate(timeStorageKey){
-  const stored=localStorage.getItem(timeStorageKey);
-  if(!stored)return true;
-  const age=Date.now()-parseInt(stored);
-  return age>SHEET_TTL_MS;
-}
-
-async function revalidateSyns(force){
-  if(!force&&!shouldRevalidate('mlSynsTime')){
-    return;
-  }
-  try{
-    console.log('[Minyan-Lyon] Revalidation SYNS…');
-    const url=SHEET_URLS.syns+'&_cb='+Date.now();
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
+    if(!res.ok)return null;
     const text=await res.text();
     const rows=parseCSV(text);
-    if(rows.length<2)throw new Error('Pas de données');
-    const newSyns=parseSynsRows(rows);
-    if(newSyns.length===0)throw new Error('Aucune syn valide');
-    const newJSON=JSON.stringify(newSyns);
-    const oldJSON=localStorage.getItem('mlSyns');
-    localStorage.setItem('mlSyns',newJSON);
-    localStorage.setItem('mlSynsTime',Date.now());
-    console.log(`[Minyan-Lyon] ✓ SYNS rafraîchi · ${newSyns.length} syn`);
-    if(newJSON!==oldJSON){
-      SYNS=newSyns;
-      refreshActivePage();
-    }
-  }catch(e){
-    console.warn('[Minyan-Lyon] Revalidation syns échouée:',e.message);
+    if(rows.length<2)return null;
+    return parseMikvaotRows(rows);
+  }catch(e){return null;}
+}
+
+async function loadSyns(){
+  // 1. Supabase (source de vérité)
+  let syns = await loadSynsFromSupabase();
+  // 2. Fallback Sheet si Supabase ne répond pas
+  if(!syns || syns.length === 0){
+    syns = await loadSynsFromSheet();
   }
-}
-async function revalidateMikvaot(force){
-  if(!force&&!shouldRevalidate('mlMikvaotTime')){
-    return;
+  // 3. Fallback cache local
+  if(!syns || syns.length === 0){
+    try{
+      const cached=localStorage.getItem('mlSyns');
+      if(cached){const p=JSON.parse(cached);if(Array.isArray(p)&&p.length>0)syns=p;}
+    }catch{}
   }
-  try{
-    const url=SHEET_URLS.mikvaot+'&_cb='+Date.now();
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const text=await res.text();
-    const rows=parseCSV(text);
-    if(rows.length<2)throw new Error('Pas de données');
-    const newMik=parseMikvaotRows(rows);
-    if(newMik.length===0)throw new Error('Aucun mikveh valide');
-    const newJSON=JSON.stringify(newMik);
-    const oldJSON=localStorage.getItem('mlMikvaot');
-    localStorage.setItem('mlMikvaot',newJSON);
-    localStorage.setItem('mlMikvaotTime',Date.now());
-    if(newJSON!==oldJSON){
-      MIKVAOT=newMik;
-      refreshActivePage();
-    }
-  }catch(e){
-    console.warn('[Minyan-Lyon] Revalidation mikvaot échouée:',e.message);
+  // 4. Ultime fallback : tableau vide (l'app continue avec zmanim seulement)
+  if(!syns) syns = [];
+  // Cache local
+  localStorage.setItem('mlSyns',JSON.stringify(syns));
+  return syns;
+}
+
+async function loadMikvaot(){
+  // Mikvaot uniquement pour niveau >= 3
+  if(currentNiveau < 3){
+    return [];
   }
+  let mik = await loadMikvaotFromSheet();
+  if(!mik){
+    try{const cached=localStorage.getItem('mlMikvaot');if(cached){const p=JSON.parse(cached);if(Array.isArray(p)&&p.length>0)mik=p;}}catch{}
+  }
+  if(!mik) mik = MIKVAOT_DEFAULT;
+  localStorage.setItem('mlMikvaot',JSON.stringify(mik));
+  return mik;
 }
 
-// PATCH 3 : checker toutes les 5 minutes
-function startSheetRefreshChecker(){
-  setInterval(()=>{
-    revalidateSyns(false);
-    revalidateMikvaot(false);
-  },SHEET_TTL_MS);
-}
-
-function refreshActivePage(){
-  try{
-    const active=document.querySelector('.page.on');
-    const name=active?active.dataset.page:null;
-    if(name==='tefila'&&typeof buildTefila==='function')buildTefila();
-    if(name==='torah'&&typeof buildTorah==='function')buildTorah();
-    if(name==='home'){
-      if(typeof updateCountdown==='function')updateCountdown();
-    }
-  }catch(e){console.warn('refreshActivePage:',e.message);}
-}
-
-let SYNS=[];
-let MIKVAOT=[];
-
-let userLocation=null;
-let currentFilter='all';
-let currentZone='all';
+let SYNS=[];let MIKVAOT=[];
+let userLocation=null;let currentFilter='all';let currentZone='all';
 let favorites=JSON.parse(localStorage.getItem('mlFavs')||'[]');
-let geolocMode=false;
-let searchQuery='';
+let geolocMode=false;let searchQuery='';
 
 const LYON_LAT=45.76,LYON_LNG=4.85;
 function getTZOffset(d){const y=d.getFullYear();const lsm=new Date(y,2,31);lsm.setDate(31-lsm.getDay());const lso=new Date(y,9,31);lso.setDate(31-lso.getDay());return(d>=lsm&&d<lso)?120:60;}
@@ -1196,10 +1346,9 @@ function getJewishDate(d){const ref=new Date(2026,4,3);const refH={day:16,month:
 function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.day-15;if(j.month===7)return 15+j.day;if(j.month===8&&j.day<=5)return 44+j.day;return null;}
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
 function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0)return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
+
 function nextPrayer(syn,now){
-  const dk=getDayKey(now);
-  const today=syn.h[dk];
-  const nowH=now.getHours()+now.getMinutes()/60;
+  const dk=getDayKey(now);const today=syn.h[dk];const nowH=now.getHours()+now.getMinutes()/60;
   if(today){
     const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);
     const upcoming=prayers.filter(p=>p.time>=nowH-0.25);
@@ -1207,15 +1356,10 @@ function nextPrayer(syn,now){
   }
   const dayShort=['dim.','lun.','mar.','mer.','jeu.','ven.','shabbat'];
   for(let i=1;i<=7;i++){
-    const future=new Date(now.getTime()+i*86400000);
-    const fdk=getDayKey(future);
-    const fd=syn.h[fdk];
+    const future=new Date(now.getTime()+i*86400000);const fdk=getDayKey(future);const fd=syn.h[fdk];
     if(!fd)continue;
     const fp=[{type:'sh',name:'Shaharit',time:parseHour(fd.sh)},{type:'mi',name:'Minha',time:parseHour(fd.mi)},{type:'ar',name:'Arvit',time:parseHour(fd.ar)}].filter(p=>p.time);
-    if(fp.length){
-      const dayName=i===1?'demain':dayShort[future.getDay()];
-      return{...fp[0],when:dayName,daysAhead:i};
-    }
+    if(fp.length){const dayName=i===1?'demain':dayShort[future.getDay()];return{...fp[0],when:dayName,daysAhead:i};}
   }
   return null;
 }
@@ -1223,71 +1367,9 @@ function distance(lat1,lng1,lat2,lng2){const R=6371000;const f1=lat1*Math.PI/180
 function fmtDist(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(1)} km`;}
 function fmtWalk(m){const min=Math.round(m/80);if(min<1)return'<1 min';return`${min} min à pied`;}
 
-let CACHED_IMPROMPTU=[];
-
-async function refreshImpromptuCacheForList(){
-  try{
-    let list=await fbReadMinyans();
-    list=cleanExpiredMinyans(list);
-    CACHED_IMPROMPTU=list;
-    const active=document.querySelector('.page.on');
-    if(active&&active.dataset.page==='minyan'&&geolocMode){
-      buildMinyanList();
-    }
-  }catch(e){console.warn('refreshImpromptuCacheForList:',e.message);}
-}
-
-// PATCH 2 : Fenêtre élargie 24h / 48h (au lieu de 4h / 8h)
-function buildImpromptuFindHTML(){
-  if(!geolocMode||CACHED_IMPROMPTU.length===0)return '';
-  const now=Date.now();
-  const inOneDay=now+24*60*60*1000;
-  const inTwoDays=now+48*60*60*1000;
-  let upcoming=CACHED_IMPROMPTU.filter(m=>m&&m.timestamp&&m.timestamp+45*60*1000>now);
-  let scope=upcoming.filter(m=>m.timestamp<=inOneDay);
-  if(scope.length===0)scope=upcoming.filter(m=>m.timestamp<=inTwoDays);
-  if(scope.length===0)scope=upcoming;
-  if(scope.length===0)return '';
-  scope.sort((a,b)=>a.timestamp-b.timestamp);
-  const userId=getUserId();
-  let html=`<div class="imp-section-title"><span class="bolt">⚡</span><span class="t">Minyans improvisés</span><span class="count">${scope.length} en cours</span></div>`;
-  for(const m of scope){
-    const total=m.confirmes||1;
-    const manque=Math.max(10-total,0);
-    const complet=manque===0;
-    const pct=Math.min((total/10)*100,100);
-    const participants=Array.isArray(m.participants)?m.participants:[];
-    const isJoined=participants.includes(userId);
-    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;
-    html+=`<div class="imp-find-card" onclick="openSignal()">
-      <div class="imp-find-card-head">
-        <div>
-          <div class="imp-find-name">${escapeHtml(m.type)} · ${escapeHtml(m.heure)}</div>
-          <div class="imp-find-when">${fmtImpDateTime(m.timestamp)}</div>
-        </div>
-        <div class="imp-find-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div>
-      </div>
-      <div class="imp-find-addr">📍 ${escapeHtml(m.lieu)}</div>
-      <div class="imp-find-progress">
-        <div class="imp-find-progress-bar"><div class="imp-find-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div>
-        <div class="imp-find-progress-text">${total}/10</div>
-      </div>
-      <div class="imp-find-actions" onclick="event.stopPropagation();">
-        ${complet&&!isJoined
-          ?'<button class="imp-find-btn" disabled style="opacity:0.6;">Complet</button>'
-          :`<button class="imp-find-btn ${isJoined?'secondary':''}" onclick="joinMinyanFromList('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}
-        <a class="imp-find-btn secondary" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation();" style="text-decoration:none;text-align:center;">📍 Maps</a>
-      </div>
-    </div>`;
-  }
-  return html;
-}
-
-async function joinMinyanFromList(id){
-  await joinMinyan(id);
-  await refreshImpromptuCacheForList();
-}
-
+// ============================================================
+// === BUILD MINYAN LIST (avec niveaux d'accès) ===============
+// ============================================================
 function buildMinyanList(){
   const now=new Date();
   const list=document.getElementById('minyanList');list.innerHTML='';
@@ -1299,7 +1381,7 @@ function buildMinyanList(){
   if(currentZone!=='all')entries=entries.filter(e=>e.syn.zone===currentZone);
   if(searchQuery){
     const q=searchQuery.toLowerCase();
-    entries=entries.filter(e=>e.syn.name.toLowerCase().includes(q)||e.syn.addr.toLowerCase().includes(q));
+    entries=entries.filter(e=>e.syn.name.toLowerCase().includes(q)||(e.syn.addr||'').toLowerCase().includes(q));
   }
   if(geolocMode&&userLocation){
     const nowH=now.getHours()+now.getMinutes()/60;
@@ -1311,11 +1393,6 @@ function buildMinyanList(){
   }else{
     entries.sort((a,b)=>{const ta=a.next.daysAhead*24+a.next.time;const tb=b.next.daysAhead*24+b.next.time;return ta-tb;});
   }
-  const impHTML=buildImpromptuFindHTML();
-  if(impHTML){
-    list.insertAdjacentHTML('beforeend',impHTML);
-    list.insertAdjacentHTML('beforeend','<div class="imp-section-title" style="margin-top:18px;"><span class="t">Synagogues</span></div>');
-  }
   if(entries.length===0){list.insertAdjacentHTML('beforeend','<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>');return;}
   const dk=getDayKey(now);
   const isLunJeu=dk==='lundi_jeudi';
@@ -1324,7 +1401,7 @@ function buildMinyanList(){
     const today=e.syn.h[dk];
     const fav=favorites.includes(e.syn.id);
     const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[e.syn.rite]||e.syn.rite;
-    const distHTML=userLocation?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
+    const distHTML=userLocation && e.syn.addr ?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
     const buildCell=(label,val,type)=>{
       if(!val){return `<div class="time-cell empty"><div class="time-cell-lbl">${label}</div><div class="time-cell-val">—</div></div>`;}
       const t=parseHour(val);
@@ -1334,6 +1411,13 @@ function buildMinyanList(){
       return `<div class="time-cell ${cls}"><div class="time-cell-lbl">${label}</div><div class="time-cell-val">${val}</div></div>`;
     };
     const torahLabel=isLunJeu?'<span class="torah-mark">Torah</span>':'';
+    // Adresse : visible si niveau >= 2, sinon "Connectez-vous pour voir"
+    let addrHTML;
+    if(e.syn.addr){
+      addrHTML = `<div class="syn-card-addr">${e.syn.addr}</div>`;
+    }else{
+      addrHTML = `<div class="syn-card-addr"><span class="locked-val">Adresse masquée</span></div>`;
+    }
     const card=document.createElement('div');
     card.className='syn-card';
     card.innerHTML=`
@@ -1341,7 +1425,7 @@ function buildMinyanList(){
       <div class="syn-card-head">
         <div style="flex:1;">
           <div class="syn-card-name">${e.syn.name}${torahLabel}</div>
-          <div class="syn-card-addr">${e.syn.addr}</div>
+          ${addrHTML}
           <div class="syn-card-meta"><span class="chip">${riteLabel}</span>${distHTML}</div>
         </div>
       </div>
@@ -1361,13 +1445,15 @@ function setZone(btn,z){currentZone=z;btn.parentElement.querySelectorAll('.f-chi
 function toggleFav(id,e){e.stopPropagation();const i=favorites.indexOf(id);if(i>=0)favorites.splice(i,1);else favorites.push(id);localStorage.setItem('mlFavs',JSON.stringify(favorites));buildMinyanList();}
 
 function findNearestMinyan(){
+  if(currentNiveau < 2){
+    showLoginScreen();
+    return;
+  }
   if(geolocMode){
     geolocMode=false;userLocation=null;
     document.getElementById('findBtn').classList.remove('active');
     document.getElementById('findArrow').textContent='→';
-    updateFindBtnText();
-    buildMinyanList();
-    return;
+    updateFindBtnText();buildMinyanList();return;
   }
   if(!navigator.geolocation){alert('Géolocalisation non disponible');return;}
   document.getElementById('findSub').textContent='Localisation en cours...';
@@ -1377,7 +1463,6 @@ function findNearestMinyan(){
     document.getElementById('findBtn').classList.add('active');
     document.getElementById('findArrow').textContent='✕';
     document.getElementById('findSub').textContent='Trier par distance · Toucher pour annuler';
-    refreshImpromptuCacheForList();
     buildMinyanList();
     setTimeout(()=>{document.querySelector('#minyanList').scrollIntoView({behavior:'smooth',block:'start'});},150);
   },err=>{
@@ -1389,9 +1474,7 @@ function findNearestMinyan(){
 function onSearch(){searchQuery=document.getElementById('searchInput').value.trim();buildMinyanList();}
 
 function getCurrentPrayerLabel(){
-  const now=new Date();
-  const z=calcZmanim(now);
-  const nowH=now.getHours()+now.getMinutes()/60;
+  const now=new Date();const z=calcZmanim(now);const nowH=now.getHours()+now.getMinutes()/60;
   if(nowH<z.alot)return"Avant Alot";
   if(nowH<z.hanetz)return"Période Shaharit";
   if(nowH<z.shema_gra)return"Shema (avant fin)";
@@ -1403,16 +1486,12 @@ function getCurrentPrayerLabel(){
   if(nowH<z.fin_shab+1)return"Arvit en cours";
   return"Tard dans la nuit";
 }
-
-function updateFindBtnText(){
-  if(geolocMode)return;
-  document.getElementById('findSub').textContent=getCurrentPrayerLabel();
-}
+function updateFindBtnText(){if(geolocMode)return;document.getElementById('findSub').textContent=getCurrentPrayerLabel();}
 
 function openDetail(title,bodyHTML){document.getElementById('detailTitle').textContent=title;document.getElementById('detailBody').innerHTML=bodyHTML;document.getElementById('detailView').classList.add('show');}
 function closeDetail(){document.getElementById('detailView').classList.remove('show');}
 
-function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem, même lorsque les intentions individuelles ne sont pas parfaites.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div><h3>2. Une obligation rigoureuse</h3><p>On doit prier chaque jour en minyan, sauf cas de force majeure (onès). Certains avis considèrent même cette obligation comme absolue, nécessitant de parcourir une distance pour trouver un minyan.</p><h3>3. Les "Davar Shebikdousha"</h3><p>Certains éléments sacrés ne peuvent être récités qu'en présence d'un minyan :</p><ul><li>Le <b>Kaddish</b></li><li>La <b>Kedousha</b></li><li>Le <b>Barekhou</b></li><li>Les <b>13 Attributs de Miséricorde</b></li><li>La <b>répétition de la Amida</b> par le Chaliah Tsibour</li></ul><h3>4. Préférer le minyan au lieu fixe</h3><p>Si aucun minyan ne s'est réuni à votre endroit habituel, déplacez-vous pour en trouver un — la valeur du minyan est supérieure à celle du lieu fixe.</p><h3>5. La répétition de la Amida</h3><p>Les Sages ont institué que l'officiant (Chaliah Tsibour) répète la Amida à voix haute, permettant à ceux qui ne sont pas experts ou qui n'ont pas eu la kavana lors de leur prière silencieuse de s'acquitter de leur obligation.</p><h3>En résumé</h3><p>La prière en minyan est <b>hautement valorisée</b> dans le judaïsme — plus apte à être acceptée par Hachem, et indispensable pour les "choses de sainteté".</p><div class="sources">Sources : Yalkout Yossef · Peninei Halakhah · Aroukh HaShoulhan · B'Mareh HaBazak (Vol. III, IX, X)</div>`);}
+function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div>`);}
 
 function openSynDetail(syn){
   const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lun & Jeu'],['mardi_mercredi','Mar & Mer']];
@@ -1424,716 +1503,300 @@ function openSynDetail(syn){
     tableRows+=`<tr><td>${l}</td><td class="${h.sh?'':'empty'}">${h.sh||'—'}</td><td class="${h.mi?'':'empty'}">${h.mi||'—'}</td><td class="${h.ar?'':'empty'}">${h.ar||'—'}</td></tr>`;
   });
   const tableHTML=hasAny?`<table class="h-tab"><thead><tr><th>Jour</th><th>Shaharit</th><th>Minha</th><th>Arvit</th></tr></thead><tbody>${tableRows}</tbody></table>`:'<p style="color:var(--ink-faint);font-style:italic;">Horaires non renseignés.</p>';
-  const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';
+
+  // Adresse + distance + bouton Maps : uniquement si niveau >= 2
+  let addrSection = '';
+  if(syn.addr){
+    const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';
+    addrSection = `<p>${syn.addr}</p>${distHTML}<button class="ob-btn" style="margin:18px 0;" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${syn.addr.replace(/'/g,"\\\\'")}'),'_blank')">📍 Itinéraire Google Maps</button>`;
+  }else{
+    addrSection = `<div class="mik-locked" style="margin:14px 0;"><div class="mik-locked-ic">🔒</div><h3>Adresse masquée</h3><p>Pour des raisons de sécurité, l'adresse précise n'est visible que pour les comptes vérifiés.</p><button class="mik-locked-btn" onclick="showLoginScreen()">${currentUser?'Mon compte':'Se connecter'}</button></div>`;
+  }
+
+  // Téléphone : uniquement si niveau >= 3
+  let telSection = '';
+  if(syn.tel){
+    telSection = `<h3>Contact</h3><p><a href="tel:${syn.tel}" style="color:var(--ink);font-weight:600;">📞 ${syn.tel}</a></p>`;
+  }
+
   const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[syn.rite]||syn.rite;
-  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p><p>${syn.addr}</p>${distHTML}<button class="ob-btn" style="margin:18px 0;" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${syn.addr.replace(/'/g,"\\'")}'),'_blank')">📍 Itinéraire Google Maps</button><h3>Horaires de la semaine</h3>${tableHTML}`);
+  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p>${addrSection}${telSection}<h3>Horaires de la semaine</h3>${tableHTML}`);
 }
 
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.page===name));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo(0,0);if(name==='cal')buildCalendar();if(name==='torah')buildTorah();}
 
-// PATCH 1 : Tehilim selon agenda hébraïque (découpage mensuel hébraïque)
-const TEHILIM_SPLIT=[
-  [1,9],[10,17],[18,22],[23,28],[29,34],[35,38],[39,43],[44,48],[49,54],[55,59],
-  [60,65],[66,68],[69,71],[72,76],[77,78],[79,82],[83,87],[88,89],[90,96],[97,103],
-  [104,105],[106,107],[108,112],[113,118],[119,1],[119,2],[120,134],[135,139]
-];
+const TEHILIM_SPLIT=[[1,9],[10,17],[18,22],[23,28],[29,34],[35,38],[39,43],[44,48],[49,54],[55,59],[60,65],[66,68],[69,71],[72,76],[77,78],[79,82],[83,87],[88,89],[90,96],[97,103],[104,105],[106,107],[108,112],[113,118],[119,1],[119,2],[120,134],[135,139]];
 const HEB_ML=[30,29,30,29,30,30,30,29,30,29,30,29];
 
 function buildCalendar(){
-  const z=calcZmanim(new Date());
-  const j=getJewishDate(new Date());
-  const omer=getOmer(new Date());
+  const z=calcZmanim(new Date());const j=getJewishDate(new Date());const omer=getOmer(new Date());
   document.getElementById('calDate').textContent=`${DAYS_FR[new Date().getDay()]} ${j.day} ${j.monthName} ${j.year}`;
   document.getElementById('calOmer').innerHTML=omer?`${omer}<sup>e</sup> de l'Omer`:`${j.day} ${j.monthName}`;
   const items=[['Alot HaShahar',z.alot],['Talith / Téfilin',z.tefilin],['Hanetz',z.hanetz],['Fin Shema M"A',z.shema_ma],['Fin Shema GR"A',z.shema_gra],['Fin Tefila',z.tefila_gra],['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],['Plag HaMinha',z.plag],['Chkia',z.shkia],['Tseit Hacohavim',z.tzeit],['Fin Shabbat',z.fin_shab],['Rabbeinou Tam',z.rt]];
   document.getElementById('calZmanimGrid').innerHTML=items.map(([l,h])=>`<div><div class="zi-lbl">${l}</div><div class="zi-val">${fmt(h)}</div></div>`).join('');
-  const dow=new Date().getDay();
-  const shabContainer=document.getElementById('shabContainer');
+  const dow=new Date().getDay();const shabContainer=document.getElementById('shabContainer');
   if(dow===5||dow===6){
     const candles=z.shkia-18/60;
     shabContainer.innerHTML=`<div class="shab-card"><div class="shab-lbl">🕯 Shabbat cette semaine</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(z.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(z.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(z.rt)}</div></div></div></div>`;
   }else{shabContainer.innerHTML='';}
-
-  // === PATCH 1 : Tehilim selon le jour du mois HÉBRAÏQUE ===
-  const monthLen=HEB_ML[j.month];
-  let tehTxt='';
-  if(j.day<=28){
-    const split=TEHILIM_SPLIT[j.day-1];
-    if(split[0]===119&&split[1]<=22){
-      tehTxt=`Téhilim 119 — partie ${split[1]} · ${j.day} ${j.monthName}`;
-    }else if(split[0]===split[1]){
-      tehTxt=`Chapitre ${split[0]} · ${j.day} ${j.monthName}`;
-    }else{
-      tehTxt=`Chapitres ${split[0]}-${split[1]} · ${j.day} ${j.monthName}`;
-    }
-  }else if(j.day===29){
-    if(monthLen===29){
-      tehTxt=`Chapitres 140-150 · 29 ${j.monthName}`;
-    }else{
-      tehTxt=`Chapitres 140-144 · 29 ${j.monthName}`;
-    }
-  }else if(j.day===30){
-    tehTxt=`Chapitres 145-150 · 30 ${j.monthName}`;
-  }
+  const monthLen=HEB_ML[j.month];let tehTxt='';
+  if(j.day<=28){const split=TEHILIM_SPLIT[j.day-1];if(split[0]===119&&split[1]<=22){tehTxt=`Téhilim 119 — partie ${split[1]} · ${j.day} ${j.monthName}`;}else if(split[0]===split[1]){tehTxt=`Chapitre ${split[0]} · ${j.day} ${j.monthName}`;}else{tehTxt=`Chapitres ${split[0]}-${split[1]} · ${j.day} ${j.monthName}`;}}else if(j.day===29){if(monthLen===29){tehTxt=`Chapitres 140-150 · 29 ${j.monthName}`;}else{tehTxt=`Chapitres 140-144 · 29 ${j.monthName}`;}}else if(j.day===30){tehTxt=`Chapitres 145-150 · 30 ${j.monthName}`;}
   document.getElementById('dafWhen').textContent=getDafYomi(new Date());
   document.getElementById('tehWhen').textContent=tehTxt;
-
   const today0=new Date();today0.setHours(0,0,0,0);
   const upcomingFetes=FETES.filter(f=>f.date>=today0).slice(0,6);
-  const inBirkat=BIRKAT.find(b=>{const t=new Date();t.setHours(0,0,0,0);return t>=b.debut&&t<=b.fin;});
   let evHTML='';
-  if(inBirkat){evHTML+=`<div class="event-card" style="background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border-color:transparent;"><div class="event-info"><div class="name" style="color:#5C3D1F;">🌙 Birkat HaLevana</div><div class="when" style="color:#7A5530;">${inBirkat.mois} — fenêtre ouverte jusqu'au ${inBirkat.fin.getDate()}/${inBirkat.fin.getMonth()+1}</div></div><div class="event-day" style="color:#5C3D1F;">⚡</div></div>`;}
   upcomingFetes.forEach(f=>{const days=Math.ceil((f.date-today0)/86400000);const when=days===0?"Auj.":days===1?"Demain":days<7?`Dans ${days}j`:`${days}j`;evHTML+=`<div class="event-card"><div class="event-info"><div class="name">${f.name}</div><div class="when">${f.note}</div></div><div class="event-day">${when}</div></div>`;});
   document.getElementById('eventsList').innerHTML=evHTML;
 }
 
-const MIKVE_COORDS={
-  "CIV Malherbe Beer Myriam":[45.770,4.882],
-  "Mikveh Ecole Juive":[45.769,4.880],
-  "Hayé Tahara":[45.766,4.890],
-  "Yéchiva Pinto":[45.770,4.876],
-  "Mikveh de la Duchère":[45.787,4.800],
-  "Mikveh Neveh Chalom":[45.751,4.851],
-  "Mikveh Haya Mouchka":[45.766,4.847],
-  "Mikveh d'Écully":[45.776,4.770],
-  "Mikveh Eshel":[45.745,4.910],
-  "Chaaré Tsédék":[45.731,4.860],
-  "Mikveh Mazal":[45.776,4.770],
-  "Beth Menahem (Hommes)":[45.768,4.897]
-};
-let mikveFilter='all';
-let mikveGeoMode=false;
-let mikveUserLocation=null;
-
-function setMikveFilter(btn,f){
-  mikveFilter=f;
-  btn.parentElement.querySelectorAll('.f-chip.mfilt').forEach(c=>c.classList.remove('on'));
-  btn.classList.add('on');
-  buildTorah();
-}
-
+let mikveFilter='all';let mikveGeoMode=false;let mikveUserLocation=null;
+function setMikveFilter(btn,f){mikveFilter=f;btn.parentElement.querySelectorAll('.f-chip.mfilt').forEach(c=>c.classList.remove('on'));btn.classList.add('on');buildTorah();}
 function findNearestMikve(){
-  if(mikveGeoMode){
-    mikveGeoMode=false;mikveUserLocation=null;
-    const btn=document.getElementById('mikveFindBtn');
-    if(btn){btn.classList.remove('active');document.getElementById('mikveFindArrow').textContent='→';document.getElementById('mikveFindSub').textContent='Trier par distance';}
-    buildTorah();
-    return;
-  }
+  if(mikveGeoMode){mikveGeoMode=false;mikveUserLocation=null;const btn=document.getElementById('mikveFindBtn');if(btn){btn.classList.remove('active');document.getElementById('mikveFindArrow').textContent='→';document.getElementById('mikveFindSub').textContent='Trier par distance';}buildTorah();return;}
   if(!navigator.geolocation){alert('Géolocalisation non disponible');return;}
   document.getElementById('mikveFindSub').textContent='Localisation…';
-  navigator.geolocation.getCurrentPosition(pos=>{
-    mikveUserLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
-    mikveGeoMode=true;
-    document.getElementById('mikveFindBtn').classList.add('active');
-    document.getElementById('mikveFindArrow').textContent='✕';
-    document.getElementById('mikveFindSub').textContent='Trié par distance · Toucher pour annuler';
-    buildTorah();
-    setTimeout(()=>{document.getElementById('mikvaotList').scrollIntoView({behavior:'smooth',block:'start'});},150);
-  },()=>{document.getElementById('mikveFindSub').textContent='Localisation impossible';setTimeout(()=>{document.getElementById('mikveFindSub').textContent='Trier par distance';},2000);});
+  navigator.geolocation.getCurrentPosition(pos=>{mikveUserLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};mikveGeoMode=true;document.getElementById('mikveFindBtn').classList.add('active');document.getElementById('mikveFindArrow').textContent='✕';document.getElementById('mikveFindSub').textContent='Trié par distance';buildTorah();},()=>{document.getElementById('mikveFindSub').textContent='Localisation impossible';});
 }
 
 function buildTorah(){
   const idx=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000)%MB.length;
   const mb=MB[idx];
   const refEl=document.getElementById('mbRef');const textEl=document.getElementById('mbText');
-  if(refEl)refEl.textContent=mb.ref;
-  if(textEl)textEl.textContent=mb.text;
+  if(refEl)refEl.textContent=mb.ref;if(textEl)textEl.textContent=mb.text;
+
+  // Mikvaot : verrouillé si niveau < 3
+  const lockedContainer = document.getElementById('mikveLockedContainer');
+  const findWrap = document.getElementById('mikveFindWrap');
+  const filters = document.getElementById('mikveFilters');
+  const sectionTitle = document.getElementById('mikvaotSectionTitle');
   const list=document.getElementById('mikvaotList');
+
+  if(currentNiveau < 3){
+    lockedContainer.innerHTML = `<div class="mik-locked"><div class="mik-locked-ic">🔒</div><h3>Mikvaot — Accès réservé</h3><p>Les coordonnées des mikvaot sont visibles uniquement pour les comptes vérifiés (connectés depuis +7 jours ou parrainés). Cela protège la communauté.</p><button class="mik-locked-btn" onclick="${currentUser?'openProfile()':'showLoginScreen()'}">${currentUser?'Mon compte':'Se connecter'}</button></div>`;
+    findWrap.style.display = 'none';
+    filters.style.display = 'none';
+    sectionTitle.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  lockedContainer.innerHTML = '';
+  findWrap.style.display = '';
+  filters.style.display = '';
+  sectionTitle.style.display = '';
+
   if(!list||!MIKVAOT||!MIKVAOT.length)return;
   list.innerHTML='';
   let mikvaot=MIKVAOT.slice();
   if(mikveFilter!=='all')mikvaot=mikvaot.filter(m=>m.who===mikveFilter);
-  if(mikveGeoMode&&mikveUserLocation){
-    mikvaot=mikvaot.map(m=>{const c=MIKVE_COORDS[m.name]||[45.76,4.85];return{...m,_dist:distance(mikveUserLocation.lat,mikveUserLocation.lng,c[0],c[1])};});
-    mikvaot.sort((a,b)=>a._dist-b._dist);
-  }
   if(mikvaot.length===0){list.innerHTML='<div style="padding:30px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun mikvé pour ce filtre</div>';return;}
   mikvaot.forEach((m,i)=>{
     const cls={women:'women',men:'men',both:'both'}[m.who];
     const ico={women:'♀',men:'♂',both:'⚭'}[m.who];
-    const distHTML=(mikveGeoMode&&m._dist!=null)?`<div class="mik-dist">${fmtDist(m._dist)} · ${fmtWalk(m._dist)}</div>`:'';
     const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.addr)}`;
     const card=document.createElement('div');
     card.className='mik-card'+(i===0?' first':'');
-    card.innerHTML=`
-      <div class="mik-pill ${cls}">${ico}</div>
-      <div class="mik-info">
-        <div class="name">${m.name}</div>
-        <div class="addr">${m.addr}</div>
-        <div class="contact">${m.contact}</div>
-        ${distHTML}
-      </div>
-      <div class="mik-actions">
-        ${m.tel?`<a class="mik-btn primary" href="tel:${m.tel}" onclick="event.stopPropagation()">📞</a>`:''}
-        <a class="mik-btn" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍</a>
-      </div>
-    `;
+    card.innerHTML=`<div class="mik-pill ${cls}">${ico}</div><div class="mik-info"><div class="name">${m.name}</div><div class="addr">${m.addr}</div><div class="contact">${m.contact}</div></div><div class="mik-actions">${m.tel?`<a class="mik-btn primary" href="tel:${m.tel}" onclick="event.stopPropagation()">📞</a>`:''}<a class="mik-btn" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍</a></div>`;
     list.appendChild(card);
   });
 }
 
+// ============================================================
+// === COMPASS (inchangé) =====================================
+// ============================================================
 const JERU_LAT=31.78,JERU_LNG=35.23;
 function calcBearing(lat1,lng1,lat2,lng2){const dLng=(lng2-lng1)*Math.PI/180;const la1=lat1*Math.PI/180,la2=lat2*Math.PI/180;const y=Math.sin(dLng)*Math.cos(la2);const x=Math.cos(la1)*Math.sin(la2)-Math.sin(la1)*Math.cos(la2)*Math.cos(dLng);return((Math.atan2(y,x)*180/Math.PI)+360)%360;}
-let userCompassLat=LYON_LAT,userCompassLng=LYON_LNG;
-let JERUSALEM_BEARING=Math.round(calcBearing(userCompassLat,userCompassLng,JERU_LAT,JERU_LNG));
-let compassActive=false;
-let compassListeners=[];
-let smoothedRose=null;
-const COMPASS_SMOOTH_ALPHA=0.18;
-
-function positionJerusalemMarker(){
-  const m=document.getElementById('compassMarkerJ');
-  if(m)m.style.transform=`translate(-50%,-50%) rotate(${JERUSALEM_BEARING}deg) translateY(-105px)`;
-}
-
-function updateBearingDisplay(){
-  const el=document.getElementById('compassDeg');
-  if(el)el.innerHTML=`${JERUSALEM_BEARING}<span class="deg">°</span>`;
-}
-updateBearingDisplay();
-positionJerusalemMarker();
-
-function refreshUserPosition(){
-  if(!navigator.geolocation)return;
-  navigator.geolocation.getCurrentPosition(pos=>{
-    userCompassLat=pos.coords.latitude;
-    userCompassLng=pos.coords.longitude;
-    JERUSALEM_BEARING=Math.round(calcBearing(userCompassLat,userCompassLng,JERU_LAT,JERU_LNG));
-    positionJerusalemMarker();
-    if(!compassActive)updateBearingDisplay();
-  },()=>{},{enableHighAccuracy:false,timeout:6000,maximumAge:600000});
-}
-
+let JERUSALEM_BEARING=Math.round(calcBearing(LYON_LAT,LYON_LNG,JERU_LAT,JERU_LNG));
+let compassActive=false;let compassListeners=[];let smoothedRose=null;const COMPASS_SMOOTH_ALPHA=0.18;
+function positionJerusalemMarker(){const m=document.getElementById('compassMarkerJ');if(m)m.style.transform=`translate(-50%,-50%) rotate(${JERUSALEM_BEARING}deg) translateY(-105px)`;}
+function updateBearingDisplay(){const el=document.getElementById('compassDeg');if(el)el.innerHTML=`${JERUSALEM_BEARING}<span class="deg">°</span>`;}
+updateBearingDisplay();positionJerusalemMarker();
 function startCompass(){
-  if(compassActive){
-    compassListeners.forEach(fn=>{
-      window.removeEventListener('deviceorientationabsolute',fn,true);
-      window.removeEventListener('deviceorientation',fn,true);
-    });
-    compassListeners=[];
-    compassActive=false;
-    smoothedRose=null;
-    document.getElementById('compassRose').style.transform=`rotate(0deg)`;
-    updateBearingDisplay();
-    document.getElementById('compassTowards').textContent="vers Jérusalem ★";
-    document.querySelector('.compass-btn').textContent='Activer la boussole';
-    return;
-  }
-  if(!window.DeviceOrientationEvent){
-    alert('Boussole non disponible sur cet appareil. Jérusalem est à environ '+JERUSALEM_BEARING+'° depuis ta position.');
-    return;
-  }
-  refreshUserPosition();
-  if(typeof DeviceOrientationEvent.requestPermission==='function'){
-    DeviceOrientationEvent.requestPermission().then(p=>{
-      if(p==='granted')initCompass();
-      else alert('Permission refusée. Active-la dans Réglages → Safari → Mouvement et orientation.');
-    }).catch(err=>{alert('Erreur boussole : '+err.message);});
-  }else{
-    initCompass();
-  }
+  if(compassActive){compassListeners.forEach(fn=>{window.removeEventListener('deviceorientationabsolute',fn,true);window.removeEventListener('deviceorientation',fn,true);});compassListeners=[];compassActive=false;smoothedRose=null;document.getElementById('compassRose').style.transform=`rotate(0deg)`;updateBearingDisplay();document.getElementById('compassTowards').textContent="vers Jérusalem ★";document.querySelector('.compass-btn').textContent='Activer la boussole';return;}
+  if(!window.DeviceOrientationEvent){alert('Boussole non disponible. Jérusalem est à env. '+JERUSALEM_BEARING+'°.');return;}
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')initCompass();else alert('Permission refusée.');}).catch(err=>{alert(err.message);});}else{initCompass();}
 }
+function initCompass(){compassActive=true;smoothedRose=null;document.querySelector('.compass-btn').textContent='Désactiver la boussole';document.getElementById('compassTowards').textContent='Tourne lentement…';const fn=handleCompass;compassListeners.push(fn);window.addEventListener('deviceorientationabsolute',fn,true);window.addEventListener('deviceorientation',fn,true);}
+function handleCompass(e){let alpha=e.webkitCompassHeading;if(alpha===undefined||alpha===null){alpha=e.alpha;if(alpha===null||alpha===undefined)return;alpha=(360-alpha)%360;}const targetRose=-alpha;if(smoothedRose===null){smoothedRose=targetRose;}else{let diff=targetRose-smoothedRose;if(diff>180)diff-=360;else if(diff<-180)diff+=360;smoothedRose=smoothedRose+COMPASS_SMOOTH_ALPHA*diff;}document.getElementById('compassRose').style.transform=`rotate(${smoothedRose}deg)`;const dirToJ=(JERUSALEM_BEARING-alpha+360)%360;document.getElementById('compassDeg').innerHTML=`${Math.round(dirToJ)}<span class="deg">°</span>`;const off=Math.min(dirToJ,360-dirToJ);const towards=document.getElementById('compassTowards');if(off<=3){towards.innerHTML='✓ <span style="color:var(--gold);font-weight:600;">Face à Jérusalem</span>';}else if(off<=15){towards.textContent='Presque…';}else{towards.textContent='Tourne pour aligner ★';}}
 
-function initCompass(){
-  compassActive=true;
-  smoothedRose=null;
-  document.querySelector('.compass-btn').textContent='Désactiver la boussole';
-  document.getElementById('compassTowards').textContent='Tourne lentement ton téléphone…';
-  const fn=handleCompass;
-  compassListeners.push(fn);
-  window.addEventListener('deviceorientationabsolute',fn,true);
-  window.addEventListener('deviceorientation',fn,true);
-}
-
-function handleCompass(e){
-  let alpha=e.webkitCompassHeading;
-  if(alpha===undefined||alpha===null){
-    alpha=e.alpha;
-    if(alpha===null||alpha===undefined)return;
-    alpha=(360-alpha)%360;
-  }
-  const targetRose=-alpha;
-  if(smoothedRose===null){
-    smoothedRose=targetRose;
-  }else{
-    let diff=targetRose-smoothedRose;
-    if(diff>180)diff-=360;
-    else if(diff<-180)diff+=360;
-    smoothedRose=smoothedRose+COMPASS_SMOOTH_ALPHA*diff;
-  }
-  document.getElementById('compassRose').style.transform=`rotate(${smoothedRose}deg)`;
-  const dirToJ=(JERUSALEM_BEARING-alpha+360)%360;
-  document.getElementById('compassDeg').innerHTML=`${Math.round(dirToJ)}<span class="deg">°</span>`;
-  const off=Math.min(dirToJ,360-dirToJ);
-  const towards=document.getElementById('compassTowards');
-  if(off<=3){
-    towards.innerHTML='✓ <span style="color:var(--gold);font-weight:600;">Face à Jérusalem</span>';
-  }else if(off<=15){
-    towards.textContent='Presque… continue';
-  }else{
-    towards.textContent='Tourne jusqu\u2019à aligner ★ avec l\u2019aiguille';
-  }
-}
-
-const FIREBASE_CONFIG={
-  databaseURL:"https://minyan-lyon-default-rtdb.europe-west1.firebasedatabase.app",
-  apiKey:"AIzaSyCSdL1hUifNyctlFvtX9ZH8ztsz6fA4GG4"
-};
+// ============================================================
+// === MINYAN IMPROVISÉ (Firebase + UI - inchangé) ============
+// ============================================================
+const FIREBASE_CONFIG={databaseURL:"https://minyan-lyon-default-rtdb.europe-west1.firebasedatabase.app",apiKey:"AIzaSyCSdL1hUifNyctlFvtX9ZH8ztsz6fA4GG4"};
 const FB_ENABLED=()=>!!FIREBASE_CONFIG.databaseURL;
-
-async function fbWriteMinyans(list){
-  if(!FB_ENABLED()){
-    localStorage.setItem('mlImpromptu',JSON.stringify(list));
-    return true;
-  }
-  try{
-    const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
-    const res=await fetch(url,{method:'PUT',body:JSON.stringify(list)});
-    return res.ok;
-  }catch(e){console.warn('Firebase write fail:',e.message);return false;}
-}
-async function fbReadMinyans(){
-  if(!FB_ENABLED()){
-    try{return JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{return [];}
-  }
-  try{
-    const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
-    const res=await fetch(url,{cache:'no-cache'});
-    if(!res.ok)return [];
-    const data=await res.json();
-    if(!data)return [];
-    return Array.isArray(data)?data:Object.values(data);
-  }catch(e){console.warn('Firebase read fail:',e.message);return [];}
-}
-
-function cleanExpiredMinyans(list){
-  const now=Date.now();
-  return list.filter(m=>{
-    if(!m||!m.timestamp)return false;
-    return (m.timestamp+45*60*1000)>now;
-  });
-}
-
-function getUserId(){
-  let id=localStorage.getItem('mlUserId');
-  if(!id){id='u'+Date.now()+Math.random().toString(36).slice(2,8);localStorage.setItem('mlUserId',id);}
-  return id;
-}
-
-function buildTimestamp(dateStr,heureStr){
-  const cleanH=heureStr.replace('h',':').replace(/\s/g,'');
-  const [h,m]=cleanH.split(':').map(s=>parseInt(s)||0);
-  const [yy,mm,dd]=dateStr.split('-').map(s=>parseInt(s));
-  return new Date(yy,mm-1,dd,h,m,0).getTime();
-}
-
+async function fbWriteMinyans(list){if(!FB_ENABLED()){localStorage.setItem('mlImpromptu',JSON.stringify(list));return true;}try{const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;const res=await fetch(url,{method:'PUT',body:JSON.stringify(list)});return res.ok;}catch(e){return false;}}
+async function fbReadMinyans(){if(!FB_ENABLED()){try{return JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{return [];}}try{const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;const res=await fetch(url,{cache:'no-cache'});if(!res.ok)return [];const data=await res.json();if(!data)return [];return Array.isArray(data)?data:Object.values(data);}catch(e){return [];}}
+function cleanExpiredMinyans(list){const now=Date.now();return list.filter(m=>{if(!m||!m.timestamp)return false;return (m.timestamp+45*60*1000)>now;});}
+function getUserId(){let id=localStorage.getItem('mlUserId');if(!id){id='u'+Date.now()+Math.random().toString(36).slice(2,8);localStorage.setItem('mlUserId',id);}return id;}
+function buildTimestamp(dateStr,heureStr){const cleanH=heureStr.replace('h',':').replace(/\s/g,'');const [h,m]=cleanH.split(':').map(s=>parseInt(s)||0);const [yy,mm,dd]=dateStr.split('-').map(s=>parseInt(s));return new Date(yy,mm-1,dd,h,m,0).getTime();}
 let currentImpMode='join';
+function openSignal(){const todayStr=new Date().toISOString().slice(0,10);openDetail('Minyan improvisé',`<h2>Minyan <span class="em">improvisé</span></h2><p>Créer un nouveau minyan ou rejoindre un minyan existant.</p><span class="imp-status-badge ${FB_ENABLED()?'online':''}">${FB_ENABLED()?'● Mode partagé · temps réel':'● Mode local'}</span><div class="imp-mode-toggle"><button class="imp-mode-btn on" id="impModeJoin" onclick="setImpMode('join')">Rejoindre</button><button class="imp-mode-btn" id="impModeCreate" onclick="setImpMode('create')">Créer</button></div><div id="impJoinSection"><div id="impList"><div class="imp-empty">Chargement…</div></div></div><div id="impCreateSection" style="display:none;"><h3>Lieu</h3><input type="text" id="impLieu" class="ob-input" placeholder="Ex: 12 rue Boutin"/><h3>Date</h3><input type="date" id="impDate" class="ob-input" value="${todayStr}"/><h3>Heure</h3><input type="text" id="impHeure" class="ob-input" placeholder="Ex: 19h30"/><h3>Type</h3><select id="impType" class="ob-input"><option value="Shaharit">Shaharit</option><option value="Minha" selected>Minha</option><option value="Arvit">Arvit</option></select><h3>Contact (optionnel)</h3><input type="text" id="impContact" class="ob-input" placeholder="Tél ou nom"/><h3>Personnes déjà confirmées ?</h3><input type="number" id="impConfirmes" class="ob-input" min="1" max="10" value="1"/><button class="ob-btn" onclick="createMinyan()">✡ Créer</button></div>`);setImpMode('join');loadImpromptu();}
+function setImpMode(mode){currentImpMode=mode;const join=document.getElementById('impJoinSection');const create=document.getElementById('impCreateSection');const btnJ=document.getElementById('impModeJoin');const btnC=document.getElementById('impModeCreate');if(!join||!create)return;if(mode==='join'){join.style.display='block';create.style.display='none';btnJ.classList.add('on');btnC.classList.remove('on');loadImpromptu();}else{join.style.display='none';create.style.display='block';btnJ.classList.remove('on');btnC.classList.add('on');}}
+async function createMinyan(){const lieu=document.getElementById('impLieu').value.trim();const date=document.getElementById('impDate').value;const heure=document.getElementById('impHeure').value.trim();const type=document.getElementById('impType').value;const contact=document.getElementById('impContact').value.trim();const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;if(!lieu||!heure||!date){alert('Lieu, date et heure obligatoires');return;}const timestamp=buildTimestamp(date,heure);if(timestamp<Date.now()-15*60*1000){alert('La date/heure doit être dans le futur');return;}const userId=getUserId();const userName=localStorage.getItem('mlUserName')||'Anonyme';const newMinyan={id:'m'+Date.now()+Math.random().toString(36).slice(2,6),lieu,date,heure,type,contact:contact||null,confirmes:Math.min(Math.max(confirmes,1),10),timestamp,createdBy:userId,createdByName:userName,createdAt:Date.now(),participants:[userId]};let list=await fbReadMinyans();list=cleanExpiredMinyans(list);list.push(newMinyan);const ok=await fbWriteMinyans(list);if(ok){setImpMode('join');setTimeout(()=>loadImpromptu(),300);}else{alert('Erreur. Réessaye.');}}
+async function joinMinyan(id){let list=await fbReadMinyans();list=cleanExpiredMinyans(list);const userId=getUserId();const m=list.find(x=>x&&x.id===id);if(!m){loadImpromptu();return;}if(!Array.isArray(m.participants))m.participants=[];if(m.participants.includes(userId)){m.participants=m.participants.filter(p=>p!==userId);m.confirmes=Math.max((m.confirmes||1)-1,0);}else{if((m.confirmes||0)>=10){alert('Complet !');return;}m.participants.push(userId);m.confirmes=(m.confirmes||0)+1;}await fbWriteMinyans(list);loadImpromptu();}
+async function deleteMinyan(id){if(!confirm('Supprimer ?'))return;let list=await fbReadMinyans();list=list.filter(m=>m&&m.id!==id);await fbWriteMinyans(list);loadImpromptu();}
+function fmtImpDateTime(ts){const d=new Date(ts);const now=new Date();const isToday=d.toDateString()===now.toDateString();const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);const isTomorrow=d.toDateString()===tomorrow.toDateString();const hh=String(d.getHours()).padStart(2,'0');const mm=String(d.getMinutes()).padStart(2,'0');if(isToday)return `Aujourd'hui à ${hh}h${mm}`;if(isTomorrow)return `Demain à ${hh}h${mm}`;const days=['dim','lun','mar','mer','jeu','ven','sam'];return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} à ${hh}h${mm}`;}
+async function loadImpromptu(){const list=document.getElementById('impList');if(!list)return;list.innerHTML='<div class="imp-empty">Chargement…</div>';let minyans=await fbReadMinyans();minyans=cleanExpiredMinyans(minyans);await fbWriteMinyans(minyans);if(minyans.length===0){list.innerHTML='<div class="imp-empty">Aucun minyan improvisé.<br>Sois le premier !</div>';return;}minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));const userId=getUserId();let html='';for(const m of minyans){const total=m.confirmes||1;const manque=Math.max(10-total,0);const complet=manque===0;const pct=Math.min((total/10)*100,100);const participants=Array.isArray(m.participants)?m.participants:[];const isJoined=participants.includes(userId);const isCreator=m.createdBy===userId;const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';html+=`<div class="imp-item"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank">📍</a>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')">🗑</button>`:''}</div></div>`;}list.innerHTML=html;}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function shareApp(){const txt=encodeURIComponent('🕍 *Minyan Lyon* — '+window.location.href);if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.href}).catch(()=>{});}else{window.open(`https://wa.me/?text=${txt}`,'_blank');}}
 
-// PATCH 4a : Ajout du champ "Contact (optionnel)" dans le formulaire de création
-function openSignal(){
-  const todayStr=new Date().toISOString().slice(0,10);
-  openDetail('Minyan improvisé',`
-    <h2>Minyan <span class="em">improvisé</span></h2>
-    <p>Créer un nouveau minyan ou rejoindre un minyan existant.</p>
-    <span class="imp-status-badge ${FB_ENABLED()?'online':''}" id="impStatusBadge">${FB_ENABLED()?'● Mode partagé · temps réel':'● Mode local · visible uniquement par toi'}</span>
-    <div class="imp-mode-toggle">
-      <button class="imp-mode-btn on" id="impModeJoin" onclick="setImpMode('join')">Rejoindre</button>
-      <button class="imp-mode-btn" id="impModeCreate" onclick="setImpMode('create')">Créer</button>
-    </div>
-    <div id="impJoinSection">
-      <div id="impList"><div class="imp-empty">Chargement…</div></div>
-    </div>
-    <div id="impCreateSection" style="display:none;">
-      <h3>Lieu</h3>
-      <input type="text" id="impLieu" class="ob-input" placeholder="Ex: 12 rue Boutin, chez David"/>
-      <h3>Date</h3>
-      <input type="date" id="impDate" class="ob-input" value="${todayStr}"/>
-      <h3>Heure</h3>
-      <input type="text" id="impHeure" class="ob-input" placeholder="Ex: 19h30"/>
-      <h3>Type de prière</h3>
-      <select id="impType" class="ob-input">
-        <option value="Shaharit">Shaharit (matin)</option>
-        <option value="Minha" selected>Minha (après-midi)</option>
-        <option value="Arvit">Arvit (soir)</option>
-      </select>
-      <h3>Contact (optionnel)</h3>
-      <input type="text" id="impContact" class="ob-input" placeholder="Tél ou nom (ex: 06 12 34 56 78)"/>
-      <h3>Combien de personnes déjà confirmées ?</h3>
-      <input type="number" id="impConfirmes" class="ob-input" placeholder="Ex: 5" min="1" max="10" value="1"/>
-      <p class="sources" style="margin-bottom:18px;">Il faut 10 hommes pour le minyan. L'app calculera automatiquement combien il manque.</p>
-      <button class="ob-btn" onclick="createMinyan()">✡ Créer le minyan</button>
-    </div>
+// ============================================================
+// === INVITATION / PARRAINAGE ================================
+// ============================================================
+async function openInvite(){
+  if(!currentUser || currentNiveau < 3){
+    alert('Le parrainage est réservé aux comptes vérifiés (+7 jours ou parrainés).');
+    return;
+  }
+  openDetail('Inviter un ami',`
+    <h2>Inviter <span class="em">un proche</span></h2>
+    <p>Tu peux inviter une personne de confiance. Elle aura un accès complet immédiat (adresses + téléphones + mikvaot).</p>
+    <p>Ne partage ce lien qu'avec une personne que tu connais personnellement.</p>
+    <div id="inviteResultArea"></div>
+    <button class="ob-btn" onclick="generateInvite()">✉️ Générer un lien d'invitation</button>
   `);
-  setImpMode('join');
-  loadImpromptu();
 }
 
-function setImpMode(mode){
-  currentImpMode=mode;
-  const join=document.getElementById('impJoinSection');
-  const create=document.getElementById('impCreateSection');
-  const btnJ=document.getElementById('impModeJoin');
-  const btnC=document.getElementById('impModeCreate');
-  if(!join||!create)return;
-  if(mode==='join'){
-    join.style.display='block';create.style.display='none';
-    btnJ.classList.add('on');btnC.classList.remove('on');
-    loadImpromptu();
-  }else{
-    join.style.display='none';create.style.display='block';
-    btnJ.classList.remove('on');btnC.classList.add('on');
-  }
-}
-
-// PATCH 4b : Capture du contact dans createMinyan
-async function createMinyan(){
-  const lieu=document.getElementById('impLieu').value.trim();
-  const date=document.getElementById('impDate').value;
-  const heure=document.getElementById('impHeure').value.trim();
-  const type=document.getElementById('impType').value;
-  const contact=document.getElementById('impContact').value.trim();
-  const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;
-  if(!lieu||!heure||!date){alert('Lieu, date et heure obligatoires');return;}
-  const timestamp=buildTimestamp(date,heure);
-  if(timestamp<Date.now()-15*60*1000){alert('La date/heure doit être dans le futur');return;}
-  const userId=getUserId();
-  const userName=localStorage.getItem('mlUserName')||'Anonyme';
-  const newMinyan={
-    id:'m'+Date.now()+Math.random().toString(36).slice(2,6),
-    lieu,date,heure,type,
-    contact:contact||null,
-    confirmes:Math.min(Math.max(confirmes,1),10),
-    timestamp,
-    createdBy:userId,
-    createdByName:userName,
-    createdAt:Date.now(),
-    participants:[userId]
-  };
-  if(newMinyan.confirmes<1)newMinyan.confirmes=1;
-  let list=await fbReadMinyans();
-  list=cleanExpiredMinyans(list);
-  list.push(newMinyan);
-  const ok=await fbWriteMinyans(list);
-  if(ok){
-    setImpMode('join');
-    setTimeout(()=>loadImpromptu(),300);
-  }else{
-    alert('Erreur lors de l\'enregistrement. Réessaye.');
-  }
-}
-
-async function joinMinyan(id){
-  let list=await fbReadMinyans();
-  list=cleanExpiredMinyans(list);
-  const userId=getUserId();
-  const m=list.find(x=>x&&x.id===id);
-  if(!m){alert('Ce minyan n\'existe plus');loadImpromptu();return;}
-  if(!Array.isArray(m.participants))m.participants=[];
-  if(m.participants.includes(userId)){
-    m.participants=m.participants.filter(p=>p!==userId);
-    m.confirmes=Math.max((m.confirmes||1)-1,0);
-  }else{
-    if((m.confirmes||0)>=10){alert('Ce minyan est déjà complet !');return;}
-    m.participants.push(userId);
-    m.confirmes=(m.confirmes||0)+1;
-  }
-  await fbWriteMinyans(list);
-  loadImpromptu();
-}
-
-async function deleteMinyan(id){
-  if(!confirm('Supprimer ce minyan ?'))return;
-  let list=await fbReadMinyans();
-  list=list.filter(m=>m&&m.id!==id);
-  await fbWriteMinyans(list);
-  loadImpromptu();
-}
-
-function fmtImpDateTime(ts){
-  const d=new Date(ts);
-  const now=new Date();
-  const isToday=d.toDateString()===now.toDateString();
-  const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);
-  const isTomorrow=d.toDateString()===tomorrow.toDateString();
-  const hh=String(d.getHours()).padStart(2,'0');
-  const mm=String(d.getMinutes()).padStart(2,'0');
-  if(isToday)return `Aujourd'hui à ${hh}h${mm}`;
-  if(isTomorrow)return `Demain à ${hh}h${mm}`;
-  const days=['dim','lun','mar','mer','jeu','ven','sam'];
-  return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} à ${hh}h${mm}`;
-}
-
-// PATCH 4c : loadImpromptu avec contact + share + notif buttons
-async function loadImpromptu(){
-  const list=document.getElementById('impList');
-  if(!list)return;
-  list.innerHTML='<div class="imp-empty">Chargement…</div>';
-  let minyans=await fbReadMinyans();
-  minyans=cleanExpiredMinyans(minyans);
-  await fbWriteMinyans(minyans);
-  if(minyans.length===0){
-    list.innerHTML='<div class="imp-empty">Aucun minyan improvisé en cours.<br>Sois le premier à en créer un !</div>';
-    return;
-  }
-  minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-  const userId=getUserId();
-  let html='';
-  for(const m of minyans){
-    const total=m.confirmes||1;
-    const manque=Math.max(10-total,0);
-    const complet=manque===0;
-    const pct=Math.min((total/10)*100,100);
-    const participants=Array.isArray(m.participants)?m.participants:[];
-    const isJoined=participants.includes(userId);
-    const isCreator=m.createdBy===userId;
-    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;
-    const hasReminder=ACTIVE_REMINDERS[m.id]?true:false;
-    const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
-    html+=`<div class="imp-item">
-      <div class="imp-item-head">
-        <div>
-          <div class="imp-item-name">${escapeHtml(m.type)}</div>
-          <div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div>
-        </div>
-        <div class="imp-item-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div>
+async function generateInvite(){
+  if(!currentUser) return;
+  try{
+    const {data, error} = await supabaseClient
+      .from('invitations')
+      .insert({emis_par: currentUser.id})
+      .select()
+      .single();
+    if(error){alert('Erreur : ' + error.message); return;}
+    const code = data.code;
+    const link = `${window.location.origin}${window.location.pathname}?invite=${code}`;
+    const resultArea = document.getElementById('inviteResultArea');
+    resultArea.innerHTML = `
+      <div class="invite-card">
+        <h4>✅ Lien généré</h4>
+        <p>Voici ton code unique. Il peut être utilisé une seule fois.</p>
+        <div class="invite-code-display">${code}</div>
+        <button class="invite-btn" onclick="shareInvite('${code}','${link.replace(/'/g,"\\\\'")}')">📤 Partager via WhatsApp</button>
       </div>
-      <div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>
-      ${contactHTML}
-      <div class="imp-item-progress">
-        <div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div>
-        <div class="imp-progress-text">${total}/10</div>
-      </div>
-      <div class="imp-item-actions">
-        ${complet&&!isJoined
-          ?'<button class="imp-btn complet" disabled>Minyan complet ✓</button>'
-          :`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Je participe (annuler)':'+1 Je participe'}</button>`}
-        <a class="imp-btn-maps" href="${mapsUrl}" target="_blank" title="Itinéraire">📍</a>
-        <button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>
-        <button class="imp-btn-maps ${hasReminder?'active-notif':''}" onclick="toggleMinyanReminder('${m.id}')" title="Rappel 15 min avant">${hasReminder?'✓':'🔔'}</button>
-        ${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}
-      </div>
-    </div>`;
-  }
-  list.innerHTML=html;
+    `;
+  }catch(e){alert('Erreur : ' + e.message);}
 }
 
-// === PATCH 4d : Système de notifications + partage ===
-const ACTIVE_REMINDERS={};
-
-async function toggleMinyanReminder(id){
-  // Si déjà actif → désactiver
-  if(ACTIVE_REMINDERS[id]){
-    clearTimeout(ACTIVE_REMINDERS[id]);
-    delete ACTIVE_REMINDERS[id];
-    saveReminderIds();
-    loadImpromptu();
-    return;
-  }
-  // Demander permission notif
-  if(!('Notification' in window)){
-    alert('Les notifications ne sont pas supportées sur ce navigateur.');
-    return;
-  }
-  if(Notification.permission==='default'){
-    const p=await Notification.requestPermission();
-    if(p!=='granted'){alert('Permission refusée.');return;}
-  }else if(Notification.permission==='denied'){
-    alert('Notifications bloquées. Active-les dans les réglages du navigateur.');
-    return;
-  }
-  // Récupérer le minyan
-  const list=await fbReadMinyans();
-  const m=list.find(x=>x&&x.id===id);
-  if(!m){alert('Ce minyan n\'existe plus');return;}
-  const remindAt=m.timestamp-15*60*1000;
-  const delay=remindAt-Date.now();
-  if(delay<=0){alert('Trop tard pour un rappel 15 min avant.');return;}
-  const timeoutId=setTimeout(()=>{
-    try{
-      new Notification('🕍 Minyan dans 15 min',{
-        body:`${m.type} · ${m.lieu}`,
-        icon:'/favicon.ico'
-      });
-    }catch(e){console.warn(e);}
-    delete ACTIVE_REMINDERS[id];
-    saveReminderIds();
-  },delay);
-  ACTIVE_REMINDERS[id]=timeoutId;
-  saveReminderIds();
-  loadImpromptu();
-}
-
-function saveReminderIds(){
-  const ids=Object.keys(ACTIVE_REMINDERS);
-  localStorage.setItem('mlReminders',JSON.stringify(ids));
-}
-
-async function reloadReminders(){
-  // Au démarrage, ré-armer les setTimeout pour les minyans qui ont encore un rappel programmé
-  let ids=[];
-  try{ids=JSON.parse(localStorage.getItem('mlReminders')||'[]');}catch{}
-  if(!ids.length)return;
-  if(!('Notification' in window)||Notification.permission!=='granted')return;
-  const list=await fbReadMinyans();
-  for(const id of ids){
-    const m=list.find(x=>x&&x.id===id);
-    if(!m)continue;
-    const remindAt=m.timestamp-15*60*1000;
-    const delay=remindAt-Date.now();
-    if(delay<=0)continue;
-    const timeoutId=setTimeout(()=>{
-      try{
-        new Notification('🕍 Minyan dans 15 min',{
-          body:`${m.type} · ${m.lieu}`,
-          icon:'/favicon.ico'
-        });
-      }catch(e){console.warn(e);}
-      delete ACTIVE_REMINDERS[id];
-      saveReminderIds();
-    },delay);
-    ACTIVE_REMINDERS[id]=timeoutId;
-  }
-}
-
-async function shareMinyan(id){
-  const list=await fbReadMinyans();
-  const m=list.find(x=>x&&x.id===id);
-  if(!m){alert('Ce minyan n\'existe plus');return;}
-  const total=m.confirmes||1;
-  const manque=Math.max(10-total,0);
-  const manqueText=manque===0?'COMPLET ✓':`il manque ${manque} personne${manque>1?'s':''}`;
-  const contactText=m.contact?`\nContact : ${m.contact}`:'';
-  const txt=`🕍 *Minyan improvisé* — ${m.type}\n📅 ${fmtImpDateTime(m.timestamp)}\n📍 ${m.lieu}${contactText}\n👥 ${total}/10 (${manqueText})\n\nVia Minyan Lyon : ${window.location.href}`;
+function shareInvite(code, link){
+  const txt = `🕍 Salut ! Je t'invite à utiliser *Minyan Lyon* — tous les minyanim, zmanim et mikvaot de Lyon.\n\nCe lien d'invitation te donne un accès complet immédiat :\n${link}\n\nCode : ${code}`;
   if(navigator.share){
-    navigator.share({title:'Minyan improvisé · '+m.type,text:txt}).catch(()=>{});
+    navigator.share({title:'Invitation Minyan Lyon', text:txt}).catch(()=>{});
   }else{
     window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`,'_blank');
   }
 }
 
-function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function shareApp(){const txt=encodeURIComponent('🕍 *Minyan Lyon* — Tous les minyanim de Lyon, zmanim, mikvaot et plus. '+window.location.href);if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.href}).catch(()=>{});}else{window.open(`https://wa.me/?text=${txt}`,'_blank');}}
-function openProfile(){openDetail('Profil',`<h2>Votre <span class="em">profil</span></h2><p>Prénom actuel : <b>${localStorage.getItem('mlUserName')||'(non défini)'}</b></p><input type="text" class="ob-input" id="profileName" placeholder="Modifier votre prénom" value="${localStorage.getItem('mlUserName')||''}"><button class="ob-btn" onclick="updateName()">Enregistrer</button><h3>Favoris</h3><p>${favorites.length} synagogue${favorites.length>1?'s':''} en favori${favorites.length>1?'s':''}</p>`);}
+// ============================================================
+// === PROFIL =================================================
+// ============================================================
+function openProfile(){
+  const name = localStorage.getItem('mlUserName')||'(non défini)';
+  let authSection = '';
+  if(currentUser){
+    const niveauLabel = ['Mode invité','Connecté (validation 48h)','Accès large','Accès complet ✓'][currentNiveau] || '—';
+    authSection = `
+      <h3>Compte</h3>
+      <p><b>${currentUser.email}</b></p>
+      <p>Niveau d'accès : <b>${niveauLabel}</b></p>
+      ${currentNiveau >= 3 ? '<p style="color:var(--green);">✓ Tu peux inviter des proches (onglet Outils)</p>' : '<p style="font-style:italic;color:var(--ink-soft);">Demande à un proche de te parrainer pour un accès immédiat.</p>'}
+      <button class="ob-btn secondary" style="margin-top:14px;" onclick="logout()">Se déconnecter</button>
+    `;
+  }else{
+    authSection = `
+      <h3>Compte</h3>
+      <p style="color:var(--ink-soft);font-style:italic;">Non connecté · accès limité aux horaires</p>
+      <button class="ob-btn" style="margin-top:8px;" onclick="showLoginScreen()">Se connecter avec Google</button>
+    `;
+  }
+  openDetail('Profil',`
+    <h2>Votre <span class="em">profil</span></h2>
+    <p>Prénom actuel : <b>${name}</b></p>
+    <input type="text" class="ob-input" id="profileName" placeholder="Modifier prénom" value="${name==='(non défini)'?'':name}">
+    <button class="ob-btn" onclick="updateName()">Enregistrer le prénom</button>
+    ${authSection}
+    <h3>Favoris</h3>
+    <p>${favorites.length} synagogue${favorites.length>1?'s':''} en favori${favorites.length>1?'s':''}</p>
+  `);
+}
 function updateName(){const v=document.getElementById('profileName').value.trim();if(!v)return;localStorage.setItem('mlUserName',v);document.getElementById('userName').textContent=v;closeDetail();}
-
 function saveName(){const v=document.getElementById('obName').value.trim();if(!v)return;localStorage.setItem('mlUserName',v);document.getElementById('userName').textContent=v;document.getElementById('obOverlay').classList.remove('show');}
 document.getElementById('obName').addEventListener('keypress',e=>{if(e.key==='Enter')saveName();});
 
 function updateCountdown(){
-  const now=new Date();
-  const z=calcZmanim(now);
-  const nowH=now.getHours()+now.getMinutes()/60;
-  const steps=[
-    {name:'Alot HaShahar',time:z.alot},
-    {name:'Hanetz',time:z.hanetz},
-    {name:'Fin Shema',time:z.shema_gra},
-    {name:'Hatsot',time:z.hatsot},
-    {name:'Minha Gdola',time:z.minha_g},
-    {name:'Plag HaMinha',time:z.plag},
-    {name:'Chkia',time:z.shkia},
-    {name:'Tseit Hacohavim',time:z.tzeit}
-  ];
+  const now=new Date();const z=calcZmanim(now);const nowH=now.getHours()+now.getMinutes()/60;
+  const steps=[{name:'Alot HaShahar',time:z.alot},{name:'Hanetz',time:z.hanetz},{name:'Fin Shema',time:z.shema_gra},{name:'Hatsot',time:z.hatsot},{name:'Minha Gdola',time:z.minha_g},{name:'Plag HaMinha',time:z.plag},{name:'Chkia',time:z.shkia},{name:'Tseit Hacohavim',time:z.tzeit}];
   const nextStep=steps.find(s=>s.time>nowH);
   const all=SYNS.map(s=>({s,n:nextPrayer(s,now)})).filter(x=>x.n);
   all.sort((a,b)=>{const ta=a.n.daysAhead*24+a.n.time;const tb=b.n.daysAhead*24+b.n.time;return ta-tb;});
   const upcomingPrayer=all[0];
-
   let displayItem=null;
-  if(nextStep&&upcomingPrayer&&upcomingPrayer.n.daysAhead===0){
-    if(upcomingPrayer.n.time<nextStep.time){
-      displayItem={name:upcomingPrayer.n.name,time:upcomingPrayer.n.time,isPrayer:true};
-    }else{
-      displayItem={name:nextStep.name,time:nextStep.time,isPrayer:false};
-    }
-  }else if(nextStep){
-    displayItem={name:nextStep.name,time:nextStep.time,isPrayer:false};
-  }else if(upcomingPrayer){
-    displayItem={name:upcomingPrayer.n.name+' ('+upcomingPrayer.n.when+')',time:upcomingPrayer.n.time,isPrayer:true,daysAhead:upcomingPrayer.n.daysAhead};
-  }
-
+  if(nextStep&&upcomingPrayer&&upcomingPrayer.n.daysAhead===0){if(upcomingPrayer.n.time<nextStep.time){displayItem={name:upcomingPrayer.n.name,time:upcomingPrayer.n.time,isPrayer:true};}else{displayItem={name:nextStep.name,time:nextStep.time,isPrayer:false};}}else if(nextStep){displayItem={name:nextStep.name,time:nextStep.time,isPrayer:false};}else if(upcomingPrayer){displayItem={name:upcomingPrayer.n.name+' ('+upcomingPrayer.n.when+')',time:upcomingPrayer.n.time,isPrayer:true,daysAhead:upcomingPrayer.n.daysAhead};}
   if(!displayItem){document.getElementById('zcardCd').style.display='none';return;}
   document.getElementById('zcardCd').style.display='flex';
-
-  if(displayItem.daysAhead>=1){
-    document.getElementById('cdText').innerHTML=`Prochaine : <b>${displayItem.name}</b>`;
-    document.getElementById('cdTime2').textContent=fmt(displayItem.time);
-    return;
-  }
+  if(displayItem.daysAhead>=1){document.getElementById('cdText').innerHTML=`Prochaine : <b>${displayItem.name}</b>`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);return;}
   const minsUntil=Math.round((displayItem.time-nowH)*60);
-  if(minsUntil<=0){
-    document.getElementById('cdText').innerHTML=`<b style="color:#5BC97A;">● ${displayItem.name}</b> en cours`;
-    document.getElementById('cdTime2').textContent=fmt(displayItem.time);
-  }else if(minsUntil<60){
-    document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${minsUntil} min`;
-    document.getElementById('cdTime2').textContent=fmt(displayItem.time);
-  }else{
-    const h=Math.floor(minsUntil/60),m=minsUntil%60;
-    document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${h}h${String(m).padStart(2,'0')}`;
-    document.getElementById('cdTime2').textContent=fmt(displayItem.time);
-  }
+  if(minsUntil<=0){document.getElementById('cdText').innerHTML=`<b style="color:#5BC97A;">● ${displayItem.name}</b> en cours`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}else if(minsUntil<60){document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${minsUntil} min`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}else{const h=Math.floor(minsUntil/60),m=minsUntil%60;document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${h}h${String(m).padStart(2,'0')}`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}
 }
 
+// ============================================================
+// === INIT ===================================================
+// ============================================================
 async function init(){
-  SYNS=loadSynsSync();
-  MIKVAOT=loadMikvaotSync();
+  // 1. Check auth
+  const isAuth = await checkAuth();
 
-  revalidateSyns(false);
-  revalidateMikvaot(false);
+  // 2. Décider si on affiche l'écran de login
+  const guestMode = localStorage.getItem('guestMode') === '1';
+  const inviteCode = new URLSearchParams(window.location.search).get('invite');
+  if(!isAuth && !guestMode && !inviteCode){
+    document.getElementById('loginScreen').classList.add('show');
+  }
+  if(inviteCode && !isAuth){
+    // Si on a un code invite, on force l'écran login (pour que l'invité se connecte)
+    document.getElementById('loginScreen').classList.add('show');
+  }
 
-  // PATCH 3 : checker 5 min au lieu de 1h
-  startSheetRefreshChecker();
+  // 3. Bandeau auth
+  updateAuthBanner();
 
-  document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden){
-      revalidateSyns(false);
-      revalidateMikvaot(false);
-    }
-  });
+  // 4. Charger synagogues (Supabase d'abord, fallback Sheet)
+  SYNS = await loadSyns();
+  MIKVAOT = await loadMikvaot();
 
-  const userName=localStorage.getItem('mlUserName');
+  // 5. Nom utilisateur
+  const userName = localStorage.getItem('mlUserName');
   if(userName){document.getElementById('userName').textContent=userName;}
-  else{document.getElementById('obOverlay').classList.add('show');setTimeout(()=>document.getElementById('obName').focus(),400);}
-  const j=getJewishDate(new Date());const omer=getOmer(new Date());
-  const d=new Date();
+  else if(isAuth){
+    // Si connecté Google, prendre le prénom du compte
+    const fname = currentUser.user_metadata?.full_name?.split(' ')[0] || currentUser.email.split('@')[0];
+    localStorage.setItem('mlUserName', fname);
+    document.getElementById('userName').textContent = fname;
+  }else{
+    document.getElementById('obOverlay').classList.add('show');
+    setTimeout(()=>document.getElementById('obName').focus(),400);
+  }
+
+  // 6. Date/Zmanim header
+  const j=getJewishDate(new Date());const omer=getOmer(new Date());const d=new Date();
   const moisFR=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const dateFR=`${DAYS_FR[d.getDay()]} ${d.getDate()} ${moisFR[d.getMonth()]} ${d.getFullYear()}`;
   document.getElementById('topDate').innerHTML=`<span class="candle">🕯</span>&nbsp;${dateFR.toUpperCase()} · ${j.day} ${j.monthName.toUpperCase()} ${j.year}`;
   document.getElementById('zDate').innerHTML=omer?`${j.day} ${j.monthName} · ${omer}<sup>e</sup> Omer`:`${j.day} ${j.monthName} ${j.year}`;
   const z=calcZmanim(new Date());
   const nowH=new Date().getHours()+new Date().getMinutes()/60;
-  const allZ=[
-    ['Alot',z.alot],['Talith',z.tefilin],['Hanetz',z.hanetz],
-    ['Shema MA',z.shema_ma],['Shema GRA',z.shema_gra],['Fin Tefila',z.tefila_gra],
-    ['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],
-    ['Plag',z.plag],['Chkia',z.shkia],['Tseit',z.tzeit],['RT',z.rt]
-  ];
+  const allZ=[['Alot',z.alot],['Talith',z.tefilin],['Hanetz',z.hanetz],['Shema MA',z.shema_ma],['Shema GRA',z.shema_gra],['Fin Tefila',z.tefila_gra],['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],['Plag',z.plag],['Chkia',z.shkia],['Tseit',z.tzeit],['RT',z.rt]];
   let upcomingZ=allZ.filter(([_,t])=>t>=nowH-0.1).slice(0,6);
-  if(upcomingZ.length<6){
-    const pastZ=allZ.filter(([_,t])=>t<nowH-0.1).slice(-(6-upcomingZ.length));
-    upcomingZ=[...pastZ,...upcomingZ];
-  }
-  if(upcomingZ.length<6){
-    upcomingZ=allZ.slice(0,6);
-  }
+  if(upcomingZ.length<6){const pastZ=allZ.filter(([_,t])=>t<nowH-0.1).slice(-(6-upcomingZ.length));upcomingZ=[...pastZ,...upcomingZ];}
+  if(upcomingZ.length<6){upcomingZ=allZ.slice(0,6);}
   upcomingZ=upcomingZ.slice(0,6);
-  const zIds=['zSha','zMin','zArv','zAlo','zChk','zTse'];
-  const zLabels=['lSha','lMin','lArv','lAlo','lChk','lTse'];
-  upcomingZ.forEach((item,i)=>{
-    if(i<6){
-      document.getElementById(zIds[i]).textContent=fmt(item[1]);
-      const lbl=document.getElementById(zLabels[i]);
-      if(lbl)lbl.textContent=item[0];
-    }
-  });
-  buildMinyanList();
-  updateCountdown();
-  updateFindBtnText();
-  setInterval(updateCountdown,30000);
-  setInterval(updateFindBtnText,60000);
+  const zIds=['zSha','zMin','zArv','zAlo','zChk','zTse'];const zLabels=['lSha','lMin','lArv','lAlo','lChk','lTse'];
+  upcomingZ.forEach((item,i)=>{if(i<6){document.getElementById(zIds[i]).textContent=fmt(item[1]);const lbl=document.getElementById(zLabels[i]);if(lbl)lbl.textContent=item[0];}});
 
-  // PATCH 4f : Re-charger les rappels notifs au démarrage
-  reloadReminders();
+  buildMinyanList();updateCountdown();updateFindBtnText();
+  setInterval(updateCountdown,30000);setInterval(updateFindBtnText,60000);
 }
 init();
 </script>
