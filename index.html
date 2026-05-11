@@ -38,19 +38,9 @@
 html,body{height:100%;}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;overflow-x:hidden;}
 
-/* WATERMARK invisible (apparaît sur captures d'écran) */
+/* WATERMARK désactivé — peut être réactivé plus tard si besoin */
 body.watermark::before {
-  content: attr(data-user);
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  font-size: 56px;
-  font-family: var(--serif);
-  color: rgba(0,0,0,0.025);
-  pointer-events: none;
-  z-index: 9999;
-  white-space: nowrap;
-  user-select: none;
+  display: none;
 }
 
 .app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:88px;}
