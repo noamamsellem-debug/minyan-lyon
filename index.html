@@ -1438,40 +1438,6 @@ function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
 function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0)return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
 
-// Détermine la prière "à privilégier" selon les zmanim
-// (utilisé en mode invité pour afficher 1 seule heure)
-function getCurrentPrayerWindow(now){
-  const z = calcZmanim(now);
-  const nowH = now.getHours() + now.getMinutes()/60;
-  // Avant Hatsot (mi-journée) → Shaharit
-  if(nowH < z.hatsot) return 'sh';
-  // Entre Hatsot et Chkia (coucher) → Minha
-  if(nowH < z.shkia) return 'mi';
-  // Après Chkia → Arvit (jusqu'à minuit)
-  if(nowH < 24) return 'ar';
-  return 'sh';
-}
-
-// Trouve l'horaire du jour de la prière "fenêtre actuelle" pour une syn donnée
-// Retourne {time:7.5, label:'Shaharit', type:'sh'} ou null
-function getGuestDisplayPrayer(syn, now){
-  const dk = getDayKey(now);
-  const today = syn.h[dk];
-  if(!today) return null;
-  const window = getCurrentPrayerWindow(now);
-  const labels = {sh:'Shaharit', mi:'Minha', ar:'Arvit'};
-  const val = today[window];
-  if(val){
-    return {time:val, label:labels[window], type:window};
-  }
-  // Pas d'horaire pour la prière de la fenêtre actuelle → essayer la suivante
-  const fallbackOrder = window === 'sh' ? ['mi','ar'] : window === 'mi' ? ['ar','sh'] : ['sh','mi'];
-  for(const t of fallbackOrder){
-    if(today[t]) return {time:today[t], label:labels[t], type:t};
-  }
-  return null;
-}
-
 function nextPrayer(syn,now){
   const dk=getDayKey(now);const today=syn.h[dk];const nowH=now.getHours()+now.getMinutes()/60;
   if(today){
@@ -1518,50 +1484,7 @@ function buildMinyanList(){
   }else{
     entries.sort((a,b)=>{const ta=a.next.daysAhead*24+a.next.time;const tb=b.next.daysAhead*24+b.next.time;return ta-tb;});
   }
-  if(entries.length===0){list.insertAdjacentHTML('beforeend','<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>');return;}
-
-  // === MODE INVITÉ (niveau 0 = pas connecté) : carte simplifiée ===
-  const isGuest = !currentUser;
-  if(isGuest){
-    entries.forEach(e=>{
-      const fav=favorites.includes(e.syn.id);
-      const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[e.syn.rite]||e.syn.rite;
-      // Récupère la prière de la fenêtre actuelle (selon zmanim)
-      const guestPrayer = getGuestDisplayPrayer(e.syn, now);
-      let timeBlock;
-      if(guestPrayer){
-        timeBlock = `
-          <div class="time-cell next" style="grid-column:1/-1;padding:14px 12px;">
-            <div class="time-cell-lbl">${guestPrayer.label}</div>
-            <div class="time-cell-val" style="font-size:22px;">${guestPrayer.time}</div>
-          </div>`;
-      }else{
-        timeBlock = `
-          <div class="time-cell empty" style="grid-column:1/-1;padding:14px 12px;">
-            <div class="time-cell-val">Pas d'office aujourd'hui</div>
-          </div>`;
-      }
-      const card=document.createElement('div');
-      card.className='syn-card';
-      card.innerHTML=`
-        <button class="syn-fav${fav?' on':''}" onclick="toggleFav(${e.syn.id},event)">${fav?'❤':'♡'}</button>
-        <div class="syn-card-head">
-          <div style="flex:1;">
-            <div class="syn-card-name">${e.syn.name}</div>
-            <div class="syn-card-meta"><span class="chip">${riteLabel}</span></div>
-          </div>
-        </div>
-        <div class="syn-card-times" style="grid-template-columns:1fr;">
-          ${timeBlock}
-        </div>
-      `;
-      card.onclick=(ev)=>{if(ev.target.closest('.syn-fav'))return;openGuestSynBlock(e.syn);};
-      list.appendChild(card);
-    });
-    return;
-  }
-
-  // === MODE CONNECTÉ (niveau 1+) : affichage complet ===
+  if(entries.length===0){list.innerHTML='<div style="padding:40px 22px;text-align:center;color:var(--ink-faint);font-style:italic;">Aucun minyan trouvé</div>';return;}
   const dk=getDayKey(now);
   const isLunJeu=dk==='lundi_jeudi';
   const nowH=now.getHours()+now.getMinutes()/60;
@@ -1569,7 +1492,7 @@ function buildMinyanList(){
     const today=e.syn.h[dk];
     const fav=favorites.includes(e.syn.id);
     const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[e.syn.rite]||e.syn.rite;
-    const distHTML=userLocation && e.syn.addr ?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
+    const distHTML=userLocation&&e.syn.addr?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
     const buildCell=(label,val,type)=>{
       if(!val){return `<div class="time-cell empty"><div class="time-cell-lbl">${label}</div><div class="time-cell-val">—</div></div>`;}
       const t=parseHour(val);
@@ -1579,13 +1502,7 @@ function buildMinyanList(){
       return `<div class="time-cell ${cls}"><div class="time-cell-lbl">${label}</div><div class="time-cell-val">${val}</div></div>`;
     };
     const torahLabel=isLunJeu?'<span class="torah-mark">Torah</span>':'';
-    // Adresse : visible si niveau >= 2, sinon "Connectez-vous pour voir"
-    let addrHTML;
-    if(e.syn.addr){
-      addrHTML = `<div class="syn-card-addr">${e.syn.addr}</div>`;
-    }else{
-      addrHTML = `<div class="syn-card-addr"><span class="locked-val">Adresse masquée</span></div>`;
-    }
+    const addrLine=e.syn.addr?`<div class="syn-card-addr">${e.syn.addr}</div>`:'';
     const card=document.createElement('div');
     card.className='syn-card';
     card.innerHTML=`
@@ -1593,7 +1510,7 @@ function buildMinyanList(){
       <div class="syn-card-head">
         <div style="flex:1;">
           <div class="syn-card-name">${e.syn.name}${torahLabel}</div>
-          ${addrHTML}
+          ${addrLine}
           <div class="syn-card-meta"><span class="chip">${riteLabel}</span>${distHTML}</div>
         </div>
       </div>
@@ -1606,20 +1523,6 @@ function buildMinyanList(){
     card.onclick=(ev)=>{if(ev.target.closest('.syn-fav'))return;openSynDetail(e.syn);};
     list.appendChild(card);
   });
-}
-
-// Pour le mode invité : popup qui invite à se connecter au clic sur une carte
-function openGuestSynBlock(syn){
-  openDetail(syn.name, `
-    <h2>${syn.name}</h2>
-    <div class="mik-locked" style="margin:14px 0;">
-      <div class="mik-locked-ic">🔒</div>
-      <h3>Détails réservés</h3>
-      <p>Pour voir l'adresse, le planning complet et les détails de cette synagogue, connectez-vous avec votre compte Google.</p>
-      <button class="mik-locked-btn" onclick="closeDetail();showLoginScreen();">Se connecter</button>
-    </div>
-    <p style="text-align:center;color:var(--ink-soft);font-size:13px;font-style:italic;">Aucune donnée personnelle n'est partagée.</p>
-  `);
 }
 
 function setFilter(btn,f){currentFilter=f;btn.parentElement.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');buildMinyanList();}
