@@ -1202,20 +1202,61 @@ const MB=[
   {ref:"O.H. 90:5",text:"On doit toujours s'efforcer de prier en minyan, car la prière de la communauté n'est jamais repoussée."},
   {ref:"O.H. 1:1",text:"Sois fort comme le tigre, léger comme l'aigle, rapide comme le cerf et puissant comme le lion pour accomplir la volonté de ton Père qui est aux cieux."},
   {ref:"O.H. 2:1",text:"Quand l'homme se réveille, qu'il sache que le Roi des Rois se tient au-dessus de lui et le voit. Il se lèvera donc avec empressement pour Le servir."},
+  {ref:"O.H. 4:1",text:"Au lever, on se lave immédiatement les mains avec un récipient avant de marcher quatre coudées."},
+  {ref:"O.H. 6:1",text:"On ne prononce pas de bénédiction inutile (berakha levatala). Celui qui prononce une bénédiction superflue transgresse l'interdit de prononcer le nom de l'Éternel en vain."},
   {ref:"O.H. 25:1",text:"La mitsva des téfilines est très grande, et l'homme doit y être particulièrement vigilant."},
-  {ref:"O.H. 89:1",text:"Tout homme est obligé de prier Shaharit avant de s'occuper de ses affaires."}
+  {ref:"O.H. 46:1",text:"Les Bénédictions du matin ont été instituées par les Sages pour être récitées chaque jour."},
+  {ref:"O.H. 61:2",text:"Il faut se concentrer (kavana) lors du Shema, et particulièrement sur le premier verset qui est l'essence de l'acceptation du joug de la royauté divine."},
+  {ref:"O.H. 89:1",text:"Tout homme est obligé de prier Shaharit avant de s'occuper de ses affaires."},
+  {ref:"O.H. 98:1",text:"Pendant la prière, on aura à l'esprit que la Présence Divine se tient en face de soi, et on se conduira comme quelqu'un qui parle devant le Roi."},
+  {ref:"O.H. 111:1",text:"On enchaîne immédiatement la Guéoula à la Tefila (Amida), sans interruption."},
+  {ref:"O.H. 128:1",text:"C'est une mitsva positive que les Cohanim lèvent leurs mains pour bénir Israël chaque jour."},
+  {ref:"O.H. 151:1",text:"On a coutume d'honorer la synagogue et la maison d'étude. Il est interdit d'y agir avec légèreté."},
+  {ref:"O.H. 155:1",text:"Après la prière, on se rend à la maison d'étude pour fixer un temps à la Torah."},
+  {ref:"O.H. 231:1",text:"Que toutes tes actions soient pour l'amour du Ciel."},
+  {ref:"O.H. 263:1",text:"L'allumage des bougies de Shabbat est une obligation."},
+  {ref:"O.H. 271:1",text:"C'est une mitsva de faire le Kiddoush sur le vin. À défaut, on le fera sur le pain."},
+  {ref:"O.H. 282:1",text:"Chaque shabbat on lit la paracha de la semaine."},
+  {ref:"O.H. 300:1",text:"Il est obligatoire de faire la Havdala à la sortie du Shabbat sur le vin."},
+  {ref:"O.H. 328:1",text:"Tout danger pour la vie repousse le Shabbat. C'est même une mitsva de profaner le Shabbat pour sauver une vie."},
+  {ref:"O.H. 429:1",text:"On étudie et expose les lois de Pessah trente jours avant la fête."},
+  {ref:"O.H. 472:1",text:"Chaque homme doit se considérer, le soir du Séder, comme s'il était lui-même sorti d'Égypte."},
+  {ref:"O.H. 489:1",text:"C'est une mitsva positive de la Torah de compter sept semaines complètes à partir du jour de l'offrande du Omer."},
+  {ref:"O.H. 606:1",text:"La veille de Yom Kippour, c'est une mitsva de demander pardon à son prochain."},
+  {ref:"O.H. 625:1",text:"C'est une mitsva positive de demeurer dans la souccah pendant sept jours."},
+  {ref:"O.H. 670:1",text:"La mitsva des bougies de Hanouka est de publier le miracle. On allume à l'entrée de la maison."},
+  {ref:"O.H. 685:1",text:"C'est une mitsva positive de la Torah de lire la Méguila la nuit de Pourim et le jour."},
+  {ref:"O.H. 1:3",text:"Avant que n'arrive le moment de la prière du matin, on s'occupe de Torah afin d'entrer dans la prière à partir de paroles de Torah."}
 ];
 
 const FETES=[
+  {name:"Lag BaOmer",note:"33ème jour de l'Omer",date:new Date(2026,4,4)},
+  {name:"Yom Yeroushalayim",note:"28 Iyar",date:new Date(2026,4,14)},
   {name:"Chavouot J1",note:"6 Sivan",date:new Date(2026,4,22)},
+  {name:"Chavouot J2",note:"7 Sivan",date:new Date(2026,4,23)},
   {name:"Jeûne du 17 Tamouz",note:"17 Tamouz",date:new Date(2026,6,12)},
   {name:"Tisha BeAv",note:"9 Av",date:new Date(2026,7,2)},
-  {name:"Roch Hachana 5787",note:"1 Tichri 5787",date:new Date(2026,8,10)}
+  {name:"Roch Hachana 5787",note:"1 Tichri 5787",date:new Date(2026,8,10)},
+  {name:"Yom Kippour",note:"10 Tichri",date:new Date(2026,8,19)},
+  {name:"Souccot J1",note:"15 Tichri",date:new Date(2026,8,24)},
+  {name:"Sim'hat Torah",note:"22 Tichri",date:new Date(2026,9,2)},
+  {name:"Hanouka J1",note:"25 Kislev",date:new Date(2026,11,5)}
 ];
-const BIRKAT=[];
+const BIRKAT=[
+  {mois:"Iyar 5786",debut:new Date(2026,3,22),fin:new Date(2026,4,1)},
+  {mois:"Sivan 5786",debut:new Date(2026,4,21),fin:new Date(2026,4,31)},
+  {mois:"Tamouz 5786",debut:new Date(2026,5,19),fin:new Date(2026,5,29)},
+  {mois:"Av 5786",debut:new Date(2026,6,19),fin:new Date(2026,6,29)},
+  {mois:"Eloul 5786",debut:new Date(2026,7,17),fin:new Date(2026,7,27)},
+  {mois:"Tichri 5787",debut:new Date(2026,8,16),fin:new Date(2026,8,25)}
+];
 
 const DAF_REF=new Date(2026,4,3);
-const DAF_LIST=[{n:"Houllin",s:3,e:142},{n:"Bekhorot",s:2,e:61}];
+const DAF_LIST=[
+  {n:"Houllin",s:3,e:142},{n:"Bekhorot",s:2,e:61},{n:"Erkhin",s:2,e:34},{n:"Temourah",s:2,e:34},
+  {n:"Krithot",s:2,e:28},{n:"Meïla",s:2,e:22},{n:"Kinim",s:22,e:25},{n:"Tamid",s:25,e:33},
+  {n:"Midot",s:33,e:37},{n:"Nidda",s:2,e:73}
+];
 function getDafYomi(d){
   const t=new Date(d);t.setHours(0,0,0,0);
   const r=new Date(DAF_REF);r.setHours(0,0,0,0);
@@ -1624,7 +1665,7 @@ function updateFindBtnText(){if(geolocMode)return;document.getElementById('findS
 function openDetail(title,bodyHTML){document.getElementById('detailTitle').textContent=title;document.getElementById('detailBody').innerHTML=bodyHTML;document.getElementById('detailView').classList.add('show');}
 function closeDetail(){document.getElementById('detailView').classList.remove('show');}
 
-function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div>`);}
+function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem, même lorsque les intentions individuelles ne sont pas parfaites.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div><h3>2. Une obligation rigoureuse</h3><p>On doit prier chaque jour en minyan, sauf cas de force majeure (onès). Certains avis considèrent même cette obligation comme absolue, nécessitant de parcourir une distance pour trouver un minyan.</p><h3>3. Les "Davar Shebikdousha"</h3><p>Certains éléments sacrés ne peuvent être récités qu'en présence d'un minyan :</p><ul><li>Le <b>Kaddish</b></li><li>La <b>Kedousha</b></li><li>Le <b>Barekhou</b></li><li>Les <b>13 Attributs de Miséricorde</b></li><li>La <b>répétition de la Amida</b> par le Chaliah Tsibour</li></ul><h3>4. Préférer le minyan au lieu fixe</h3><p>Si aucun minyan ne s'est réuni à votre endroit habituel, déplacez-vous pour en trouver un — la valeur du minyan est supérieure à celle du lieu fixe.</p><h3>5. La répétition de la Amida</h3><p>Les Sages ont institué que l'officiant (Chaliah Tsibour) répète la Amida à voix haute, permettant à ceux qui ne sont pas experts ou qui n'ont pas eu la kavana lors de leur prière silencieuse de s'acquitter de leur obligation.</p><h3>En résumé</h3><p>La prière en minyan est <b>hautement valorisée</b> dans le judaïsme — plus apte à être acceptée par Hachem, et indispensable pour les "choses de sainteté".</p><div class="sources">Sources : Yalkout Yossef · Peninei Halakhah · Aroukh HaShoulhan · B'Mareh HaBazak (Vol. III, IX, X)</div>`);}
 
 function openSynDetail(syn){
   const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lun & Jeu'],['mardi_mercredi','Mar & Mer']];
