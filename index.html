@@ -646,31 +646,77 @@ async function processInviteCodeIfAny(){
   if(!code) code = localStorage.getItem('pendingInviteCode');
   if(!code || !currentUser) return;
   try{
-    // Vérifier que le code existe et n'a pas été utilisé
-    const {data:inv} = await supabaseClient
+    // 1. Vérifier que le code existe
+    const {data:inv, error:invErr} = await supabaseClient
       .from('invitations')
       .select('*')
       .eq('code', code)
       .single();
-    if(inv && !inv.utilise_par && inv.emis_par !== currentUser.id){
-      // Marquer l'invitation comme utilisée
-      await supabaseClient
-        .from('invitations')
-        .update({utilise_par: currentUser.id, utilise_le: new Date().toISOString()})
-        .eq('code', code);
-      // Mettre à jour le profil avec parrainage_par
-      await supabaseClient
-        .from('profiles')
-        .update({parrainage_par: inv.emis_par})
-        .eq('id', currentUser.id);
-      // Recalculer le niveau
-      await calculateNiveau();
+
+    if(invErr || !inv){
+      console.warn('Code invitation invalide:', code);
       localStorage.removeItem('pendingInviteCode');
-      // Nettoyer l'URL
+      return;
+    }
+
+    // 2. Vérifier que ce n'est pas l'inviteur lui-même
+    if(inv.emis_par === currentUser.id){
+      console.warn('On ne peut pas utiliser son propre code');
+      localStorage.removeItem('pendingInviteCode');
+      return;
+    }
+
+    // 3. Vérifier que la limite n'est pas atteinte
+    const maxUsages = inv.max_usages || 10;
+    const nbUsages = inv.nb_usages || 0;
+    if(nbUsages >= maxUsages){
+      alert('Ce lien d\'invitation a atteint sa limite de ' + maxUsages + ' personnes. Demande un nouveau lien à ton parrain.');
+      localStorage.removeItem('pendingInviteCode');
+      return;
+    }
+
+    // 4. Vérifier que CET utilisateur n'a pas déjà utilisé ce code
+    const {data:existingUse} = await supabaseClient
+      .from('invitations_uses')
+      .select('id')
+      .eq('code', code)
+      .eq('utilise_par', currentUser.id)
+      .maybeSingle();
+
+    if(existingUse){
+      // Déjà utilisé par ce user, on ne fait rien (mais on nettoie l'URL)
+      localStorage.removeItem('pendingInviteCode');
       const url = new URL(window.location);
       url.searchParams.delete('invite');
       window.history.replaceState({}, '', url);
+      return;
     }
+
+    // 5. Enregistrer l'usage
+    await supabaseClient
+      .from('invitations_uses')
+      .insert({code: code, utilise_par: currentUser.id});
+
+    // 6. Incrémenter le compteur global du code
+    await supabaseClient
+      .from('invitations')
+      .update({nb_usages: nbUsages + 1})
+      .eq('code', code);
+
+    // 7. Mettre à jour le profil avec parrainage_par (= niveau 3 immédiat)
+    await supabaseClient
+      .from('profiles')
+      .update({parrainage_par: inv.emis_par})
+      .eq('id', currentUser.id);
+
+    // 8. Recalculer le niveau
+    await calculateNiveau();
+    localStorage.removeItem('pendingInviteCode');
+
+    // 9. Nettoyer l'URL
+    const url = new URL(window.location);
+    url.searchParams.delete('invite');
+    window.history.replaceState({}, '', url);
   }catch(e){
     console.warn('processInvite:', e.message);
   }
@@ -1735,12 +1781,49 @@ async function openInvite(){
     alert('Le parrainage est réservé aux comptes vérifiés (+7 jours ou parrainés).');
     return;
   }
-  openDetail('Inviter un ami',`
-    <h2>Inviter <span class="em">un proche</span></h2>
-    <p>Tu peux inviter une personne de confiance. Elle aura un accès complet immédiat (adresses + téléphones + mikvaot).</p>
-    <p>Ne partage ce lien qu'avec une personne que tu connais personnellement.</p>
+
+  // Charger les liens existants de cet utilisateur
+  let existingLinks = '';
+  try{
+    const {data:myInvs} = await supabaseClient
+      .from('invitations')
+      .select('*')
+      .eq('emis_par', currentUser.id)
+      .order('cree_le', {ascending: false});
+
+    if(myInvs && myInvs.length > 0){
+      existingLinks = '<h3 style="margin-top:20px;">Mes liens actifs</h3>';
+      for(const inv of myInvs){
+        const max = inv.max_usages || 10;
+        const used = inv.nb_usages || 0;
+        const complet = used >= max;
+        const link = `${window.location.origin}${window.location.pathname}?invite=${inv.code}`;
+        existingLinks += `
+          <div style="background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;">
+            <div style="font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:0.12em;color:var(--ink);margin-bottom:6px;">${inv.code}</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="flex:1;height:6px;background:var(--line-soft);border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${(used/max)*100}%;background:${complet?'#7BA875':'var(--gold)'};"></div>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:${complet?'#7BA875':'var(--ink)'};">${used}/${max}</div>
+            </div>
+            ${complet
+              ? '<div style="font-size:12px;color:#7BA875;font-weight:600;">✓ Lien complet (10 personnes inscrites)</div>'
+              : `<button class="invite-btn" style="margin-top:4px;" onclick="shareInvite('${inv.code}','${link.replace(/'/g,"\\\\'")}')">📤 Partager via WhatsApp (${max-used} place${max-used>1?'s':''} restante${max-used>1?'s':''})</button>`
+            }
+          </div>
+        `;
+      }
+    }
+  }catch(e){console.warn(e);}
+
+  openDetail('Inviter des proches',`
+    <h2>Inviter <span class="em">des proches</span></h2>
+    <p>Un lien d'invitation peut être utilisé par <b>10 personnes maximum</b>. Idéal pour partager dans un WhatsApp de communauté.</p>
+    <p style="font-size:13px;color:var(--ink-soft);">Chaque invité aura un accès complet immédiat. Ne partage qu'avec des personnes de confiance.</p>
     <div id="inviteResultArea"></div>
-    <button class="ob-btn" onclick="generateInvite()">✉️ Générer un lien d'invitation</button>
+    <button class="ob-btn" onclick="generateInvite()">✉️ Générer un nouveau lien</button>
+    ${existingLinks}
   `);
 }
 
@@ -1749,7 +1832,7 @@ async function generateInvite(){
   try{
     const {data, error} = await supabaseClient
       .from('invitations')
-      .insert({emis_par: currentUser.id})
+      .insert({emis_par: currentUser.id, max_usages: 10, nb_usages: 0})
       .select()
       .single();
     if(error){alert('Erreur : ' + error.message); return;}
@@ -1758,17 +1841,19 @@ async function generateInvite(){
     const resultArea = document.getElementById('inviteResultArea');
     resultArea.innerHTML = `
       <div class="invite-card">
-        <h4>✅ Lien généré</h4>
-        <p>Voici ton code unique. Il peut être utilisé une seule fois.</p>
+        <h4>✅ Nouveau lien généré</h4>
+        <p>Ce lien peut être utilisé par 10 personnes. Partage-le sur ton WhatsApp de communauté !</p>
         <div class="invite-code-display">${code}</div>
         <button class="invite-btn" onclick="shareInvite('${code}','${link.replace(/'/g,"\\\\'")}')">📤 Partager via WhatsApp</button>
       </div>
     `;
+    // Recharger la liste après 1s pour voir le nouveau lien dans "Mes liens actifs"
+    setTimeout(()=>openInvite(), 1500);
   }catch(e){alert('Erreur : ' + e.message);}
 }
 
 function shareInvite(code, link){
-  const txt = `🕍 Salut ! Je t'invite à utiliser *Minyan Lyon* — tous les minyanim, zmanim et mikvaot de Lyon.\n\nCe lien d'invitation te donne un accès complet immédiat :\n${link}\n\nCode : ${code}`;
+  const txt = `🕍 Salut ! Je t'invite à utiliser *Minyan Lyon* — tous les minyanim, zmanim et mikvaot de Lyon.\n\nCe lien d'invitation te donne un accès complet immédiat (valable pour 10 personnes au total) :\n${link}`;
   if(navigator.share){
     navigator.share({title:'Invitation Minyan Lyon', text:txt}).catch(()=>{});
   }else{
