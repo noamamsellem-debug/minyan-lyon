@@ -391,6 +391,28 @@ body.watermark::before {
 .home-imp-pill.urgent{background:var(--red);color:#fff;animation:urgPulse 1.6s ease-in-out infinite;}
 .home-imp-addr{font-size:12px;color:#7A5530;margin-bottom:4px;}
 .home-imp-bolt{position:absolute;top:12px;right:14px;font-size:14px;opacity:0.5;}
+
+/* === SYN ADMIN === */
+.adm-row{background:var(--card);border:1.5px solid var(--line-soft);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.adm-row-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.adm-name{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.adm-pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:10.5px;font-weight:600;letter-spacing:0.04em;}
+.adm-pill.ok{background:rgba(91,142,91,0.18);color:#4F7349;}
+.adm-pill.stale{background:rgba(196,83,57,0.18);color:#C45339;}
+.adm-pill.none{background:var(--bg-soft);color:var(--ink-soft);}
+.adm-link{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;}
+.adm-link code{font-size:11px;color:var(--ink-soft);background:var(--bg-soft);padding:3px 7px;border-radius:6px;font-family:monospace;}
+.adm-mini{padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.adm-mini:active{transform:scale(0.97);}
+.adm-mini.danger{color:var(--red);border-color:rgba(196,83,57,0.4);}
+.adm-day{margin:18px 0;padding:14px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;}
+.adm-day h3{margin-bottom:10px;font-family:var(--serif);font-size:15px;}
+.adm-day-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.adm-day-grid label{display:block;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.adm-input{margin-bottom:0!important;}
+.tool-card.owner{background:linear-gradient(135deg,#161616 0%,#2a2a26 100%);color:var(--gold-soft);}
+.tool-card.owner .tool-info .t{color:var(--gold);}
+.tool-card.owner .tool-info .s{color:rgba(248,233,194,0.7);}
 </style>
 </head>
 <body>
@@ -525,7 +547,6 @@ body.watermark::before {
       <button class="f-chip mfilt on" onclick="setMikveFilter(this,'all')">Tous</button>
       <button class="f-chip mfilt" onclick="setMikveFilter(this,'women')">♀ Femmes</button>
       <button class="f-chip mfilt" onclick="setMikveFilter(this,'men')">♂ Hommes</button>
-      <button class="f-chip mfilt" onclick="setMikveFilter(this,'both')">⚭ Mixte</button>
     </div>
     <div class="section-title" id="mikvaotSectionTitle"><div class="t">Mikvaot de Lyon</div></div>
     <div id="mikvaotList"></div>
@@ -1423,7 +1444,8 @@ function parseSynsRows(rows){
 
 async function loadSynsFromSheet(){
   try{
-    const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
+    const bust=Math.floor(Date.now()/60000); // change toutes les 60s pour contourner le cache CDN Google
+    const res=await fetch(SHEET_URLS.syns+'&t='+bust,{cache:'no-cache'});
     if(!res.ok)return null;
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1442,7 +1464,8 @@ function parseMikvaotRows(rows){
 }
 async function loadMikvaotFromSheet(){
   try{
-    const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
+    const bust=Math.floor(Date.now()/60000);
+    const res=await fetch(SHEET_URLS.mikvaot+'&t='+bust,{cache:'no-cache'});
     if(!res.ok)return null;
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1452,12 +1475,15 @@ async function loadMikvaotFromSheet(){
 }
 
 async function loadSyns(){
-  // 1. Supabase (source de vérité)
-  let syns = await loadSynsFromSupabase();
-  // 2. Fallback Sheet si Supabase ne répond pas
+  // 1. Google Sheet (source de vérité — édité par toi)
+  let syns = await loadSynsFromSheet();
+  // 2. Fallback Supabase si le Sheet est inaccessible
   if(!syns || syns.length === 0){
-    syns = await loadSynsFromSheet();
+    syns = await loadSynsFromSupabase();
   }
+  // 1.5. Charger les overrides Firebase (soumissions des synagogues elles-mêmes)
+  try{ SYN_OVERRIDES = await fbReadSynOverrides(); }catch{}
+  if(syns && syns.length) applySynOverrides(syns);
   // 3. Fallback cache local
   if(!syns || syns.length === 0){
     try{
@@ -2230,12 +2256,14 @@ function openProfile(){
       <button class="ob-btn" style="margin-top:8px;" onclick="showLoginScreen()">Se connecter avec Google</button>
     `;
   }
+  const ownerSection=isOwner()?`<h3>Administration</h3><button class="ob-btn" onclick="closeDetail();openOwnerAdmin();">🔑 Gérer les liens admin synagogues</button>`:'';
   openDetail('Profil',`
     <h2>Votre <span class="em">profil</span></h2>
     <p>Prénom actuel : <b>${name}</b></p>
     <input type="text" class="ob-input" id="profileName" placeholder="Modifier prénom" value="${name==='(non défini)'?'':name}">
     <button class="ob-btn" onclick="updateName()">Enregistrer le prénom</button>
     ${authSection}
+    ${ownerSection}
     <h3>Favoris</h3>
     <p>${favorites.length} synagogue${favorites.length>1?'s':''} en favori${favorites.length>1?'s':''}</p>
   `);
@@ -2258,6 +2286,182 @@ function updateCountdown(){
   if(displayItem.daysAhead>=1){document.getElementById('cdText').innerHTML=`Prochaine : <b>${displayItem.name}</b>`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);return;}
   const minsUntil=Math.round((displayItem.time-nowH)*60);
   if(minsUntil<=0){document.getElementById('cdText').innerHTML=`<b style="color:#5BC97A;">● ${displayItem.name}</b> en cours`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}else if(minsUntil<60){document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${minsUntil} min`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}else{const h=Math.floor(minsUntil/60),m=minsUntil%60;document.getElementById('cdText').innerHTML=`<b>${displayItem.name}</b> dans ${h}h${String(m).padStart(2,'0')}`;document.getElementById('cdTime2').textContent=fmt(displayItem.time);}
+}
+
+// ============================================================
+// === SYNAGOGUE ADMIN (lien d'édition par synagogue) =========
+// ============================================================
+const OWNER_EMAILS=['noamamsellem@gmail.com'];
+const SYN_OVERRIDE_FRESH_MS=8*24*60*60*1000; // 8 jours
+let SYN_OVERRIDES={};
+
+function isOwner(){return !!(currentUser&&currentUser.email&&OWNER_EMAILS.includes(currentUser.email.toLowerCase()));}
+
+function randToken(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<24;i++)s+=a[Math.floor(Math.random()*a.length)];return s;}
+function buildSynAdminUrl(token){const u=new URL(window.location.origin+window.location.pathname);u.searchParams.set('syn-admin',token);return u.toString();}
+
+async function fbReadSynAdmins(){
+  if(!FB_ENABLED()){try{return JSON.parse(localStorage.getItem('mlSynAdmins')||'{}');}catch{return {};}}
+  const url=`${FIREBASE_CONFIG.databaseURL}/syn_admins.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)return {};const d=await r.json();return d||{};}catch{return {};}
+}
+async function fbWriteSynAdmin(synId,obj){
+  if(!FB_ENABLED()){const all=await fbReadSynAdmins();all[synId]=obj;localStorage.setItem('mlSynAdmins',JSON.stringify(all));return true;}
+  const url=`${FIREBASE_CONFIG.databaseURL}/syn_admins/${synId}.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});return r.ok;}catch{return false;}
+}
+async function fbDeleteSynAdmin(synId){
+  if(!FB_ENABLED()){const all=await fbReadSynAdmins();delete all[synId];localStorage.setItem('mlSynAdmins',JSON.stringify(all));return true;}
+  const url=`${FIREBASE_CONFIG.databaseURL}/syn_admins/${synId}.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{const r=await fetch(url,{method:'DELETE'});return r.ok;}catch{return false;}
+}
+async function fbReadSynOverrides(){
+  if(!FB_ENABLED()){try{return JSON.parse(localStorage.getItem('mlSynOverrides')||'{}');}catch{return {};}}
+  const url=`${FIREBASE_CONFIG.databaseURL}/syn_overrides.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)return {};const d=await r.json();return d||{};}catch{return {};}
+}
+async function fbWriteSynOverride(synId,obj){
+  if(!FB_ENABLED()){const all=await fbReadSynOverrides();all[synId]=obj;localStorage.setItem('mlSynOverrides',JSON.stringify(all));return true;}
+  const url=`${FIREBASE_CONFIG.databaseURL}/syn_overrides/${synId}.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});return r.ok;}catch{return false;}
+}
+
+// Applique les overrides Firebase (frais < 8 jours) sur SYNS, en place
+function applySynOverrides(syns){
+  const now=Date.now();
+  for(const syn of syns){
+    const ov=SYN_OVERRIDES[String(syn.id)];
+    if(!ov||!ov.updatedAt)continue;
+    if(now-ov.updatedAt>SYN_OVERRIDE_FRESH_MS)continue;
+    if(ov.h)syn.h=ov.h;
+    syn.overrideUpdatedAt=ov.updatedAt;
+    syn.overrideBy=ov.updatedByName||null;
+  }
+  return syns;
+}
+async function refreshSynOverrides(){
+  SYN_OVERRIDES=await fbReadSynOverrides();
+  if(typeof SYNS!=='undefined'&&Array.isArray(SYNS)){applySynOverrides(SYNS);if(typeof buildMinyanList==='function')buildMinyanList();}
+}
+
+function fmtRelative(ts){
+  if(!ts)return 'jamais';
+  const diff=Date.now()-ts;
+  if(diff<60000)return 'à l\'instant';
+  const m=Math.floor(diff/60000);if(m<60)return `il y a ${m} min`;
+  const h=Math.floor(m/60);if(h<24)return `il y a ${h} h`;
+  const d=Math.floor(h/24);return `il y a ${d} j${d>1?'s':''}`;
+}
+
+async function openOwnerAdmin(){
+  if(!isOwner()){showToast('Réservé au propriétaire',{type:'error'});return;}
+  openDetail('Admin synagogues',`<h2>Admin <span class="em">synagogues</span></h2><p>Génère un lien d'édition par synagogue, partage-le par WhatsApp. Chaque synagogue pourra mettre à jour ses horaires en autonomie.</p><div id="ownerAdminList">${impSkeletonHtml(4)}</div>`);
+  const [admins,_]=await Promise.all([fbReadSynAdmins(),refreshSynOverrides()]);
+  const rows=[];
+  for(const syn of (SYNS||[])){
+    const adm=admins[String(syn.id)]||null;
+    const ov=SYN_OVERRIDES[String(syn.id)]||null;
+    rows.push({syn,adm,ov});
+  }
+  // Tri : retards en premier, puis sans token, puis fresh
+  rows.sort((a,b)=>{
+    const aFresh=a.ov&&(Date.now()-a.ov.updatedAt<SYN_OVERRIDE_FRESH_MS);
+    const bFresh=b.ov&&(Date.now()-b.ov.updatedAt<SYN_OVERRIDE_FRESH_MS);
+    if(aFresh!==bFresh)return aFresh?1:-1;
+    const aT=a.ov?a.ov.updatedAt:0;const bT=b.ov?b.ov.updatedAt:0;
+    return aT-bT;
+  });
+  let html='';
+  for(const {syn,adm,ov} of rows){
+    const fresh=ov&&(Date.now()-ov.updatedAt<SYN_OVERRIDE_FRESH_MS);
+    const stale=ov&&!fresh;
+    const status=fresh?`<span class="adm-pill ok">✓ ${fmtRelative(ov.updatedAt)}</span>`:(stale?`<span class="adm-pill stale">⚠ ${fmtRelative(ov.updatedAt)}</span>`:`<span class="adm-pill none">Pas de soumission</span>`);
+    const tokenPart=adm?`<div class="adm-link"><code>…${adm.token.slice(-6)}</code><button class="adm-mini" onclick="copyAdminLink('${adm.token}')">📋 Copier</button><button class="adm-mini" onclick="waReminder(${syn.id})">📤 WhatsApp</button><button class="adm-mini danger" onclick="regenerateToken(${syn.id})">↻ Nouveau lien</button></div>`:`<button class="ob-btn" style="margin-top:8px;" onclick="generateSynToken(${syn.id})">🔑 Générer un lien admin</button>`;
+    html+=`<div class="adm-row"><div class="adm-row-head"><div><div class="adm-name">${escapeHtml(syn.name)}</div>${status}</div></div>${tokenPart}</div>`;
+  }
+  if(rows.length===0)html='<p style="color:var(--ink-faint);font-style:italic;">Aucune synagogue chargée.</p>';
+  document.getElementById('ownerAdminList').innerHTML=html;
+}
+
+async function generateSynToken(synId){
+  const token=randToken();
+  const ok=await fbWriteSynAdmin(synId,{token,createdAt:Date.now()});
+  if(ok){showToast('Lien généré ✓',{type:'success'});openOwnerAdmin();}
+  else showToast('Erreur',{type:'error'});
+}
+async function regenerateToken(synId){
+  if(!confirm('Régénérer un nouveau lien ? L\'ancien ne marchera plus.'))return;
+  await generateSynToken(synId);
+}
+function copyAdminLink(token){
+  const url=buildSynAdminUrl(token);
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>showToast('Lien copié ✓',{type:'success'}),()=>showToast('Copie impossible',{type:'error'}));}
+  else{prompt('Copie ce lien :',url);}
+}
+async function waReminder(synId){
+  const admins=await fbReadSynAdmins();
+  const adm=admins[String(synId)];
+  if(!adm){showToast('Pas de lien à partager. Génère-le d\'abord.',{type:'error'});return;}
+  const syn=(SYNS||[]).find(s=>s.id===synId);
+  const synName=syn?syn.name:'votre synagogue';
+  const url=buildSynAdminUrl(adm.token);
+  const msg=`Shalom 🙏\n\nPour mettre à jour les horaires de *${synName}* sur l'app Minyan Lyon :\n\n${url}\n\n(Lien personnel à garder, vous pouvez le réutiliser chaque semaine.)`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+async function openSynAdminForm(token){
+  openDetail('Mise à jour horaires',`<h2>Chargement…</h2>${impSkeletonHtml(3)}`);
+  const admins=await fbReadSynAdmins();
+  let foundSynId=null;
+  for(const k of Object.keys(admins)){if(admins[k]&&admins[k].token===token){foundSynId=parseInt(k)||k;break;}}
+  if(foundSynId===null){
+    openDetail('Lien invalide',`<h2>Lien <span class="em">invalide</span></h2><p>Ce lien d'administration n'est pas reconnu. Demandez-en un nouveau au responsable de l'app.</p><button class="ob-btn" onclick="closeDetail()">Fermer</button>`);
+    return;
+  }
+  const syn=(SYNS||[]).find(s=>String(s.id)===String(foundSynId));
+  if(!syn){
+    openDetail('Synagogue introuvable',`<h2>Synagogue <span class="em">introuvable</span></h2><p>La synagogue associée à ce lien n'a pas été trouvée dans la base.</p>`);
+    return;
+  }
+  await refreshSynOverrides();
+  const ov=SYN_OVERRIDES[String(syn.id)]||null;
+  const h=(ov&&ov.h)||syn.h||{};
+  const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche + jours fériés'],['lundi_jeudi','Lundi & Jeudi'],['mardi_mercredi','Mardi & Mercredi']];
+  let formHtml='';
+  for(const [key,label] of days){
+    const d=h[key]||{};
+    formHtml+=`<div class="adm-day"><h3>${label}</h3><div class="adm-day-grid"><div><label>Shaharit</label><input type="text" class="ob-input adm-input" id="f_${key}_sh" value="${escapeHtml(d.sh||'')}" placeholder="Ex: 7h00"/></div><div><label>Minha</label><input type="text" class="ob-input adm-input" id="f_${key}_mi" value="${escapeHtml(d.mi||'')}" placeholder="Ex: 19h30"/></div><div><label>Arvit</label><input type="text" class="ob-input adm-input" id="f_${key}_ar" value="${escapeHtml(d.ar||'')}" placeholder="Ex: 20h15"/></div></div></div>`;
+  }
+  const lastUpdate=ov?`<p style="font-size:12.5px;color:var(--ink-soft);">Dernière soumission : ${fmtRelative(ov.updatedAt)}${ov.updatedByName?` par ${escapeHtml(ov.updatedByName)}`:''}.</p>`:'';
+  openDetail('Mise à jour horaires',`<h2>${escapeHtml(syn.name)}</h2><p style="font-size:14px;">Mets à jour les horaires de la semaine. Format : <code>7h00</code> ou laisse vide si pas d'office.</p>${lastUpdate}<input type="text" class="ob-input" id="adm_yourname" placeholder="Votre prénom (optionnel)" value="${escapeHtml(localStorage.getItem('mlUserName')||'')}"/>${formHtml}<button class="ob-btn" onclick="submitSynUpdate('${foundSynId}','${token}')">💾 Enregistrer</button><button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>`);
+}
+
+async function submitSynUpdate(synId,token){
+  const admins=await fbReadSynAdmins();
+  const adm=admins[String(synId)];
+  if(!adm||adm.token!==token){showToast('Lien expiré, demande un nouveau lien.',{type:'error'});return;}
+  const keys=['vendredi','shabbat','dimanche','lundi_jeudi','mardi_mercredi'];
+  const h={};
+  for(const k of keys){
+    h[k]={sh:(document.getElementById('f_'+k+'_sh').value||'').trim()||null,mi:(document.getElementById('f_'+k+'_mi').value||'').trim()||null,ar:(document.getElementById('f_'+k+'_ar').value||'').trim()||null};
+  }
+  const yourName=(document.getElementById('adm_yourname').value||'').trim();
+  if(yourName)localStorage.setItem('mlUserName',yourName);
+  const ok=await fbWriteSynOverride(synId,{h,updatedAt:Date.now(),updatedByName:yourName||null});
+  if(!ok){showToast('Erreur d\'enregistrement, réessaye.',{type:'error'});return;}
+  showToast('Horaires enregistrés ✓ Merci !',{type:'success',duration:4000});
+  await refreshSynOverrides();
+  closeDetail();
+}
+
+function handleSynAdminDeepLink(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get('syn-admin');
+  if(!token)return;
+  const url=new URL(window.location.href);
+  url.searchParams.delete('syn-admin');
+  window.history.replaceState({},document.title,url.toString());
+  setTimeout(()=>openSynAdminForm(token),500);
 }
 
 // ============================================================
@@ -2332,6 +2536,7 @@ async function init(){
   // Filet de sécurité : re-fetch toutes les 60s si SSE est silencieusement coupé
   setInterval(refreshFromFb,60000);
   handleMinyanDeepLink();
+  handleSynAdminDeepLink();
 }
 init();
 
