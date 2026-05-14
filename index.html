@@ -14,7 +14,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Minyan Lyon"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#161616"/>
 <meta name="robots" content="noindex,nofollow"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="icon.svg"/>
 <title>Minyan Lyon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -346,6 +351,46 @@ body.watermark::before {
 .fade-up:nth-child(5){animation-delay:0.16s;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .hidden{display:none!important;}
+
+/* === TOASTS === */
+.toast-stack{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:9999;pointer-events:none;padding:0 18px;}
+.toast{max-width:380px;width:auto;background:rgba(22,22,20,0.96);color:#F8E9C2;padding:13px 18px;border-radius:14px;font-size:14px;font-weight:500;font-family:var(--sans);box-shadow:0 10px 28px -8px rgba(0,0,0,0.45);display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1) backwards;}
+.toast.error{background:rgba(196,83,57,0.96);color:#fff;}
+.toast.success{background:rgba(91,142,91,0.96);color:#fff;}
+.toast.leave{animation:toastOut 0.25s ease forwards;}
+.toast .ic{font-size:16px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px) scale(0.96);}}
+
+/* === SKELETONS === */
+.skel{background:linear-gradient(90deg,var(--bg-soft) 0%,var(--line-soft) 50%,var(--bg-soft) 100%);background-size:200% 100%;animation:skelPulse 1.4s ease-in-out infinite;border-radius:8px;}
+@keyframes skelPulse{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.skel-imp-item{background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px;}
+.skel-line{height:14px;margin-bottom:8px;}
+.skel-line.w70{width:70%;}
+.skel-line.w40{width:40%;}
+.skel-line.w90{width:90%;}
+
+/* === URGENCY === */
+.imp-item.highlight{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,172,85,0.35);animation:hlPulse 2.4s ease-out 2;}
+@keyframes hlPulse{0%{box-shadow:0 0 0 0 rgba(212,172,85,0.6);}50%{box-shadow:0 0 0 10px rgba(212,172,85,0);}100%{box-shadow:0 0 0 2px rgba(212,172,85,0.35);}}
+.imp-item.urgent{border-color:var(--red);box-shadow:0 0 0 1px rgba(196,83,57,0.25);}
+.imp-item-pill.urgent{background:var(--red);color:#fff;animation:urgPulse 1.6s ease-in-out infinite;}
+@keyframes urgPulse{0%,100%{opacity:1;}50%{opacity:0.7;}}
+
+/* === HOME IMPROMPTU SECTION === */
+.home-imp-section{margin:0 0 8px;}
+.home-imp-card{margin:0 18px 10px;background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;border:none;color:#5C3D1F;position:relative;transition:transform 0.15s ease;}
+.home-imp-card:active{transform:scale(0.985);}
+.home-imp-card.urgent{background:linear-gradient(135deg,#FFD0BF 0%,#F8A988 100%);box-shadow:0 0 0 1.5px var(--red);}
+.home-imp-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+.home-imp-name{font-family:var(--serif);font-size:15px;font-weight:600;color:#5C3D1F;}
+.home-imp-when{font-size:11.5px;color:#7A5530;margin-top:1px;font-weight:500;}
+.home-imp-pill{padding:3px 9px;background:rgba(92,61,31,0.85);color:#FCE4CC;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:0.04em;flex-shrink:0;text-transform:uppercase;}
+.home-imp-pill.complet{background:#4F7349;}
+.home-imp-pill.urgent{background:var(--red);color:#fff;animation:urgPulse 1.6s ease-in-out infinite;}
+.home-imp-addr{font-size:12px;color:#7A5530;margin-bottom:4px;}
+.home-imp-bolt{position:absolute;top:12px;right:14px;font-size:14px;opacity:0.5;}
 </style>
 </head>
 <body>
@@ -406,6 +451,7 @@ body.watermark::before {
         <span class="zcard-cd-time" id="cdTime2">—</span>
       </div>
     </div>
+    <div id="homeShabContainer" class="fade-up"></div>
     <div class="find-wrap fade-up">
       <button class="find-btn" id="findBtn" onclick="findNearestMinyan()">
         <div class="find-ico">📍</div>
@@ -435,6 +481,10 @@ body.watermark::before {
       <button class="f-chip" onclick="setZone(this,'caluire')">Caluire</button>
       <button class="f-chip" onclick="setZone(this,'ecully')">Écully</button>
       <button class="f-chip" onclick="setZone(this,'banlieue')">Banlieue</button>
+    </div>
+    <div id="homeImpSection" class="home-imp-section hidden">
+      <div class="section-title"><div class="t">⚡ Minyans improvisés</div></div>
+      <div id="homeImpList"></div>
     </div>
     <div class="section-title"><div class="t">Prochains minyanim</div></div>
     <div id="minyanList"></div>
@@ -551,6 +601,27 @@ body.watermark::before {
 
 <script>
 // ============================================================
+// === TOASTS (non-blocking notifications) ====================
+// ============================================================
+function showToast(msg, opts){
+  const o = opts || {};
+  let stack = document.getElementById('toastStack');
+  if(!stack){
+    stack = document.createElement('div');
+    stack.id = 'toastStack';
+    stack.className = 'toast-stack';
+    document.body.appendChild(stack);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (o.type ? ' ' + o.type : '');
+  const ic = o.type === 'error' ? '⚠' : (o.type === 'success' ? '✓' : 'ℹ');
+  t.innerHTML = `<span class="ic">${ic}</span><span>${msg}</span>`;
+  stack.appendChild(t);
+  const dur = o.duration || 3200;
+  setTimeout(() => { t.classList.add('leave'); setTimeout(() => t.remove(), 250); }, dur);
+}
+
+// ============================================================
 // === SUPABASE INIT + AUTH ===================================
 // ============================================================
 const SUPABASE_URL = 'https://dsaizyvxdebqguzyivmy.supabase.co';
@@ -605,9 +676,9 @@ async function loginGoogle(){
         redirectTo: window.location.origin + window.location.pathname
       }
     });
-    if(error) alert('Erreur connexion : ' + error.message);
+    if(error) showToast('Erreur connexion : ' + error.message, {type:'error'});
   }catch(e){
-    alert('Erreur : ' + e.message);
+    showToast('Erreur : ' + e.message, {type:'error'});
   }
 }
 
@@ -671,7 +742,7 @@ async function processInviteCodeIfAny(){
     const maxUsages = inv.max_usages || 10;
     const nbUsages = inv.nb_usages || 0;
     if(nbUsages >= maxUsages){
-      alert('Ce lien d\'invitation a atteint sa limite de ' + maxUsages + ' personnes. Demande un nouveau lien à ton parrain.');
+      showToast('Lien d\'invitation complet (' + maxUsages + ' personnes). Demande un nouveau lien.', {type:'error', duration:5000});
       localStorage.removeItem('pendingInviteCode');
       return;
     }
@@ -1431,14 +1502,47 @@ const DAYS_FR=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'
 function getJewishDate(d){let effDate=d;try{const z=calcZmanim(d);if(z&&z.shkia){const nowH=d.getHours()+d.getMinutes()/60;if(nowH>=z.shkia)effDate=new Date(d.getTime()+86400000);}}catch(e){}const ref=new Date(2026,4,3);const refH={day:16,month:7,year:5786};const diff=Math.floor((effDate-ref)/86400000);let day=refH.day+diff,month=refH.month,year=refH.year;const ml=[30,29,30,29,30,30,30,29,30,29,30,29];while(day>ml[month]){day-=ml[month];month++;if(month>=12){month=0;year++;}}while(day<1){month--;if(month<0){month=11;year--;}day+=ml[month];}return{day,month,year,monthName:HEB_MONTHS[month]};}
 function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.day-15;if(j.month===7)return 15+j.day;if(j.month===8&&j.day<=5)return 44+j.day;return null;}
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
-function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0)return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
+function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,dq=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dq-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m2=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m2+114)/31),da=((h+l-7*m2+114)%31)+1;return new Date(y,mo-1,da);}
+function isFrenchHoliday(d){const y=d.getFullYear(),m=d.getMonth(),da=d.getDate();const fixed=[[0,1],[4,1],[4,8],[6,14],[7,15],[10,1],[10,11],[11,25]];for(const [fm,fd] of fixed){if(m===fm&&da===fd)return true;}const e=easterSunday(y);const day=86400000;const eMonday=new Date(e.getTime()+day);const ascension=new Date(e.getTime()+39*day);const pentMonday=new Date(e.getTime()+50*day);for(const h of [eMonday,ascension,pentMonday]){if(h.getFullYear()===y&&h.getMonth()===m&&h.getDate()===da)return true;}return false;}
+function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0||isFrenchHoliday(d))return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
+
+// Renvoie {friday, saturday} du Shabbat à afficher. Bascule sur la semaine d'après dès motsei Shabbat.
+function getUpcomingShabbat(now){
+  const day=now.getDay();
+  if(day===6){
+    const z=calcZmanim(now);
+    const nowH=now.getHours()+now.getMinutes()/60;
+    if(nowH<z.tzeit){
+      const friday=new Date(now);friday.setDate(friday.getDate()-1);
+      return {friday,saturday:new Date(now)};
+    }
+    const friday=new Date(now);friday.setDate(friday.getDate()+6);
+    const saturday=new Date(now);saturday.setDate(saturday.getDate()+7);
+    return {friday,saturday};
+  }
+  const daysToFri=(5-day+7)%7;
+  const friday=new Date(now);friday.setDate(friday.getDate()+daysToFri);
+  const saturday=new Date(friday);saturday.setDate(saturday.getDate()+1);
+  return {friday,saturday};
+}
+
+function buildShabbatCardHtml(now){
+  const {friday,saturday}=getUpcomingShabbat(now);
+  const zF=calcZmanim(friday);
+  const zS=calcZmanim(saturday);
+  const candles=zF.shkia-18/60;
+  const moisFR=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const dateStr=`Ven. ${friday.getDate()} ${moisFR[friday.getMonth()]} → Sam. ${saturday.getDate()}`;
+  return `<div class="shab-card"><div class="shab-lbl">🕯 Shabbat · ${dateStr}</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(zF.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(zS.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(zS.rt)}</div></div></div></div>`;
+}
 
 function nextPrayer(syn,now){
   const dk=getDayKey(now);const today=syn.h[dk];const nowH=now.getHours()+now.getMinutes()/60;
   if(today){
     const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);
-    const upcoming=prayers.filter(p=>p.time>=nowH-0.25);
-    if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.25,daysAhead:0};}
+    const TOL={sh:2,mi:0.5,ar:0.5};
+    const upcoming=prayers.filter(p=>p.time>=nowH-TOL[p.type]);
+    if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.5,daysAhead:0};}
   }
   const dayShort=['dim.','lun.','mar.','mer.','jeu.','ven.','shabbat'];
   for(let i=1;i<=7;i++){
@@ -1603,7 +1707,7 @@ function findNearestMinyan(){
     document.getElementById('findArrow').textContent='→';
     updateFindBtnText();buildMinyanList();return;
   }
-  if(!navigator.geolocation){alert('Géolocalisation non disponible');return;}
+  if(!navigator.geolocation){showToast('Géolocalisation non disponible', {type:'error'});return;}
   document.getElementById('findSub').textContent='Localisation en cours...';
   navigator.geolocation.getCurrentPosition(pos=>{
     userLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
@@ -1682,11 +1786,7 @@ function buildCalendar(){
   document.getElementById('calOmer').innerHTML=omer?`${omer}<sup>e</sup> de l'Omer`:`${j.day} ${j.monthName}`;
   const items=[['Alot HaShahar',z.alot],['Talith / Téfilin',z.tefilin],['Hanetz',z.hanetz],['Fin Shema M"A',z.shema_ma],['Fin Shema GR"A',z.shema_gra],['Fin Tefila',z.tefila_gra],['Hatsot',z.hatsot],['Minha Gdola',z.minha_g],['Minha Ketana',z.minha_k],['Plag HaMinha',z.plag],['Chkia',z.shkia],['Tseit Hacohavim',z.tzeit],['Fin Shabbat',z.fin_shab],['Rabbeinou Tam',z.rt]];
   document.getElementById('calZmanimGrid').innerHTML=items.map(([l,h])=>`<div><div class="zi-lbl">${l}</div><div class="zi-val">${fmt(h)}</div></div>`).join('');
-  const dow=new Date().getDay();const shabContainer=document.getElementById('shabContainer');
-  if(dow===5||dow===6){
-    const candles=z.shkia-18/60;
-    shabContainer.innerHTML=`<div class="shab-card"><div class="shab-lbl">🕯 Shabbat cette semaine</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(z.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(z.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(z.rt)}</div></div></div></div>`;
-  }else{shabContainer.innerHTML='';}
+  document.getElementById('shabContainer').innerHTML=buildShabbatCardHtml(new Date());
   const monthLen=HEB_ML[j.month];let tehTxt='';
   if(j.day<=28){const split=TEHILIM_SPLIT[j.day-1];if(split[0]===119&&split[1]<=22){tehTxt=`Téhilim 119 — partie ${split[1]} · ${j.day} ${j.monthName}`;}else if(split[0]===split[1]){tehTxt=`Chapitre ${split[0]} · ${j.day} ${j.monthName}`;}else{tehTxt=`Chapitres ${split[0]}-${split[1]} · ${j.day} ${j.monthName}`;}}else if(j.day===29){if(monthLen===29){tehTxt=`Chapitres 140-150 · 29 ${j.monthName}`;}else{tehTxt=`Chapitres 140-144 · 29 ${j.monthName}`;}}else if(j.day===30){tehTxt=`Chapitres 145-150 · 30 ${j.monthName}`;}
   document.getElementById('dafWhen').textContent=getDafYomi(new Date());
@@ -1702,7 +1802,7 @@ let mikveFilter='all';let mikveGeoMode=false;let mikveUserLocation=null;
 function setMikveFilter(btn,f){mikveFilter=f;btn.parentElement.querySelectorAll('.f-chip.mfilt').forEach(c=>c.classList.remove('on'));btn.classList.add('on');buildTorah();}
 function findNearestMikve(){
   if(mikveGeoMode){mikveGeoMode=false;mikveUserLocation=null;const btn=document.getElementById('mikveFindBtn');if(btn){btn.classList.remove('active');document.getElementById('mikveFindArrow').textContent='→';document.getElementById('mikveFindSub').textContent='Trier par distance';}buildTorah();return;}
-  if(!navigator.geolocation){alert('Géolocalisation non disponible');return;}
+  if(!navigator.geolocation){showToast('Géolocalisation non disponible', {type:'error'});return;}
   document.getElementById('mikveFindSub').textContent='Localisation…';
   navigator.geolocation.getCurrentPosition(pos=>{mikveUserLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};mikveGeoMode=true;document.getElementById('mikveFindBtn').classList.add('active');document.getElementById('mikveFindArrow').textContent='✕';document.getElementById('mikveFindSub').textContent='Trié par distance';buildTorah();},()=>{document.getElementById('mikveFindSub').textContent='Localisation impossible';});
 }
@@ -1761,39 +1861,271 @@ function updateBearingDisplay(){const el=document.getElementById('compassDeg');i
 updateBearingDisplay();positionJerusalemMarker();
 function startCompass(){
   if(compassActive){compassListeners.forEach(fn=>{window.removeEventListener('deviceorientationabsolute',fn,true);window.removeEventListener('deviceorientation',fn,true);});compassListeners=[];compassActive=false;smoothedRose=null;document.getElementById('compassRose').style.transform=`rotate(0deg)`;updateBearingDisplay();document.getElementById('compassTowards').textContent="vers Jérusalem ★";document.querySelector('.compass-btn').textContent='Activer la boussole';return;}
-  if(!window.DeviceOrientationEvent){alert('Boussole non disponible. Jérusalem est à env. '+JERUSALEM_BEARING+'°.');return;}
-  if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')initCompass();else alert('Permission refusée.');}).catch(err=>{alert(err.message);});}else{initCompass();}
+  if(!window.DeviceOrientationEvent){showToast('Boussole non disponible. Jérusalem ≈ '+JERUSALEM_BEARING+'°.', {type:'error', duration:5000});return;}
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')initCompass();else showToast('Permission refusée.', {type:'error'});}).catch(err=>{showToast(err.message, {type:'error'});});}else{initCompass();}
 }
 function initCompass(){compassActive=true;smoothedRose=null;document.querySelector('.compass-btn').textContent='Désactiver la boussole';document.getElementById('compassTowards').textContent='Tourne lentement…';const fn=handleCompass;compassListeners.push(fn);window.addEventListener('deviceorientationabsolute',fn,true);window.addEventListener('deviceorientation',fn,true);}
 function handleCompass(e){let alpha=e.webkitCompassHeading;if(alpha===undefined||alpha===null){alpha=e.alpha;if(alpha===null||alpha===undefined)return;alpha=(360-alpha)%360;}const targetRose=-alpha;if(smoothedRose===null){smoothedRose=targetRose;}else{let diff=targetRose-smoothedRose;if(diff>180)diff-=360;else if(diff<-180)diff+=360;smoothedRose=smoothedRose+COMPASS_SMOOTH_ALPHA*diff;}document.getElementById('compassRose').style.transform=`rotate(${smoothedRose}deg)`;const dirToJ=(JERUSALEM_BEARING-alpha+360)%360;document.getElementById('compassDeg').innerHTML=`${Math.round(dirToJ)}<span class="deg">°</span>`;const off=Math.min(dirToJ,360-dirToJ);const towards=document.getElementById('compassTowards');if(off<=3){towards.innerHTML='✓ <span style="color:var(--gold);font-weight:600;">Face à Jérusalem</span>';}else if(off<=15){towards.textContent='Presque…';}else{towards.textContent='Tourne pour aligner ★';}}
 
 // ============================================================
-// === MINYAN IMPROVISÉ (Firebase + UI - inchangé) ============
+// === MINYAN IMPROVISÉ (Firebase) ============================
 // ============================================================
 const FIREBASE_CONFIG={databaseURL:"https://minyan-lyon-default-rtdb.europe-west1.firebasedatabase.app",apiKey:"AIzaSyCSdL1hUifNyctlFvtX9ZH8ztsz6fA4GG4"};
 const FB_ENABLED=()=>!!FIREBASE_CONFIG.databaseURL;
-async function fbWriteMinyans(list){if(!FB_ENABLED()){localStorage.setItem('mlImpromptu',JSON.stringify(list));return true;}try{const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;const res=await fetch(url,{method:'PUT',body:JSON.stringify(list)});return res.ok;}catch(e){return false;}}
-async function fbReadMinyans(){if(!FB_ENABLED()){try{return JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{return [];}}try{const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;const res=await fetch(url,{cache:'no-cache'});if(!res.ok)return [];const data=await res.json();if(!data)return [];return Array.isArray(data)?data:Object.values(data);}catch(e){return [];}}
-function cleanExpiredMinyans(list){const now=Date.now();return list.filter(m=>{if(!m||!m.timestamp)return false;return (m.timestamp+45*60*1000)>now;});}
+const IMP_EXPIRY_MS=2*60*60*1000;
+const IMP_URGENT_WINDOW_MIN=15;
+let CACHED_MINYANS=[];
+let fbStreamSource=null;
+
+function fbReadMinyans(){
+  if(!FB_ENABLED()){try{return Promise.resolve(JSON.parse(localStorage.getItem('mlImpromptu')||'[]'));}catch{return Promise.resolve([]);}}
+  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  return fetch(url,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(data=>{
+    if(!data)return [];
+    return Array.isArray(data)?data.filter(Boolean):Object.values(data);
+  }).catch(()=>[]);
+}
+function fbWriteMinyans(list){
+  if(!FB_ENABLED()){localStorage.setItem('mlImpromptu',JSON.stringify(list));return Promise.resolve(true);}
+  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  return fetch(url,{method:'PUT',body:JSON.stringify(list)}).then(r=>r.ok).catch(()=>false);
+}
+
+// Atomic update via ETag/If-Match. Returns 'ok' | 'full' | 'gone' | 'error'.
+async function fbAtomicUpdate(mutator){
+  if(!FB_ENABLED()){
+    let list=[];try{list=JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{}
+    list=cleanExpiredMinyans(list);
+    const res=mutator(list);
+    if(res!=='ok')return res;
+    localStorage.setItem('mlImpromptu',JSON.stringify(list));
+    return 'ok';
+  }
+  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  for(let i=0;i<6;i++){
+    const r=await fetch(url,{cache:'no-cache',headers:{'X-Firebase-ETag':'true'}}).catch(()=>null);
+    if(!r||!r.ok)return 'error';
+    const etag=r.headers.get('ETag')||'';
+    const data=await r.json().catch(()=>null);
+    let list=!data?[]:(Array.isArray(data)?data.filter(Boolean):Object.values(data));
+    list=cleanExpiredMinyans(list);
+    const res=mutator(list);
+    if(res!=='ok')return res;
+    const w=await fetch(url,{method:'PUT',headers:{'If-Match':etag,'Content-Type':'application/json'},body:JSON.stringify(list)}).catch(()=>null);
+    if(!w)return 'error';
+    if(w.ok)return 'ok';
+    if(w.status===412){await new Promise(rs=>setTimeout(rs,80+i*60));continue;}
+    return 'error';
+  }
+  return 'error';
+}
+
+// Server-Sent Events live listener — no Firebase SDK needed.
+// Auto-reconnects on transient errors. A 60s polling tick covers the rare case
+// where the stream is silently dropped (corporate proxies, etc.).
+function fbSubscribe(onChange){
+  if(!FB_ENABLED())return;
+  if(fbStreamSource){try{fbStreamSource.close();}catch{}}
+  if(typeof EventSource!=='function')return;
+  try{
+    const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
+    fbStreamSource=new EventSource(url);
+    fbStreamSource.addEventListener('put',()=>onChange());
+    fbStreamSource.addEventListener('patch',()=>onChange());
+  }catch(e){}
+}
+
+function cleanExpiredMinyans(list){const now=Date.now();return list.filter(m=>{if(!m||!m.timestamp)return false;return (m.timestamp+IMP_EXPIRY_MS)>now;});}
 function getUserId(){let id=localStorage.getItem('mlUserId');if(!id){id='u'+Date.now()+Math.random().toString(36).slice(2,8);localStorage.setItem('mlUserId',id);}return id;}
 function buildTimestamp(dateStr,heureStr){const cleanH=heureStr.replace('h',':').replace(/\s/g,'');const [h,m]=cleanH.split(':').map(s=>parseInt(s)||0);const [yy,mm,dd]=dateStr.split('-').map(s=>parseInt(s));return new Date(yy,mm-1,dd,h,m,0).getTime();}
+function isMinyanUrgent(m){
+  if(!m||!m.timestamp)return false;
+  const total=m.confirmes||0;
+  if(total>=10)return false;
+  const minutesUntilStart=(m.timestamp-Date.now())/60000;
+  return minutesUntilStart<=IMP_URGENT_WINDOW_MIN&&minutesUntilStart>-30;
+}
+function buildMapsUrl(lieu){
+  const dest=encodeURIComponent(lieu);
+  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking`;
+}
+function buildShareUrl(minyanId){
+  const u=new URL(window.location.href);
+  u.searchParams.set('minyan',minyanId);
+  u.hash='';
+  return u.toString();
+}
+
 let currentImpMode='join';
-function openSignal(){const todayStr=new Date().toISOString().slice(0,10);openDetail('Minyan improvisé',`<h2>Minyan <span class="em">improvisé</span></h2><p>Créer un nouveau minyan ou rejoindre un minyan existant.</p><span class="imp-status-badge ${FB_ENABLED()?'online':''}">${FB_ENABLED()?'● Mode partagé · temps réel':'● Mode local'}</span><div class="imp-mode-toggle"><button class="imp-mode-btn on" id="impModeJoin" onclick="setImpMode('join')">Rejoindre</button><button class="imp-mode-btn" id="impModeCreate" onclick="setImpMode('create')">Créer</button></div><div id="impJoinSection"><div id="impList"><div class="imp-empty">Chargement…</div></div></div><div id="impCreateSection" style="display:none;"><h3>Lieu</h3><input type="text" id="impLieu" class="ob-input" placeholder="Ex: 12 rue Boutin"/><h3>Date</h3><input type="date" id="impDate" class="ob-input" value="${todayStr}"/><h3>Heure</h3><input type="text" id="impHeure" class="ob-input" placeholder="Ex: 19h30"/><h3>Type</h3><select id="impType" class="ob-input"><option value="Shaharit">Shaharit</option><option value="Minha" selected>Minha</option><option value="Arvit">Arvit</option></select><h3>Contact (optionnel)</h3><input type="text" id="impContact" class="ob-input" placeholder="Tél ou nom"/><h3>Personnes déjà confirmées ?</h3><input type="number" id="impConfirmes" class="ob-input" min="1" max="10" value="1"/><button class="ob-btn" onclick="createMinyan()">✡ Créer</button></div>`);setImpMode('join');loadImpromptu();}
+function openSignal(highlightId){
+  const todayStr=new Date().toISOString().slice(0,10);
+  openDetail('Minyan improvisé',`<h2>Minyan <span class="em">improvisé</span></h2><p>Créer un nouveau minyan ou rejoindre un minyan existant.</p><span class="imp-status-badge ${FB_ENABLED()?'online':''}">${FB_ENABLED()?'● Mode partagé · temps réel':'● Mode local'}</span><div class="imp-mode-toggle"><button class="imp-mode-btn on" id="impModeJoin" onclick="setImpMode('join')">Rejoindre</button><button class="imp-mode-btn" id="impModeCreate" onclick="setImpMode('create')">Créer</button></div><div id="impJoinSection"><div id="impList">${impSkeletonHtml(3)}</div></div><div id="impCreateSection" style="display:none;"><h3>Lieu</h3><input type="text" id="impLieu" class="ob-input" placeholder="Ex: 12 rue Boutin"/><h3>Date</h3><input type="date" id="impDate" class="ob-input" value="${todayStr}"/><h3>Heure</h3><input type="text" id="impHeure" class="ob-input" placeholder="Ex: 19h30"/><h3>Type</h3><select id="impType" class="ob-input"><option value="Shaharit">Shaharit</option><option value="Minha" selected>Minha</option><option value="Arvit">Arvit</option></select><h3>Contact (optionnel)</h3><input type="text" id="impContact" class="ob-input" placeholder="Tél ou nom"/><h3>Personnes déjà confirmées ?</h3><input type="number" id="impConfirmes" class="ob-input" min="1" max="10" value="1"/><button class="ob-btn" onclick="createMinyan()">✡ Créer</button></div>`);
+  setImpMode('join');
+  loadImpromptu(highlightId);
+}
 function setImpMode(mode){currentImpMode=mode;const join=document.getElementById('impJoinSection');const create=document.getElementById('impCreateSection');const btnJ=document.getElementById('impModeJoin');const btnC=document.getElementById('impModeCreate');if(!join||!create)return;if(mode==='join'){join.style.display='block';create.style.display='none';btnJ.classList.add('on');btnC.classList.remove('on');loadImpromptu();}else{join.style.display='none';create.style.display='block';btnJ.classList.remove('on');btnC.classList.add('on');}}
-async function createMinyan(){const lieu=document.getElementById('impLieu').value.trim();const date=document.getElementById('impDate').value;const heure=document.getElementById('impHeure').value.trim();const type=document.getElementById('impType').value;const contact=document.getElementById('impContact').value.trim();const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;if(!lieu||!heure||!date){alert('Lieu, date et heure obligatoires');return;}const timestamp=buildTimestamp(date,heure);if(timestamp<Date.now()-15*60*1000){alert('La date/heure doit être dans le futur');return;}const userId=getUserId();const userName=localStorage.getItem('mlUserName')||'Anonyme';const newMinyan={id:'m'+Date.now()+Math.random().toString(36).slice(2,6),lieu,date,heure,type,contact:contact||null,confirmes:Math.min(Math.max(confirmes,1),10),timestamp,createdBy:userId,createdByName:userName,createdAt:Date.now(),participants:[userId]};let list=await fbReadMinyans();list=cleanExpiredMinyans(list);list.push(newMinyan);const ok=await fbWriteMinyans(list);if(ok){setImpMode('join');setTimeout(()=>loadImpromptu(),300);}else{alert('Erreur. Réessaye.');}}
-async function joinMinyan(id){let list=await fbReadMinyans();list=cleanExpiredMinyans(list);const userId=getUserId();const m=list.find(x=>x&&x.id===id);if(!m){loadImpromptu();return;}if(!Array.isArray(m.participants))m.participants=[];if(m.participants.includes(userId)){m.participants=m.participants.filter(p=>p!==userId);m.confirmes=Math.max((m.confirmes||1)-1,0);}else{if((m.confirmes||0)>=10){alert('Complet !');return;}m.participants.push(userId);m.confirmes=(m.confirmes||0)+1;}await fbWriteMinyans(list);loadImpromptu();}
-async function deleteMinyan(id){if(!confirm('Supprimer ?'))return;let list=await fbReadMinyans();list=list.filter(m=>m&&m.id!==id);await fbWriteMinyans(list);loadImpromptu();}
+
+async function createMinyan(){
+  const lieu=document.getElementById('impLieu').value.trim();
+  const date=document.getElementById('impDate').value;
+  const heure=document.getElementById('impHeure').value.trim();
+  const type=document.getElementById('impType').value;
+  const contact=document.getElementById('impContact').value.trim();
+  const confirmes=parseInt(document.getElementById('impConfirmes').value)||1;
+  if(!lieu||!heure||!date){showToast('Lieu, date et heure obligatoires',{type:'error'});return;}
+  const timestamp=buildTimestamp(date,heure);
+  if(timestamp<Date.now()-15*60*1000){showToast('La date/heure doit être dans le futur',{type:'error'});return;}
+  const userId=getUserId();
+  const userName=localStorage.getItem('mlUserName')||'Anonyme';
+  const newMinyan={id:'m'+Date.now()+Math.random().toString(36).slice(2,6),lieu,date,heure,type,contact:contact||null,confirmes:Math.min(Math.max(confirmes,1),10),timestamp,createdBy:userId,createdByName:userName,createdAt:Date.now(),participants:[userId]};
+  const res=await fbAtomicUpdate(list=>{list.push(newMinyan);return 'ok';});
+  if(res==='ok'){
+    setImpMode('join');
+    showToast('Minyan créé. Partage-le pour rassembler 10 personnes !',{type:'success',duration:4500});
+    setTimeout(()=>{loadImpromptu(newMinyan.id);shareMinyan(newMinyan.id,newMinyan);},250);
+  }else{
+    showToast('Erreur. Réessaye.',{type:'error'});
+  }
+}
+
+async function joinMinyan(id){
+  const userId=getUserId();
+  let outcome=null;
+  const res=await fbAtomicUpdate(list=>{
+    const m=list.find(x=>x&&x.id===id);
+    if(!m){outcome='gone';return 'gone';}
+    if(!Array.isArray(m.participants))m.participants=[];
+    if(m.participants.includes(userId)){
+      m.participants=m.participants.filter(p=>p!==userId);
+      m.confirmes=Math.max((m.confirmes||1)-1,0);
+      outcome='left';
+    }else{
+      if((m.confirmes||0)>=10){outcome='full';return 'full';}
+      m.participants.push(userId);
+      m.confirmes=(m.confirmes||0)+1;
+      outcome='joined';
+    }
+    return 'ok';
+  });
+  if(res==='full'){showToast('Complet ! Quelqu\'un vient de prendre la dernière place.',{type:'error'});}
+  else if(res==='gone'){showToast('Ce minyan n\'existe plus.',{type:'error'});}
+  else if(res==='error'){showToast('Erreur réseau. Réessaye.',{type:'error'});}
+  else if(outcome==='joined'){showToast('Inscrit ✓',{type:'success',duration:2000});}
+  else if(outcome==='left'){showToast('Désinscrit',{duration:2000});}
+  loadImpromptu();
+}
+
+async function deleteMinyan(id){
+  if(!confirm('Supprimer ce minyan ?'))return;
+  const res=await fbAtomicUpdate(list=>{
+    const idx=list.findIndex(m=>m&&m.id===id);
+    if(idx<0)return 'gone';
+    list.splice(idx,1);
+    return 'ok';
+  });
+  if(res==='ok')showToast('Minyan supprimé',{duration:2000});
+  else showToast('Erreur',{type:'error'});
+  loadImpromptu();
+}
+
 function fmtImpDateTime(ts){const d=new Date(ts);const now=new Date();const isToday=d.toDateString()===now.toDateString();const tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);const isTomorrow=d.toDateString()===tomorrow.toDateString();const hh=String(d.getHours()).padStart(2,'0');const mm=String(d.getMinutes()).padStart(2,'0');if(isToday)return `Aujourd'hui à ${hh}h${mm}`;if(isTomorrow)return `Demain à ${hh}h${mm}`;const days=['dim','lun','mar','mer','jeu','ven','sam'];return `${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} à ${hh}h${mm}`;}
-async function loadImpromptu(){const list=document.getElementById('impList');if(!list)return;list.innerHTML='<div class="imp-empty">Chargement…</div>';let minyans=await fbReadMinyans();minyans=cleanExpiredMinyans(minyans);await fbWriteMinyans(minyans);if(minyans.length===0){list.innerHTML='<div class="imp-empty">Aucun minyan improvisé.<br>Sois le premier !</div>';return;}minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));const userId=getUserId();let html='';for(const m of minyans){const total=m.confirmes||1;const manque=Math.max(10-total,0);const complet=manque===0;const pct=Math.min((total/10)*100,100);const participants=Array.isArray(m.participants)?m.participants:[];const isJoined=participants.includes(userId);const isCreator=m.createdBy===userId;const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.lieu)}`;const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';html+=`<div class="imp-item"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${complet?'complet':''}">${complet?'COMPLET ✓':manque+' MANQUE'+(manque>1?'NT':'')}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank">📍</a>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')">🗑</button>`:''}</div></div>`;}list.innerHTML=html;}
+
+function impSkeletonHtml(n){
+  let out='';
+  for(let i=0;i<n;i++){
+    out+=`<div class="skel-imp-item"><div class="skel skel-line w40"></div><div class="skel skel-line w90"></div><div class="skel skel-line w70"></div></div>`;
+  }
+  return out;
+}
+
+async function loadImpromptu(highlightId){
+  const list=document.getElementById('impList');
+  if(!list)return;
+  if(!CACHED_MINYANS||CACHED_MINYANS.length===0)list.innerHTML=impSkeletonHtml(3);
+  let minyans=await fbReadMinyans();
+  minyans=cleanExpiredMinyans(minyans);
+  CACHED_MINYANS=minyans;
+  refreshHomeImpromptu();
+  if(minyans.length===0){list.innerHTML='<div class="imp-empty">Aucun minyan improvisé.<br>Sois le premier !</div>';return;}
+  minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  const userId=getUserId();
+  let html='';
+  for(const m of minyans){
+    const total=m.confirmes||1;
+    const manque=Math.max(10-total,0);
+    const complet=manque===0;
+    const pct=Math.min((total/10)*100,100);
+    const participants=Array.isArray(m.participants)?m.participants:[];
+    const isJoined=participants.includes(userId);
+    const isCreator=m.createdBy===userId;
+    const urgent=isMinyanUrgent(m);
+    const mapsUrl=buildMapsUrl(m.lieu);
+    const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
+    const pillText=complet?'COMPLET ✓':(urgent?'URGENT · MANQUE '+manque:manque+' MANQUE'+(manque>1?'NT':''));
+    const pillCls=complet?'complet':(urgent?'urgent':'');
+    const highlightCls=(highlightId===m.id)?'highlight':'';
+    html+=`<div class="imp-item ${urgent?'urgent':''} ${highlightCls}" id="imp-item-${m.id}"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${pillCls}">${pillText}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener" title="Itinéraire">📍</a><button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}</div></div>`;
+  }
+  list.innerHTML=html;
+  if(highlightId){
+    const el=document.getElementById('imp-item-'+highlightId);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});}
+  }
+}
+
+function shareMinyan(id, minyanArg){
+  const m=minyanArg||CACHED_MINYANS.find(x=>x&&x.id===id);
+  if(!m){showToast('Minyan introuvable',{type:'error'});return;}
+  const url=buildShareUrl(id);
+  const when=fmtImpDateTime(m.timestamp);
+  const text=`✡ Minyan ${m.type} — ${when}\n📍 ${m.lieu}\n${url}`;
+  if(navigator.share){
+    navigator.share({title:'Minyan improvisé',text,url}).catch(()=>{});
+  }else{
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+  }
+}
+
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function shareApp(){const txt=encodeURIComponent('🕍 *Minyan Lyon* — '+window.location.href);if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.href}).catch(()=>{});}else{window.open(`https://wa.me/?text=${txt}`,'_blank');}}
+function shareApp(){const txt=encodeURIComponent('🕍 *Minyan Lyon* — '+window.location.origin+window.location.pathname);if(navigator.share){navigator.share({title:'Minyan Lyon',url:window.location.origin+window.location.pathname}).catch(()=>{});}else{window.open(`https://wa.me/?text=${txt}`,'_blank');}}
+
+function refreshHomeImpromptu(){
+  const section=document.getElementById('homeImpSection');
+  const list=document.getElementById('homeImpList');
+  if(!section||!list)return;
+  const minyans=(CACHED_MINYANS||[]).filter(m=>m&&m.timestamp&&(m.timestamp+IMP_EXPIRY_MS)>Date.now());
+  if(minyans.length===0){section.classList.add('hidden');list.innerHTML='';return;}
+  section.classList.remove('hidden');
+  minyans.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+  let html='';
+  for(const m of minyans){
+    const total=m.confirmes||1;
+    const manque=Math.max(10-total,0);
+    const complet=manque===0;
+    const urgent=isMinyanUrgent(m);
+    const pillCls=complet?'complet':(urgent?'urgent':'');
+    const pillText=complet?'COMPLET':(urgent?'URGENT · -'+manque:manque+' MANQUE'+(manque>1?'NT':''));
+    html+=`<div class="home-imp-card ${urgent?'urgent':''}" onclick="openSignal('${m.id}')"><span class="home-imp-bolt">⚡</span><div class="home-imp-card-head"><div><div class="home-imp-name">${escapeHtml(m.type)}</div><div class="home-imp-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="home-imp-pill ${pillCls}">${pillText}</div></div><div class="home-imp-addr">📍 ${escapeHtml(m.lieu)}</div></div>`;
+  }
+  list.innerHTML=html;
+}
+
+function handleMinyanDeepLink(){
+  const params=new URLSearchParams(window.location.search);
+  const mid=params.get('minyan');
+  if(!mid)return;
+  const url=new URL(window.location.href);
+  url.searchParams.delete('minyan');
+  window.history.replaceState({},document.title,url.toString());
+  setTimeout(()=>openSignal(mid),350);
+}
 
 // ============================================================
 // === INVITATION / PARRAINAGE ================================
 // ============================================================
 async function openInvite(){
   if(!currentUser || currentNiveau < 3){
-    alert('Le parrainage est réservé aux comptes vérifiés (+7 jours ou parrainés).');
+    showToast('Parrainage réservé aux comptes vérifiés (+7 jours ou parrainés).', {type:'error', duration:5000});
     return;
   }
 
@@ -1850,7 +2182,7 @@ async function generateInvite(){
       .insert({emis_par: currentUser.id, max_usages: 10, nb_usages: 0})
       .select()
       .single();
-    if(error){alert('Erreur : ' + error.message); return;}
+    if(error){showToast('Erreur : ' + error.message, {type:'error'}); return;}
     const code = data.code;
     const link = `${window.location.origin}${window.location.pathname}?invite=${code}`;
     const resultArea = document.getElementById('inviteResultArea');
@@ -1864,7 +2196,7 @@ async function generateInvite(){
     `;
     // Recharger la liste après 1s pour voir le nouveau lien dans "Mes liens actifs"
     setTimeout(()=>openInvite(), 1500);
-  }catch(e){alert('Erreur : ' + e.message);}
+  }catch(e){showToast('Erreur : ' + e.message, {type:'error'});}
 }
 
 function shareInvite(code, link){
@@ -1987,10 +2319,28 @@ async function init(){
   const zIds=['zSha','zMin','zArv','zAlo','zChk','zTse'];const zLabels=['lSha','lMin','lArv','lAlo','lChk','lTse'];
   upcomingZ.forEach((item,i)=>{if(i<6){document.getElementById(zIds[i]).textContent=fmt(item[1]);const lbl=document.getElementById(zLabels[i]);if(lbl)lbl.textContent=item[0];}});
 
+  document.getElementById('homeShabContainer').innerHTML=buildShabbatCardHtml(new Date());
+
   buildMinyanList();updateCountdown();updateFindBtnText();
   setInterval(updateCountdown,30000);setInterval(updateFindBtnText,60000);
+  setInterval(()=>{const c=document.getElementById('homeShabContainer');if(c)c.innerHTML=buildShabbatCardHtml(new Date());},5*60000);
+
+  // Charger une première fois les minyans improvisés puis s'abonner au live
+  const refreshFromFb=()=>fbReadMinyans().then(ms=>{CACHED_MINYANS=cleanExpiredMinyans(ms);refreshHomeImpromptu();if(document.getElementById('impList'))loadImpromptu();});
+  refreshFromFb();
+  fbSubscribe(refreshFromFb);
+  // Filet de sécurité : re-fetch toutes les 60s si SSE est silencieusement coupé
+  setInterval(refreshFromFb,60000);
+  handleMinyanDeepLink();
 }
 init();
+
+// === PWA — Service Worker registration ===
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 
 </body>

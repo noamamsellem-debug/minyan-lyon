@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#161616"/>
+  <g transform="translate(256 256)" fill="none" stroke="#D4AC55" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="0,-130 113,65 -113,65"/>
+    <polygon points="0,130 113,-65 -113,-65"/>
+  </g>
+  <text x="256" y="450" text-anchor="middle" fill="#F4EFE6" font-family="serif" font-size="56" font-style="italic">Lyon</text>
+</svg>
