@@ -1444,7 +1444,8 @@ function parseSynsRows(rows){
 
 async function loadSynsFromSheet(){
   try{
-    const res=await fetch(SHEET_URLS.syns,{cache:'no-cache'});
+    const bust=Math.floor(Date.now()/60000); // change toutes les 60s pour contourner le cache CDN Google
+    const res=await fetch(SHEET_URLS.syns+'&t='+bust,{cache:'no-cache'});
     if(!res.ok)return null;
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1463,7 +1464,8 @@ function parseMikvaotRows(rows){
 }
 async function loadMikvaotFromSheet(){
   try{
-    const res=await fetch(SHEET_URLS.mikvaot,{cache:'no-cache'});
+    const bust=Math.floor(Date.now()/60000);
+    const res=await fetch(SHEET_URLS.mikvaot+'&t='+bust,{cache:'no-cache'});
     if(!res.ok)return null;
     const text=await res.text();
     const rows=parseCSV(text);
@@ -1473,11 +1475,11 @@ async function loadMikvaotFromSheet(){
 }
 
 async function loadSyns(){
-  // 1. Supabase (source de vérité)
-  let syns = await loadSynsFromSupabase();
-  // 2. Fallback Sheet si Supabase ne répond pas
+  // 1. Google Sheet (source de vérité — édité par toi)
+  let syns = await loadSynsFromSheet();
+  // 2. Fallback Supabase si le Sheet est inaccessible
   if(!syns || syns.length === 0){
-    syns = await loadSynsFromSheet();
+    syns = await loadSynsFromSupabase();
   }
   // 1.5. Charger les overrides Firebase (soumissions des synagogues elles-mêmes)
   try{ SYN_OVERRIDES = await fbReadSynOverrides(); }catch{}
