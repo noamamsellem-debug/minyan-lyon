@@ -1,0 +1,20 @@
+{
+  "name": "Minyan Lyon",
+  "short_name": "Minyan Lyon",
+  "description": "Trouver un minyan à Lyon — horaires, zmanim, minyans improvisés.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4EFE6",
+  "theme_color": "#161616",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
