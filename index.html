@@ -445,10 +445,10 @@ body.watermark::before{display:none;}
 .teh-prog-card .desc{font-size:11.5px;color:var(--ink-soft);margin-top:5px;line-height:1.35;}
 .teh-month-nav{display:flex;justify-content:space-between;align-items:center;padding:0 22px 12px;}
 .teh-month-title{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);direction:rtl;}
-.teh-month-grid{margin:0 18px 14px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r-lg);padding:10px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;overflow:hidden;}
-.teh-month-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-soft);border-radius:8px;cursor:pointer;overflow:hidden;padding:4px 2px;text-align:center;min-width:0;}
-.teh-month-cell .heb{font-family:var(--serif);font-size:14px;font-weight:700;color:var(--ink);line-height:1;}
-.teh-month-cell .ps{font-size:8px;color:var(--ink-faint);margin-top:2px;line-height:1.1;word-break:break-all;}
+.teh-month-grid{margin:0 18px 14px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r-lg);padding:14px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.teh-month-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-soft);border-radius:8px;cursor:pointer;}
+.teh-month-cell .heb{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--ink);}
+.teh-month-cell .ps{font-size:8.5px;color:var(--ink-faint);margin-top:2px;}
 .teh-month-cell.today{background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border:2px solid var(--gold);}
 .teh-month-cell.today .heb{color:#5C3D1F;}
 .teh-progbar{margin:0 18px 14px;padding:14px 16px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:14px;}
@@ -1862,12 +1862,7 @@ function toggleOmerMiddotRow(w){const row=document.getElementById('omw-'+w);if(r
 // =================================================================
 // === TEHILIM COMPLET (style talmid + koulam) =====================
 // =================================================================
-function decodeHtmlEntities(s){
-  const txt=document.createElement('textarea');
-  txt.innerHTML=s;
-  return txt.value;
-}
-  async function fetchTehilimPerek(num){
+async function fetchTehilimPerek(num){
   const cacheKey='mlTehilim_'+num;
   try{const cached=localStorage.getItem(cacheKey);if(cached)return JSON.parse(cached);}catch{}
   try{
@@ -1997,7 +1992,7 @@ async function openTehilimPerek(num){
   body+=`<div class="teh-tabs"><button class="teh-tab on">עברית</button><button class="teh-tab disabled" onclick="showToast('Phonétique : bientôt disponible',{duration:2000})">Phonétique</button><button class="teh-tab disabled" onclick="showToast('Français : bientôt disponible',{duration:2000})">Français</button></div>`;
   if(data.error){body+=`<p style="color:var(--red);">Erreur : ${escapeHtml(data.error)}</p><p><a href="https://www.sefaria.org/Psalms.${num}" target="_blank" style="color:var(--gold);">Voir sur Sefaria</a></p>`;}
   else if(data.verses.length===0){body+=`<p>Aucun verset trouvé.</p>`;}
-  else{body+=`<div class="teh-perek-reader">`;data.verses.forEach((v,i)=>{const cleanV=decodeHtmlEntities(String(v).replace(/<[^>]*>/g,'')););body+=`<div style="margin-bottom:6px;"><span class="verse-num">${numToHeb(i+1)}</span> ${escapeHtml(cleanV)}</div>`;});body+=`</div>`;}
+  else{body+=`<div class="teh-perek-reader">`;data.verses.forEach((v,i)=>{const cleanV=String(v).replace(/<[^>]*>/g,'');body+=`<div style="margin-bottom:6px;"><span class="verse-num">${numToHeb(i+1)}</span> ${escapeHtml(cleanV)}</div>`;});body+=`</div>`;}
   body+=`<button class="ob-btn" style="margin-top:18px;" onclick="toggleTehilimDoneAndRefresh(${num})">${isDone?'✓ Lu — Décocher':'☐ Marquer comme lu'}</button>`;
   body+=`<p style="font-size:11px;color:var(--ink-faint);margin-top:14px;font-style:italic;text-align:center;">Texte hébreu : <a href="https://www.sefaria.org" target="_blank" style="color:inherit;">Sefaria.org</a></p>`;
   document.getElementById('detailBody').innerHTML=body;
