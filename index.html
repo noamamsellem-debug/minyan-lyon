@@ -2296,6 +2296,10 @@ function handleSynAdminDeepLink(){
   // === INIT (cache-first instantané) ===============================
 // =================================================================
 async function init(){
+  // 0. Si on revient d'un OAuth Google, attendre que Supabase traite le token
+  if(window.location.hash.includes('access_token')){
+    await new Promise(r=>setTimeout(r,600));
+  }
   // 1. AFFICHAGE INSTANTANÉ : on charge le cache immédiatement (synchrone)
   SYNS=loadSynsFromCacheSync()||SYNS_DEFAULT;
   MIKVAOT=loadMikvaotFromCacheSync()||MIKVAOT_DEFAULT;
@@ -2305,9 +2309,14 @@ async function init(){
   updateCountdown();
   updateFindBtnText();
   // 3. Auth en parallèle (non-bloquant)
-  checkAuth().then(()=>{
+   checkAuth().then(()=>{
     updateAuthBanner();
     refreshContribBadge();
+    // 🔧 FIX : si on est connecté, masquer l'écran login
+    if(currentUser){
+      document.getElementById('loginScreen').classList.remove('show');
+      localStorage.removeItem('guestMode');
+    }
     const userName=localStorage.getItem('mlUserName');
     if(!userName&&(currentUser||localStorage.getItem('guestMode')==='1')){document.getElementById('obOverlay').classList.add('show');setTimeout(()=>document.getElementById('obName').focus(),400);}
     buildMinyanList(); // Re-render avec les bons niveaux
