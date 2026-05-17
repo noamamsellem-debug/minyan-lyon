@@ -416,13 +416,14 @@ body.watermark::before { display: none; }
 .contrib-mode-btn.on{background:var(--ink);color:var(--bg);}
 .contrib-section{display:none;}
 .contrib-section.on{display:block;}
-.contrib-file-zone{margin:12px 0 18px;padding:24px 14px;border:2px dashed var(--line);border-radius:14px;text-align:center;background:var(--bg-soft);cursor:pointer;transition:all 0.2s ease;}
+.contrib-file-zone{margin:14px 0 18px;padding:32px 16px;border:2px dashed var(--line);border-radius:16px;text-align:center;background:var(--bg-soft);cursor:pointer;transition:all 0.2s ease;display:block;}
 .contrib-file-zone:active{transform:scale(0.99);}
+.contrib-file-zone:hover{border-color:var(--ink-soft);background:var(--card);}
 .contrib-file-zone.has-file{border-color:var(--green);background:rgba(91,142,91,0.08);border-style:solid;}
-.contrib-file-zone .ic{font-size:36px;margin-bottom:8px;display:block;color:var(--ink-soft);}
+.contrib-file-zone .ic{font-size:42px;margin-bottom:10px;display:block;line-height:1;}
 .contrib-file-zone.has-file .ic{color:var(--green);}
-.contrib-file-zone .lbl{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px;}
-.contrib-file-zone .sub{font-size:11.5px;color:var(--ink-faint);}
+.contrib-file-zone .lbl{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;letter-spacing:-0.005em;}
+.contrib-file-zone .sub{font-size:12px;color:var(--ink-faint);}
 .contrib-file-input{display:none;}
 .contrib-preview{margin-top:12px;padding:10px;background:var(--card);border-radius:10px;border:1px solid var(--line);}
 .contrib-preview img{max-width:100%;border-radius:8px;display:block;}
@@ -436,6 +437,8 @@ body.watermark::before { display: none; }
 .contrib-input-small{padding:10px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:10px;font-family:var(--sans);background:var(--bg);color:var(--ink);outline:none;width:100%;}
 .contrib-input-small:focus{border-color:var(--ink);}
 .contrib-help{background:var(--card);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 10px 10px 0;font-size:12.5px;color:var(--ink-soft);line-height:1.5;margin:8px 0 14px;}
+.contrib-intro{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin:6px 0 22px;}
+.contrib-footnote{margin-top:22px;padding-top:14px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--ink-faint);font-style:italic;text-align:center;line-height:1.5;}
 
 /* === ADMIN INBOX === */
 .adm-badge{display:inline-block;padding:2px 8px;background:var(--red);color:#fff;border-radius:99px;font-size:11px;font-weight:700;margin-left:6px;}
@@ -1386,6 +1389,60 @@ function getDafYomi(d){
   return"Nouveau cycle";
 }
 
+// === TEHILIM DU JOUR — découpage traditionnel sur 30 jours du mois hébraïque ===
+// Chaque entrée = tableau de plages [start,end] (le psaume 119 est découpé en 2 parties)
+const TEHILIM_BY_DAY = {
+  1:  {label:'1 à 9',           detail:[[1,9]]},
+  2:  {label:'10 à 17',         detail:[[10,17]]},
+  3:  {label:'18 à 22',         detail:[[18,22]]},
+  4:  {label:'23 à 28',         detail:[[23,28]]},
+  5:  {label:'29 à 34',         detail:[[29,34]]},
+  6:  {label:'35 à 38',         detail:[[35,38]]},
+  7:  {label:'39 à 43',         detail:[[39,43]]},
+  8:  {label:'44 à 48',         detail:[[44,48]]},
+  9:  {label:'49 à 54',         detail:[[49,54]]},
+  10: {label:'55 à 59',         detail:[[55,59]]},
+  11: {label:'60 à 65',         detail:[[60,65]]},
+  12: {label:'66 à 68',         detail:[[66,68]]},
+  13: {label:'69 à 71',         detail:[[69,71]]},
+  14: {label:'72 à 76',         detail:[[72,76]]},
+  15: {label:'77 et 78',        detail:[[77,78]]},
+  16: {label:'79 à 82',         detail:[[79,82]]},
+  17: {label:'83 à 87',         detail:[[83,87]]},
+  18: {label:'88 et 89',        detail:[[88,89]]},
+  19: {label:'90 à 96',         detail:[[90,96]]},
+  20: {label:'97 à 103',        detail:[[97,103]]},
+  21: {label:'104 et 105',      detail:[[104,105]]},
+  22: {label:'106 et 107',      detail:[[106,107]]},
+  23: {label:'108 à 112',       detail:[[108,112]]},
+  24: {label:'113 à 118',       detail:[[113,118]]},
+  25: {label:'119 (versets 1-96)',   detail:[[119,119]], part:1},
+  26: {label:'119 (versets 97-176)', detail:[[119,119]], part:2},
+  27: {label:'120 à 134',       detail:[[120,134]]},
+  28: {label:'135 à 139',       detail:[[135,139]]},
+  29: {label:'140 à 144',       detail:[[140,144]]},
+  30: {label:'145 à 150',       detail:[[145,150]]}
+};
+
+function getTehilimForDay(d){
+  const j = getJewishDate(d);
+  const monthLen = HEB_ML[j.month]; // 29 ou 30
+  let day = j.day;
+  // Dans un mois de 29 jours, le 29e jour fusionne les segments 29 + 30 (140 à 150)
+  if(monthLen === 29 && day === 29){
+    return 'Chapitres 140 à 150';
+  }
+  const t = TEHILIM_BY_DAY[day];
+  if(!t) return '—';
+  // Cas spécial psaume 119
+  if(t.part) return `Chapitre 119 — partie ${t.part}/2 (${t.part===1?'versets 1-96':'versets 97-176'})`;
+  // Cas chapitre unique
+  if(t.detail.length===1 && t.detail[0][0]===t.detail[0][1]){
+    return `Chapitre ${t.detail[0][0]}`;
+  }
+  return `Chapitres ${t.label}`;
+}
+
 // === SUN ASTRO (fallback si pas dans ZMANIM_DATA) ===
 const LYON_LAT=45.76,LYON_LNG=4.85;
 function getTZOffset(d){const y=d.getFullYear();const lsm=new Date(y,2,31);lsm.setDate(31-lsm.getDay());const lso=new Date(y,9,31);lso.setDate(31-lso.getDay());return(d>=lsm&&d<lso)?120:60;}
@@ -1879,16 +1936,8 @@ function buildCalendar(){
     const candles=z.shkia-18/60;
     shabContainer.innerHTML=`<div class="shab-card"><div class="shab-lbl">🕯 Shabbat cette semaine</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(z.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(z.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(z.rt)}</div></div></div></div>`;
   }else{shabContainer.innerHTML='';}
-  const todayT=new Date();
-  const daysInMonth=new Date(todayT.getFullYear(),todayT.getMonth()+1,0).getDate();
-  const dayOfMonth=todayT.getDate();
-  const baseChaps=Math.floor(150/daysInMonth);
-  const extraChaps=150%daysInMonth;
-  let tehStart=(dayOfMonth-1)*baseChaps+Math.min(dayOfMonth-1,extraChaps)+1;
-  const todayChaps=baseChaps+(dayOfMonth<=extraChaps?1:0);
-  let tehEnd=tehStart+todayChaps-1;
-  if(tehEnd>150)tehEnd=150;
-  const tehTxt=tehStart===tehEnd?`Chapitre ${tehStart}`:`Chapitres ${tehStart}-${tehEnd}`;
+  // Découpage Tehilim traditionnel — basé sur le jour du mois HÉBRAÏQUE
+  const tehTxt = getTehilimForDay(new Date());
   document.getElementById('dafWhen').textContent=getDafYomi(new Date());
   document.getElementById('tehWhen').textContent=tehTxt;
   const today0=new Date();today0.setHours(0,0,0,0);
@@ -2192,8 +2241,7 @@ function openContribute(){
 
   openDetail('Contribuer aux horaires', `
     <h2>Contribuer aux <span class="em">horaires</span></h2>
-    <p>Aide-nous à garder l'app à jour ! Envoie une photo de l'affiche, un PDF, ou tape les horaires directement.</p>
-    <div class="contrib-help">💡 Tes envois sont privés : seul l'administrateur les voit.</div>
+    <p class="contrib-intro">On a besoin de toi ! Une affiche, un horaire — partage-le et fais avancer toute la communauté. 🚀</p>
 
     <div class="contrib-mode-toggle">
       <button class="contrib-mode-btn on" data-mode="photo" onclick="setContribMode('photo')">📸 Photo / PDF</button>
@@ -2202,17 +2250,17 @@ function openContribute(){
     </div>
 
     <div class="contrib-section on" data-section="photo">
-      <p style="font-size:13px;">Affiche de synagogue, capture du Kol Villeurbanne, photo prise sur place...</p>
       <label class="contrib-file-zone" id="contribFileZone" onclick="document.getElementById('contribFileInput').click()">
         <span class="ic" id="contribFileIc">📷</span>
-        <div class="lbl" id="contribFileLbl">Choisir une photo ou un PDF</div>
-        <div class="sub" id="contribFileSub">Max 1 MB après compression auto</div>
+        <div class="lbl" id="contribFileLbl">Prendre une photo ou choisir un fichier</div>
+        <div class="sub" id="contribFileSub">Affiche, planning, capture d'écran… (max 1 Mo)</div>
         <input type="file" class="contrib-file-input" id="contribFileInput" accept="image/*,application/pdf" onchange="handleContribFile(event)">
       </label>
       <div id="contribFilePreview"></div>
       <h3>Précisions (optionnel)</h3>
       <textarea class="ob-input" id="contribPhotoNotes" rows="3" placeholder="Synagogue concernée, semaine, info utile..."></textarea>
       <button class="ob-btn" onclick="submitContribution('photo')">📤 Envoyer</button>
+      <div class="contrib-footnote">🔒 Envoi privé · seul l'administrateur le voit</div>
     </div>
 
     <div class="contrib-section" data-section="text">
@@ -2222,6 +2270,7 @@ function openContribute(){
       <h3>Ton message</h3>
       <textarea class="ob-input" id="contribTextBody" rows="8" placeholder="Ex : Vendredi minha 19h00 suivi 19h20, shabbat shaharit 8h30, minha 19h45..."></textarea>
       <button class="ob-btn" onclick="submitContribution('text')">📤 Envoyer</button>
+      <div class="contrib-footnote">🔒 Envoi privé · seul l'administrateur le voit</div>
     </div>
 
     <div class="contrib-section" data-section="schedule">
@@ -2267,6 +2316,7 @@ function openContribute(){
         <div><label>Arvit</label><input type="text" class="contrib-input-small" id="cs_mm_ar" placeholder="19h20"/></div>
       </div></div>
       <button class="ob-btn" onclick="submitContribution('schedule')">📤 Envoyer</button>
+      <div class="contrib-footnote">🔒 Envoi privé · seul l'administrateur le voit</div>
     </div>
   `);
 
