@@ -352,6 +352,26 @@ body.watermark::before {
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .hidden{display:none!important;}
 
+/* === ADMIN NOTIFICATIONS CARD === */
+.admin-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--sans);border:2px solid var(--card);}
+.contrib-item{background:var(--card);border:1.5px solid var(--line-soft);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.contrib-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.contrib-type-pill{padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;flex-shrink:0;}
+.contrib-type-pill.edit{background:rgba(91,142,91,0.18);color:#4F7349;}
+.contrib-type-pill.text{background:rgba(0,85,164,0.12);color:#0055A4;}
+.contrib-type-pill.photo{background:rgba(212,172,85,0.18);color:#8B6F2A;}
+.contrib-item-name{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);}
+.contrib-item-meta{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.contrib-item-body{font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:12px;padding:10px 12px;background:var(--bg-soft);border-radius:10px;}
+.contrib-item-body .lbl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;display:block;margin-bottom:2px;}
+.contrib-item-body .lbl:not(:first-child){margin-top:8px;}
+.contrib-item-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.contrib-act-btn{flex:1;min-width:90px;padding:9px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.contrib-act-btn:active{transform:scale(0.97);}
+.contrib-act-btn.approve{background:#7BA875;color:#fff;border-color:#7BA875;}
+.contrib-act-btn.reject{background:transparent;color:var(--red);border-color:rgba(196,83,57,0.4);}
+.contrib-empty{text-align:center;padding:40px 22px;color:var(--ink-faint);font-style:italic;font-size:13px;}
+
 /* === CONTRIBUTE FORM (Module 3) === */
 .syn-complete-btn{margin:18px 0 0;width:100%;padding:14px 18px;background:#7BA875;color:#fff;border:none;border-radius:14px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 22px -10px rgba(123,168,117,0.5);}
 .syn-complete-btn:active{transform:scale(0.985);}
@@ -616,6 +636,11 @@ body.watermark::before {
     <div class="tool-card" onclick="openSignal()">
       <div class="tool-ico" style="background:var(--orange-bg);color:var(--orange);">⚡</div>
       <div class="tool-info"><div class="t">Signaler un minyan improvisé</div><div class="s">Partage en temps réel avec la communauté</div></div>
+      <div class="tool-arrow">→</div>
+    </div>
+    <div class="tool-card owner" onclick="openContributionsPanel()" id="adminContribCard" style="display:none;">
+      <div class="tool-ico" style="background:rgba(196,83,57,0.18);color:#C45339;position:relative;">🔔<span id="adminContribBadge" class="admin-badge hidden">0</span></div>
+      <div class="tool-info"><div class="t">Notifications admin</div><div class="s" id="adminContribSub">Aucune demande en attente</div></div>
       <div class="tool-arrow">→</div>
     </div>
     <div class="tool-card" onclick="openInvite()" id="inviteCard" style="display:none;">
@@ -2707,80 +2732,293 @@ function updateContribFileLabel(){
   if(f && f.files && f.files[0] && lbl) lbl.textContent = '📎 ' + f.files[0].name;
 }
 
-// Helper : construit un <form> HTML natif, l'ajoute au DOM et le submit().
-// Pas de fetch → pas de CORS → fonctionne sur iOS Safari, Android, desktop.
-// Le navigateur fait POST + redirection vers Formsubmit puis retour sur l'app via _next.
-function _nativeFormPost(fields, fileInput, subject){
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.enctype = 'multipart/form-data';
-  form.action = `https://formsubmit.co/${CONTRIBUTE_EMAIL}`;
-  form.target = '_self';
-  form.style.display = 'none';
-  const allFields = Object.assign({
-    _subject: subject,
-    _captcha: 'false',
-    _template: 'table',
-    _next: window.location.origin + window.location.pathname + '?contrib=ok'
-  }, fields);
-  for(const [k,v] of Object.entries(allFields)){
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
+// === FIREBASE CONTRIBUTIONS (modération admin) ============
+// Toutes les contributions vont dans /contributions/{id} sur Firebase RTDB.
+// L'admin (isOwner) les voit dans la carte "Notifications", valide ou refuse.
+// Validation applique le changement via syn_overrides (déjà existant).
+
+async function fbWriteContribution(contrib){
+  if(!FB_ENABLED()){
+    try{
+      const all = JSON.parse(localStorage.getItem('mlContributions')||'[]');
+      all.push(contrib);
+      localStorage.setItem('mlContributions', JSON.stringify(all));
+      return true;
+    }catch{ return false; }
   }
-  if(fileInput){ fileInput.name = 'attachment'; form.appendChild(fileInput); }
-  document.body.appendChild(form);
-  showToast('Envoi en cours… (1-2 sec)', {duration:3000});
-  form.submit();
+  const url = `${FIREBASE_CONFIG.databaseURL}/contributions/${contrib.id}.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{
+    const r = await fetch(url, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(contrib)});
+    return r.ok;
+  }catch{ return false; }
 }
 
-function submitContribText(){
+async function fbReadContributions(){
+  if(!FB_ENABLED()){
+    try{ return JSON.parse(localStorage.getItem('mlContributions')||'[]'); }
+    catch{ return []; }
+  }
+  const url = `${FIREBASE_CONFIG.databaseURL}/contributions.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{
+    const r = await fetch(url, {cache:'no-cache'});
+    if(!r.ok) return [];
+    const data = await r.json();
+    if(!data) return [];
+    return Array.isArray(data) ? data.filter(Boolean) : Object.values(data);
+  }catch{ return []; }
+}
+
+async function fbUpdateContributionStatus(id, status, extra){
+  if(!FB_ENABLED()){
+    try{
+      const all = JSON.parse(localStorage.getItem('mlContributions')||'[]');
+      const idx = all.findIndex(c => c && c.id === id);
+      if(idx >= 0){ all[idx].status = status; if(extra) Object.assign(all[idx], extra); }
+      localStorage.setItem('mlContributions', JSON.stringify(all));
+      return true;
+    }catch{ return false; }
+  }
+  const patch = Object.assign({status, handledAt: Date.now()}, extra || {});
+  const url = `${FIREBASE_CONFIG.databaseURL}/contributions/${id}.json?auth=${FIREBASE_CONFIG.apiKey}`;
+  try{
+    const r = await fetch(url, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(patch)});
+    return r.ok;
+  }catch{ return false; }
+}
+
+function _newContribId(){
+  return 'c' + Date.now() + Math.random().toString(36).slice(2,6);
+}
+
+async function submitContribText(){
   const syn = (document.getElementById('contribTextSyn').value || '').trim();
   const addr = (document.getElementById('contribTextAddr').value || '').trim();
   const body = (document.getElementById('contribTextBody').value || '').trim();
   if(!syn || !body){ showToast('Synagogue et description obligatoires', {type:'error'}); return; }
-  _nativeFormPost({
-    Synagogue: syn,
-    Adresse: addr || '(non renseignée)',
-    Description: body,
-    Utilisateur: currentUser ? currentUser.email : 'invité'
-  }, null, `[Minyan Lyon] Texte horaires — ${syn}`);
+  showToast('Envoi…', {duration:1500});
+  const contrib = {
+    id: _newContribId(),
+    type: 'text',
+    synId: CONTRIB_CURRENT_SYN ? (CONTRIB_CURRENT_SYN.id ?? null) : null,
+    synName: syn,
+    data: { addr: addr || '', description: body },
+    submittedBy: currentUser ? currentUser.email : 'invité',
+    submittedAt: Date.now(),
+    status: 'pending'
+  };
+  const ok = await fbWriteContribution(contrib);
+  if(ok){
+    showToast('Merci ! Demande envoyée à l\'admin ✓', {type:'success', duration:4000});
+    closeDetail();
+    refreshAdminContribBadge();
+  }else{
+    showToast('Erreur d\'envoi. Réessayez plus tard.', {type:'error'});
+  }
 }
 
-function submitContribEdit(){
+async function submitContribEdit(){
   const syn = (document.getElementById('contribEditSyn').value || '').trim();
   const day = document.getElementById('contribEditDay').value;
   const prayer = document.getElementById('contribEditPrayer').value;
   const time = (document.getElementById('contribEditTime').value || '').trim();
   const note = (document.getElementById('contribEditNote').value || '').trim();
   if(!syn || !time){ showToast('Synagogue et horaire obligatoires', {type:'error'}); return; }
-  const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
-  const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
-  _nativeFormPost({
-    Synagogue: syn,
-    Jour: dayLabels[day] || day,
-    Priere: prayerLabels[prayer] || prayer,
-    NouvelHoraire: time,
-    Commentaire: note || '(aucun)',
-    Utilisateur: currentUser ? currentUser.email : 'invité'
-  }, null, `[Minyan Lyon] Modif horaire — ${syn}`);
+  showToast('Envoi…', {duration:1500});
+  const contrib = {
+    id: _newContribId(),
+    type: 'edit',
+    synId: CONTRIB_CURRENT_SYN ? (CONTRIB_CURRENT_SYN.id ?? null) : null,
+    synName: syn,
+    data: { day, prayer, time, note: note || '' },
+    submittedBy: currentUser ? currentUser.email : 'invité',
+    submittedAt: Date.now(),
+    status: 'pending'
+  };
+  const ok = await fbWriteContribution(contrib);
+  if(ok){
+    showToast('Merci ! Demande envoyée à l\'admin ✓', {type:'success', duration:4000});
+    closeDetail();
+    refreshAdminContribBadge();
+  }else{
+    showToast('Erreur d\'envoi. Réessayez plus tard.', {type:'error'});
+  }
 }
 
-function submitContribPhoto(){
+// Pour la photo : on convertit en base64 (limite 2 Mo pour éviter de surcharger Firebase RTDB).
+async function submitContribPhoto(){
   const f = document.getElementById('contribFile');
   const note = (document.getElementById('contribPhotoNote').value || '').trim();
   if(!f || !f.files || !f.files[0]){ showToast('Choisissez une photo ou un PDF', {type:'error'}); return; }
   const file = f.files[0];
-  if(file.size > 5 * 1024 * 1024){ showToast('Fichier > 5 Mo — réduisez-le', {type:'error', duration:4000}); return; }
+  if(file.size > 2 * 1024 * 1024){ showToast('Fichier > 2 Mo — réduisez-le (compressez la photo)', {type:'error', duration:5000}); return; }
+  showToast('Envoi…', {duration:2000});
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  }).catch(()=>null);
+  if(!dataUrl){ showToast('Impossible de lire le fichier', {type:'error'}); return; }
   const synName = CONTRIB_CURRENT_SYN ? CONTRIB_CURRENT_SYN.name : '(non précisée)';
-  _nativeFormPost({
-    Synagogue: synName,
-    Adresse: (CONTRIB_CURRENT_SYN && CONTRIB_CURRENT_SYN.addr) || '(non renseignée)',
-    Commentaire: note || '(aucun)',
-    Utilisateur: currentUser ? currentUser.email : 'invité'
-  }, f, `[Minyan Lyon] Photo horaires — ${synName}`);
+  const contrib = {
+    id: _newContribId(),
+    type: 'photo',
+    synId: CONTRIB_CURRENT_SYN ? (CONTRIB_CURRENT_SYN.id ?? null) : null,
+    synName: synName,
+    data: { fileName: file.name, fileSize: file.size, mimeType: file.type, dataUrl, note: note || '' },
+    submittedBy: currentUser ? currentUser.email : 'invité',
+    submittedAt: Date.now(),
+    status: 'pending'
+  };
+  const ok = await fbWriteContribution(contrib);
+  if(ok){
+    showToast('Merci ! Photo envoyée à l\'admin ✓', {type:'success', duration:4000});
+    closeDetail();
+    refreshAdminContribBadge();
+  }else{
+    showToast('Erreur d\'envoi. Réessayez plus tard.', {type:'error'});
+  }
+}
+
+// === PANNEAU ADMIN : liste, approbation, rejet ===========
+
+function _contribTypeLabel(type){
+  return {edit:'MODIF', text:'TEXTE', photo:'PHOTO'}[type] || type.toUpperCase();
+}
+function _contribFmtDate(ts){
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  if(sameDay) return `Aujourd'hui ${hh}h${mm}`;
+  return `${d.getDate()}/${d.getMonth()+1} ${hh}h${mm}`;
+}
+
+async function refreshAdminContribBadge(){
+  const card = document.getElementById('adminContribCard');
+  const badge = document.getElementById('adminContribBadge');
+  const sub = document.getElementById('adminContribSub');
+  if(!card) return;
+  if(!isOwner()){ card.style.display='none'; return; }
+  card.style.display='flex';
+  const all = await fbReadContributions();
+  const pending = all.filter(c => c && c.status === 'pending');
+  if(pending.length > 0){
+    badge.textContent = String(pending.length);
+    badge.classList.remove('hidden');
+    sub.textContent = `${pending.length} demande${pending.length>1?'s':''} en attente`;
+  }else{
+    badge.classList.add('hidden');
+    sub.textContent = 'Aucune demande en attente';
+  }
+}
+
+async function openContributionsPanel(){
+  if(!isOwner()){ showToast('Réservé au propriétaire', {type:'error'}); return; }
+  openDetail('Notifications admin', `<h2>Demandes <span class="em">à modérer</span></h2><div id="contribList">${impSkeletonHtml(3)}</div>`);
+  await renderContribList();
+}
+
+async function renderContribList(){
+  const host = document.getElementById('contribList');
+  if(!host) return;
+  const all = await fbReadContributions();
+  const pending = all
+    .filter(c => c && c.status === 'pending')
+    .sort((a,b) => (b.submittedAt||0) - (a.submittedAt||0));
+  if(pending.length === 0){
+    host.innerHTML = `<div class="contrib-empty">Aucune demande en attente.<br>Tu seras notifié quand quelqu'un proposera des horaires.</div>`;
+    return;
+  }
+  let html = '';
+  for(const c of pending){
+    const typeLabel = _contribTypeLabel(c.type);
+    const synName = escapeHtml(c.synName || '(syna inconnue)');
+    const by = escapeHtml(c.submittedBy || '?');
+    const when = _contribFmtDate(c.submittedAt);
+    let bodyHtml = '';
+    if(c.type === 'edit'){
+      const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
+      const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
+      bodyHtml = `
+        <span class="lbl">Jour</span>${escapeHtml(dayLabels[c.data.day] || c.data.day)}
+        <span class="lbl">Prière</span>${escapeHtml(prayerLabels[c.data.prayer] || c.data.prayer)}
+        <span class="lbl">Nouvel horaire</span><b>${escapeHtml(c.data.time)}</b>
+        ${c.data.note ? `<span class="lbl">Commentaire</span>${escapeHtml(c.data.note)}` : ''}
+      `;
+    }else if(c.type === 'text'){
+      bodyHtml = `
+        ${c.data.addr ? `<span class="lbl">Adresse</span>${escapeHtml(c.data.addr)}` : ''}
+        <span class="lbl">Description</span>${escapeHtml(c.data.description).replace(/\n/g,'<br>')}
+      `;
+    }else if(c.type === 'photo'){
+      const img = c.data.mimeType && c.data.mimeType.startsWith('image/')
+        ? `<img src="${c.data.dataUrl}" style="max-width:100%;border-radius:8px;margin-top:8px;" alt="">`
+        : `<a href="${c.data.dataUrl}" download="${escapeHtml(c.data.fileName)}" style="color:var(--ink);font-weight:600;">📎 Télécharger ${escapeHtml(c.data.fileName)}</a>`;
+      bodyHtml = `
+        <span class="lbl">Fichier</span>${escapeHtml(c.data.fileName)} (${Math.round(c.data.fileSize/1024)} Ko)
+        ${c.data.note ? `<span class="lbl">Commentaire</span>${escapeHtml(c.data.note)}` : ''}
+        ${img}
+      `;
+    }
+    const canApply = (c.type === 'edit' && c.synId != null);
+    html += `<div class="contrib-item" id="contrib-${c.id}">
+      <div class="contrib-item-head">
+        <div>
+          <div class="contrib-item-name">${synName}</div>
+          <div class="contrib-item-meta">${by} · ${when}</div>
+        </div>
+        <span class="contrib-type-pill ${c.type}">${typeLabel}</span>
+      </div>
+      <div class="contrib-item-body">${bodyHtml}</div>
+      <div class="contrib-item-actions">
+        ${canApply ? `<button class="contrib-act-btn approve" onclick="approveContrib('${c.id}')">✓ Valider & appliquer</button>` : `<button class="contrib-act-btn approve" onclick="markContribHandled('${c.id}')">✓ Marquer traitée</button>`}
+        <button class="contrib-act-btn reject" onclick="rejectContrib('${c.id}')">✗ Rejeter</button>
+      </div>
+    </div>`;
+  }
+  host.innerHTML = html;
+}
+
+async function approveContrib(id){
+  const all = await fbReadContributions();
+  const c = all.find(x => x && x.id === id);
+  if(!c){ showToast('Demande introuvable', {type:'error'}); return; }
+  if(c.type !== 'edit' || c.synId == null){ markContribHandled(id); return; }
+  const syn = (SYNS||[]).find(s => String(s.id) === String(c.synId));
+  if(!syn){ showToast('Syna introuvable', {type:'error'}); return; }
+  // Repartir des overrides existants si présents, sinon de syn.h
+  await refreshSynOverrides();
+  const ov = SYN_OVERRIDES[String(c.synId)];
+  const baseH = (ov && ov.h) ? JSON.parse(JSON.stringify(ov.h)) : JSON.parse(JSON.stringify(syn.h || {}));
+  if(!baseH[c.data.day]) baseH[c.data.day] = {sh:null, mi:null, ar:null};
+  baseH[c.data.day][c.data.prayer] = c.data.time;
+  const ok = await fbWriteSynOverride(c.synId, {h: baseH, updatedAt: Date.now(), updatedByName: 'Admin (validation contribution)'});
+  if(!ok){ showToast('Erreur d\'application', {type:'error'}); return; }
+  await fbUpdateContributionStatus(id, 'approved');
+  showToast('Horaire mis à jour ✓', {type:'success'});
+  await refreshSynOverrides();
+  if(typeof buildMinyanList === 'function') buildMinyanList();
+  renderContribList();
+  refreshAdminContribBadge();
+}
+
+async function markContribHandled(id){
+  const ok = await fbUpdateContributionStatus(id, 'handled');
+  if(!ok){ showToast('Erreur', {type:'error'}); return; }
+  showToast('Marquée comme traitée ✓', {type:'success'});
+  renderContribList();
+  refreshAdminContribBadge();
+}
+
+async function rejectContrib(id){
+  if(!confirm('Rejeter cette demande ?')) return;
+  const ok = await fbUpdateContributionStatus(id, 'rejected');
+  if(!ok){ showToast('Erreur', {type:'error'}); return; }
+  showToast('Demande rejetée', {duration:2000});
+  renderContribList();
+  refreshAdminContribBadge();
 }
 
 // Si on revient sur l'app avec ?contrib=ok, afficher un toast de succès.
@@ -3008,7 +3246,11 @@ async function init(){
     buildMinyanList();
     updateCountdown();
     renderTopBadges();
+    refreshAdminContribBadge();
   }, 60 * 1000);
+
+  // 5. Badge admin notifications dès le chargement
+  refreshAdminContribBadge();
 
   // Charger une première fois les minyans improvisés puis s'abonner au live
   const refreshFromFb=()=>fbReadMinyans().then(ms=>{CACHED_MINYANS=cleanExpiredMinyans(ms);refreshHomeImpromptu();if(document.getElementById('impList'))loadImpromptu();});
