@@ -2707,13 +2707,33 @@ function updateContribFileLabel(){
   if(f && f.files && f.files[0] && lbl) lbl.textContent = '📎 ' + f.files[0].name;
 }
 
-// Pour les onglets Texte et Modifier : ouvre l'app mail (mailto:) — pas de CORS, pas d'activation.
-function _openMailto(subject, bodyLines){
-  const body = bodyLines.filter(Boolean).join('\n');
-  const url = `mailto:${CONTRIBUTE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  console.log('[Contrib] mailto length:', url.length);
-  // Sur iOS, mailto fonctionne mieux via window.location que window.open.
-  window.location.href = url;
+// Helper : construit un <form> HTML natif, l'ajoute au DOM et le submit().
+// Pas de fetch → pas de CORS → fonctionne sur iOS Safari, Android, desktop.
+// Le navigateur fait POST + redirection vers Formsubmit puis retour sur l'app via _next.
+function _nativeFormPost(fields, fileInput, subject){
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.enctype = 'multipart/form-data';
+  form.action = `https://formsubmit.co/${CONTRIBUTE_EMAIL}`;
+  form.target = '_self';
+  form.style.display = 'none';
+  const allFields = Object.assign({
+    _subject: subject,
+    _captcha: 'false',
+    _template: 'table',
+    _next: window.location.origin + window.location.pathname + '?contrib=ok'
+  }, fields);
+  for(const [k,v] of Object.entries(allFields)){
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  }
+  if(fileInput){ fileInput.name = 'attachment'; form.appendChild(fileInput); }
+  document.body.appendChild(form);
+  showToast('Envoi en cours… (1-2 sec)', {duration:3000});
+  form.submit();
 }
 
 function submitContribText(){
@@ -2721,16 +2741,12 @@ function submitContribText(){
   const addr = (document.getElementById('contribTextAddr').value || '').trim();
   const body = (document.getElementById('contribTextBody').value || '').trim();
   if(!syn || !body){ showToast('Synagogue et description obligatoires', {type:'error'}); return; }
-  const lines = [
-    `Synagogue : ${syn}`,
-    `Adresse : ${addr || '(non renseignée)'}`,
-    `Utilisateur : ${currentUser ? currentUser.email : 'invité'}`,
-    `---`,
-    body
-  ];
-  showToast('Ouverture de l\'app Mail…', {duration:2500});
-  _openMailto(`[Minyan Lyon] Texte horaires — ${syn}`, lines);
-  setTimeout(closeDetail, 500);
+  _nativeFormPost({
+    Synagogue: syn,
+    Adresse: addr || '(non renseignée)',
+    Description: body,
+    Utilisateur: currentUser ? currentUser.email : 'invité'
+  }, null, `[Minyan Lyon] Texte horaires — ${syn}`);
 }
 
 function submitContribEdit(){
@@ -2742,21 +2758,16 @@ function submitContribEdit(){
   if(!syn || !time){ showToast('Synagogue et horaire obligatoires', {type:'error'}); return; }
   const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
   const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
-  const lines = [
-    `Synagogue : ${syn}`,
-    `Jour : ${dayLabels[day] || day}`,
-    `Prière : ${prayerLabels[prayer] || prayer}`,
-    `Nouvel horaire : ${time}`,
-    `Commentaire : ${note || '(aucun)'}`,
-    `Utilisateur : ${currentUser ? currentUser.email : 'invité'}`
-  ];
-  showToast('Ouverture de l\'app Mail…', {duration:2500});
-  _openMailto(`[Minyan Lyon] Modif horaire — ${syn}`, lines);
-  setTimeout(closeDetail, 500);
+  _nativeFormPost({
+    Synagogue: syn,
+    Jour: dayLabels[day] || day,
+    Priere: prayerLabels[prayer] || prayer,
+    NouvelHoraire: time,
+    Commentaire: note || '(aucun)',
+    Utilisateur: currentUser ? currentUser.email : 'invité'
+  }, null, `[Minyan Lyon] Modif horaire — ${syn}`);
 }
 
-// Pour la photo/PDF : soumission HTML native (form.submit()) vers Formsubmit.
-// Pas de fetch, pas de CORS. Le navigateur redirige vers formsubmit puis revient sur l'app via _next.
 function submitContribPhoto(){
   const f = document.getElementById('contribFile');
   const note = (document.getElementById('contribPhotoNote').value || '').trim();
@@ -2764,37 +2775,12 @@ function submitContribPhoto(){
   const file = f.files[0];
   if(file.size > 5 * 1024 * 1024){ showToast('Fichier > 5 Mo — réduisez-le', {type:'error', duration:4000}); return; }
   const synName = CONTRIB_CURRENT_SYN ? CONTRIB_CURRENT_SYN.name : '(non précisée)';
-
-  // Construire un <form> caché avec les bons champs + le file input existant déplacé dedans.
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.enctype = 'multipart/form-data';
-  form.action = `https://formsubmit.co/${CONTRIBUTE_EMAIL}`;
-  form.target = '_self';
-  form.style.display = 'none';
-  const fields = {
-    _subject: `[Minyan Lyon] Photo horaires — ${synName}`,
-    _captcha: 'false',
-    _template: 'table',
-    _next: window.location.origin + window.location.pathname + '?contrib=ok',
+  _nativeFormPost({
     Synagogue: synName,
     Adresse: (CONTRIB_CURRENT_SYN && CONTRIB_CURRENT_SYN.addr) || '(non renseignée)',
     Commentaire: note || '(aucun)',
     Utilisateur: currentUser ? currentUser.email : 'invité'
-  };
-  for(const [k,v] of Object.entries(fields)){
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = k;
-    input.value = v;
-    form.appendChild(input);
-  }
-  // Déplacer le vrai file input dans le form (sinon impossible de l'attacher programmatiquement)
-  f.name = 'attachment';
-  form.appendChild(f);
-  document.body.appendChild(form);
-  showToast('Envoi en cours… (Formsubmit s\'ouvre)', {duration:3000});
-  form.submit();
+  }, f, `[Minyan Lyon] Photo horaires — ${synName}`);
 }
 
 // Si on revient sur l'app avec ?contrib=ok, afficher un toast de succès.
