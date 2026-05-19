@@ -352,6 +352,41 @@ body.watermark::before {
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .hidden{display:none!important;}
 
+/* === CONTRIBUTE FORM (Module 3) === */
+.syn-complete-btn{margin:18px 0 0;width:100%;padding:14px 18px;background:#7BA875;color:#fff;border:none;border-radius:14px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 22px -10px rgba(123,168,117,0.5);}
+.syn-complete-btn:active{transform:scale(0.985);}
+.contrib-tabs{display:flex;gap:4px;background:var(--bg-soft);padding:4px;border-radius:99px;margin-bottom:18px;}
+.contrib-tab{flex:1;min-width:0;padding:8px 6px;background:transparent;border:none;border-radius:99px;font-size:11.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:all 0.18s ease;text-align:center;}
+.contrib-tab.on{background:var(--ink);color:var(--bg);}
+.contrib-syn-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(212,172,85,0.18);color:#8B6F2A;border-radius:99px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
+.contrib-file-label{display:block;width:100%;padding:24px 14px;border:2px dashed var(--line);border-radius:12px;text-align:center;font-size:13.5px;color:var(--ink-soft);cursor:pointer;margin-bottom:14px;background:var(--card);}
+.contrib-file-label:hover{border-color:var(--ink);}
+.contrib-form-label{font-size:12px;color:var(--ink-soft);font-weight:600;display:block;margin-bottom:4px;margin-top:8px;text-transform:uppercase;letter-spacing:0.05em;}
+
+/* === POPUP PWA (Ajouter à l'écran d'accueil) === */
+.pwa-sheet{position:relative;}
+.pwa-close{position:absolute;top:-8px;right:-4px;width:34px;height:34px;border-radius:50%;background:var(--bg-soft);border:1.5px solid var(--line);color:var(--ink);font-size:18px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:var(--sans);}
+.pwa-close:active{transform:scale(0.92);}
+.pwa-ico-big{font-size:42px;text-align:center;margin-bottom:10px;}
+.pwa-title{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-0.012em;line-height:1.2;text-align:center;margin-bottom:8px;color:var(--ink);}
+.pwa-sub{font-size:13.5px;color:var(--ink-soft);text-align:center;margin-bottom:18px;line-height:1.45;}
+.pwa-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.pwa-step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--bg-soft);border-radius:12px;}
+.pwa-step-n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--sans);}
+.pwa-step-t{flex:1;font-size:13px;color:var(--ink);line-height:1.4;}
+.pwa-step-t .em{font-style:normal;font-weight:700;}
+.pwa-fallback{font-size:12.5px;color:var(--ink-soft);text-align:center;font-style:italic;line-height:1.45;}
+
+/* === BADGES ZCARD (jour férié, Rosh Hodesh, etc.) === */
+#topBadges{margin:0 18px;display:flex;flex-direction:column;gap:8px;}
+#topBadges:empty{display:none;}
+.hol-badge{padding:10px 14px;background:rgba(0,85,164,0.1);border:1px solid rgba(0,85,164,0.3);border-radius:12px;font-size:13px;color:#0055A4;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;}
+.hol-badge .ic{font-size:15px;}
+.rh-badge{padding:10px 14px;background:linear-gradient(135deg,#E8D5F5 0%,#D4BEED 100%);border-radius:12px;display:flex;align-items:center;gap:10px;color:#5C2A87;font-size:13px;font-weight:500;}
+.rh-badge .rh-ico{font-size:18px;flex-shrink:0;}
+.rh-badge b{font-weight:700;}
+.rh-badge .rh-txt{flex:1;line-height:1.35;}
+
 /* === TOASTS === */
 .toast-stack{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:9999;pointer-events:none;padding:0 18px;}
 .toast{max-width:380px;width:auto;background:rgba(22,22,20,0.96);color:#F8E9C2;padding:13px 18px;border-radius:14px;font-size:14px;font-weight:500;font-family:var(--sans);box-shadow:0 10px 28px -8px rgba(0,0,0,0.45);display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1) backwards;}
@@ -456,6 +491,8 @@ body.watermark::before {
       <span class="txt"><span class="lvl" id="authBannerLvl">Accès limité</span> · <span id="authBannerMsg">Connectez-vous pour voir les adresses</span></span>
       <button class="auth-banner-btn" onclick="showLoginScreen()">Connexion</button>
     </div>
+
+    <div id="topBadges" class="fade-up"></div>
 
     <div class="zcard fade-up">
       <div class="zcard-head"><div class="zcard-loc">Zmanim · Lyon</div><div class="zcard-date" id="zDate">…</div></div>
@@ -609,6 +646,17 @@ body.watermark::before {
     <p>Pour vous saluer chaque jour. Modifiable à tout moment.</p>
     <input type="text" class="ob-input" id="obName" placeholder="Votre prénom" autocomplete="given-name">
     <button class="ob-btn" onclick="saveName()">Continuer <span>→</span></button>
+  </div>
+</div>
+
+<div class="ob-overlay" id="pwaOverlay">
+  <div class="ob pwa-sheet">
+    <button class="pwa-close" aria-label="Fermer" onclick="dismissPwaPrompt()">×</button>
+    <div class="ob-bar"></div>
+    <div class="pwa-ico-big">📱</div>
+    <div class="pwa-title">Installez Minyan Lyon sur votre écran d'accueil</div>
+    <div class="pwa-sub">Accès rapide, fonctionne hors-ligne, comme une vraie application.</div>
+    <div id="pwaBody"></div>
   </div>
 </div>
 
@@ -1530,7 +1578,23 @@ function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
 function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,dq=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dq-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m2=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m2+114)/31),da=((h+l-7*m2+114)%31)+1;return new Date(y,mo-1,da);}
 function isFrenchHoliday(d){const y=d.getFullYear(),m=d.getMonth(),da=d.getDate();const fixed=[[0,1],[4,1],[4,8],[6,14],[7,15],[10,1],[10,11],[11,25]];for(const [fm,fd] of fixed){if(m===fm&&da===fd)return true;}const e=easterSunday(y);const day=86400000;const eMonday=new Date(e.getTime()+day);const ascension=new Date(e.getTime()+39*day);const pentMonday=new Date(e.getTime()+50*day);for(const h of [eMonday,ascension,pentMonday]){if(h.getFullYear()===y&&h.getMonth()===m&&h.getDate()===da)return true;}return false;}
-function getDayKey(d){const dow=d.getDay();if(dow===5)return'vendredi';if(dow===6)return'shabbat';if(dow===0||isFrenchHoliday(d))return'dimanche';if(dow===1||dow===4)return'lundi_jeudi';return'mardi_mercredi';}
+// Renvoie la clé jour pour la lecture des horaires d'une syna.
+// Optionnel : prayer='sh' force le créneau 'dimanche' les jours fériés FR (Minha/Arvit gardent le jour réel).
+function getDayKey(d, prayer){
+  const dow=d.getDay();
+  if(dow===5)return'vendredi';
+  if(dow===6)return'shabbat';
+  if(dow===0)return'dimanche';
+  if(prayer==='sh' && isFrenchHoliday(d)) return 'dimanche';
+  if(dow===1||dow===4)return'lundi_jeudi';
+  return'mardi_mercredi';
+}
+// Vrai si la date tombe un jour férié FR sur un jour ouvré (lun-jeu), où Shaharit bascule sur dimanche.
+function isShaharitHolidayRemap(d){
+  const dow=d.getDay();
+  if(dow===0||dow===5||dow===6) return false;
+  return isFrenchHoliday(d);
+}
 
 // Renvoie {friday, saturday} du Shabbat à afficher. Bascule sur la semaine d'après dès motsei Shabbat.
 function getUpcomingShabbat(now){
@@ -1562,19 +1626,52 @@ function buildShabbatCardHtml(now){
   return `<div class="shab-card"><div class="shab-lbl">🕯 Shabbat · ${dateStr}</div><div class="shab-grid"><div class="shab-item"><div class="l">Allumage (-18 min)</div><div class="v">${fmt(candles)}</div></div><div class="shab-item"><div class="l">Coucher du soleil</div><div class="v">${fmt(zF.shkia)}</div></div><div class="shab-item"><div class="l">Fin Shabbat</div><div class="v">${fmt(zS.fin_shab)}</div></div><div class="shab-item"><div class="l">Rabbeinou Tam</div><div class="v">${fmt(zS.rt)}</div></div></div></div>`;
 }
 
+// Met à jour les badges affichés au-dessus de la zcard (jours fériés FR, Rosh Hodesh, etc.).
+// Appelé par init() et updateCountdown().
+function renderTopBadges(){
+  const host = document.getElementById('topBadges');
+  if(!host) return;
+  const today = new Date();
+  const parts = [];
+  if(isShaharitHolidayRemap(today)){
+    parts.push(`<div class="hol-badge"><span class="ic">🇫🇷</span><span>Jour férié — Shaharit du dimanche</span></div>`);
+  }
+  const rh = (typeof getRoshHodeshToday === 'function') ? getRoshHodeshToday() : null;
+  if(rh){
+    parts.push(`<div class="rh-badge"><span class="rh-ico">🌙</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>`);
+  }
+  host.innerHTML = parts.join('');
+}
+
 function nextPrayer(syn,now){
-  const dk=getDayKey(now);const today=syn.h[dk];const nowH=now.getHours()+now.getMinutes()/60;
-  if(today){
-    const prayers=[{type:'sh',name:'Shaharit',time:parseHour(today.sh)},{type:'mi',name:'Minha',time:parseHour(today.mi)},{type:'ar',name:'Arvit',time:parseHour(today.ar)}].filter(p=>p.time);
+  const dkSh=getDayKey(now,'sh');
+  const dkN=getDayKey(now);
+  const todaySh=syn.h[dkSh];
+  const todayN=syn.h[dkN];
+  const nowH=now.getHours()+now.getMinutes()/60;
+  if(todaySh||todayN){
+    const prayers=[
+      {type:'sh',name:'Shaharit',time:parseHour(todaySh?todaySh.sh:null)},
+      {type:'mi',name:'Minha',time:parseHour(todayN?todayN.mi:null)},
+      {type:'ar',name:'Arvit',time:parseHour(todayN?todayN.ar:null)}
+    ].filter(p=>p.time);
     const TOL={sh:2,mi:0.5,ar:0.5};
     const upcoming=prayers.filter(p=>p.time>=nowH-TOL[p.type]);
     if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.5,daysAhead:0};}
   }
   const dayShort=['dim.','lun.','mar.','mer.','jeu.','ven.','shabbat'];
   for(let i=1;i<=7;i++){
-    const future=new Date(now.getTime()+i*86400000);const fdk=getDayKey(future);const fd=syn.h[fdk];
-    if(!fd)continue;
-    const fp=[{type:'sh',name:'Shaharit',time:parseHour(fd.sh)},{type:'mi',name:'Minha',time:parseHour(fd.mi)},{type:'ar',name:'Arvit',time:parseHour(fd.ar)}].filter(p=>p.time);
+    const future=new Date(now.getTime()+i*86400000);
+    const fdkSh=getDayKey(future,'sh');
+    const fdkN=getDayKey(future);
+    const fdSh=syn.h[fdkSh];
+    const fdN=syn.h[fdkN];
+    if(!fdSh&&!fdN)continue;
+    const fp=[
+      {type:'sh',name:'Shaharit',time:parseHour(fdSh?fdSh.sh:null)},
+      {type:'mi',name:'Minha',time:parseHour(fdN?fdN.mi:null)},
+      {type:'ar',name:'Arvit',time:parseHour(fdN?fdN.ar:null)}
+    ].filter(p=>p.time);
     if(fp.length){const dayName=i===1?'demain':dayShort[future.getDay()];return{...fp[0],when:dayName,daysAhead:i};}
   }
   return null;
@@ -1582,6 +1679,21 @@ function nextPrayer(syn,now){
 function distance(lat1,lng1,lat2,lng2){const R=6371000;const f1=lat1*Math.PI/180,f2=lat2*Math.PI/180;const df=(lat2-lat1)*Math.PI/180,dl=(lng2-lng1)*Math.PI/180;const a=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function fmtDist(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(1)} km`;}
 function fmtWalk(m){const min=Math.round(m/80);if(min<1)return'<1 min';return`${min} min à pied`;}
+
+// Normalise un téléphone FR en format international. Renvoie {display, href}.
+function formatPhoneFR(tel){
+  if(!tel) return {display:'', href:''};
+  let clean = String(tel).replace(/[^\d+]/g,'');
+  if(clean.startsWith('+33')){}
+  else if(clean.startsWith('33') && clean.length>=11) clean = '+' + clean;
+  else if(clean.startsWith('0')) clean = '+33' + clean.slice(1);
+  else if(clean.length===9) clean = '+33' + clean;
+  else return {display: String(tel), href: String(tel)};
+  const digits = clean.slice(3);
+  if(digits.length!==9) return {display: clean, href: clean};
+  const display = '+33 ' + digits[0] + ' ' + digits.slice(1,3) + ' ' + digits.slice(3,5) + ' ' + digits.slice(5,7) + ' ' + digits.slice(7,9);
+  return {display, href: clean};
+}
 
 // ============================================================
 // === BUILD MINYAN LIST (avec niveaux d'accès) ===============
@@ -1600,11 +1712,15 @@ function openGuestSynBlock(syn){
   `);
 }
 
-// Détermine la prière à afficher en mode invité selon les zmanim
+// Détermine la prière à afficher en mode invité selon les zmanim.
+// Shaharit lit le créneau dimanche les jours fériés FR ; Minha/Arvit gardent le jour réel.
 function getGuestDisplayPrayer(syn, now){
-  const dk = getDayKey(now);
-  const today = syn.h[dk];
-  if(!today) return null;
+  const dkSh = getDayKey(now,'sh');
+  const dkN = getDayKey(now);
+  const todaySh = syn.h[dkSh];
+  const todayN = syn.h[dkN];
+  if(!todaySh && !todayN) return null;
+  const pick = (t) => t==='sh' ? (todaySh?todaySh.sh:null) : (todayN?todayN[t]:null);
   const z = calcZmanim(now);
   const nowH = now.getHours() + now.getMinutes()/60;
   let window;
@@ -1612,11 +1728,10 @@ function getGuestDisplayPrayer(syn, now){
   else if(nowH < z.shkia) window = 'mi';
   else window = 'ar';
   const labels = {sh:'Shaharit', mi:'Minha', ar:'Arvit'};
-  if(today[window]) return {time:today[window], label:labels[window]};
-  // Fallback : essayer les autres prières du jour
+  if(pick(window)) return {time:pick(window), label:labels[window]};
   const fallback = window === 'sh' ? ['mi','ar'] : window === 'mi' ? ['ar','sh'] : ['sh','mi'];
   for(const t of fallback){
-    if(today[t]) return {time:today[t], label:labels[t]};
+    if(pick(t)) return {time:pick(t), label:labels[t]};
   }
   return null;
 }
@@ -1680,11 +1795,13 @@ function buildMinyanList(){
   }
 
   // === MODE CONNECTÉ : affichage complet 3 cases ===
-  const dk=getDayKey(now);
-  const isLunJeu=dk==='lundi_jeudi';
+  const dkSh=getDayKey(now,'sh');
+  const dkN=getDayKey(now);
+  const isLunJeu=dkN==='lundi_jeudi';
   const nowH=now.getHours()+now.getMinutes()/60;
   entries.forEach(e=>{
-    const today=e.syn.h[dk];
+    const todaySh=e.syn.h[dkSh];
+    const todayN=e.syn.h[dkN];
     const fav=favorites.includes(e.syn.id);
     const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[e.syn.rite]||e.syn.rite;
     const distHTML=userLocation&&e.syn.addr?`<span class="chip gold">${fmtWalk(distance(userLocation.lat,userLocation.lng,e.syn.lat,e.syn.lng))}</span>`:'';
@@ -1710,9 +1827,9 @@ function buildMinyanList(){
         </div>
       </div>
       <div class="syn-card-times">
-        ${buildCell('Shaharit',today?today.sh:null,'sh')}
-        ${buildCell('Minha',today?today.mi:null,'mi')}
-        ${buildCell('Arvit',today?today.ar:null,'ar')}
+        ${buildCell('Shaharit',todaySh?todaySh.sh:null,'sh')}
+        ${buildCell('Minha',todayN?todayN.mi:null,'mi')}
+        ${buildCell('Arvit',todayN?todayN.ar:null,'ar')}
       </div>
     `;
     card.onclick=(ev)=>{if(ev.target.closest('.syn-fav'))return;openSynDetail(e.syn);};
@@ -1772,6 +1889,7 @@ function closeDetail(){document.getElementById('detailView').classList.remove('s
 function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem, même lorsque les intentions individuelles ne sont pas parfaites.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div><h3>2. Une obligation rigoureuse</h3><p>On doit prier chaque jour en minyan, sauf cas de force majeure (onès). Certains avis considèrent même cette obligation comme absolue, nécessitant de parcourir une distance pour trouver un minyan.</p><h3>3. Les "Davar Shebikdousha"</h3><p>Certains éléments sacrés ne peuvent être récités qu'en présence d'un minyan :</p><ul><li>Le <b>Kaddish</b></li><li>La <b>Kedousha</b></li><li>Le <b>Barekhou</b></li><li>Les <b>13 Attributs de Miséricorde</b></li><li>La <b>répétition de la Amida</b> par le Chaliah Tsibour</li></ul><h3>4. Préférer le minyan au lieu fixe</h3><p>Si aucun minyan ne s'est réuni à votre endroit habituel, déplacez-vous pour en trouver un — la valeur du minyan est supérieure à celle du lieu fixe.</p><h3>5. La répétition de la Amida</h3><p>Les Sages ont institué que l'officiant (Chaliah Tsibour) répète la Amida à voix haute, permettant à ceux qui ne sont pas experts ou qui n'ont pas eu la kavana lors de leur prière silencieuse de s'acquitter de leur obligation.</p><h3>En résumé</h3><p>La prière en minyan est <b>hautement valorisée</b> dans le judaïsme — plus apte à être acceptée par Hachem, et indispensable pour les "choses de sainteté".</p><div class="sources">Sources : Yalkout Yossef · Peninei Halakhah · Aroukh HaShoulhan · B'Mareh HaBazak (Vol. III, IX, X)</div>`);}
 
 function openSynDetail(syn){
+  LAST_DETAIL_SYN = syn;
   const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lun & Jeu'],['mardi_mercredi','Mar & Mer']];
   let tableRows='';let hasAny=false;
   days.forEach(([k,l])=>{
@@ -1786,7 +1904,10 @@ function openSynDetail(syn){
   let addrSection = '';
   if(syn.addr){
     const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';
-    addrSection = `<p>${syn.addr}</p>${distHTML}<button class="ob-btn" style="margin:18px 0;" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${syn.addr.replace(/'/g,"\\\\'")}'),'_blank')">📍 Itinéraire Google Maps</button>`;
+    const addrEnc = encodeURIComponent(syn.addr);
+    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${addrEnc}`;
+    const waze = `https://waze.com/ul?q=${addrEnc}&navigate=yes`;
+    addrSection = `<p>${syn.addr}</p>${distHTML}<div style="display:flex;gap:10px;margin:18px 0;"><a class="ob-btn" style="flex:1;text-decoration:none;" href="${gmaps}" target="_blank" rel="noopener">🗺️ Google Maps</a><a class="ob-btn" style="flex:1;text-decoration:none;" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`;
   }else{
     addrSection = `<div class="mik-locked" style="margin:14px 0;"><div class="mik-locked-ic">🔒</div><h3>Adresse masquée</h3><p>Pour des raisons de sécurité, l'adresse précise n'est visible que pour les comptes vérifiés.</p><button class="mik-locked-btn" onclick="showLoginScreen()">${currentUser?'Mon compte':'Se connecter'}</button></div>`;
   }
@@ -1794,11 +1915,16 @@ function openSynDetail(syn){
   // Téléphone : uniquement si niveau >= 3
   let telSection = '';
   if(syn.tel){
-    telSection = `<h3>Contact</h3><p><a href="tel:${syn.tel}" style="color:var(--ink);font-weight:600;">📞 ${syn.tel}</a></p>`;
+    const p = formatPhoneFR(syn.tel);
+    telSection = `<h3>Contact</h3><p><a href="tel:${p.href}" style="color:var(--ink);font-weight:600;">📞 ${p.display}</a></p>`;
   }
 
   const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[syn.rite]||syn.rite;
-  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p>${addrSection}${telSection}<h3>Horaires de la semaine</h3>${tableHTML}`);
+  const rh = getRoshHodeshToday();
+  const rhBadge = rh ? `<div class="rh-badge" style="margin:10px 0 14px;"><span class="rh-ico">🌙</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>` : '';
+  const holBadge = isShaharitHolidayRemap(new Date()) ? `<div class="hol-badge" style="margin:10px 0 14px;"><span class="ic">🇫🇷</span><span>Jour férié — Shaharit du dimanche</span></div>` : '';
+  const completeBtn = isSynIncomplete(syn) ? `<button class="syn-complete-btn" onclick="openSynContribute(LAST_DETAIL_SYN)">🆘 Compléter ces horaires</button>` : '';
+  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p>${rhBadge}${holBadge}${addrSection}${telSection}<h3>Horaires de la semaine</h3>${tableHTML}${completeBtn}`);
 }
 
 function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.page===name));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo(0,0);if(name==='cal')buildCalendar();if(name==='torah')buildTorah();}
@@ -1867,10 +1993,13 @@ function buildTorah(){
   mikvaot.forEach((m,i)=>{
     const cls={women:'women',men:'men',both:'both'}[m.who];
     const ico={women:'♀',men:'♂',both:'⚭'}[m.who];
-    const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(m.addr)}`;
+    const mapsUrl=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(m.addr)}`;
+    const wazeUrl=`https://waze.com/ul?q=${encodeURIComponent(m.addr)}&navigate=yes`;
+    const phoneInfo = m.tel ? formatPhoneFR(m.tel) : null;
+    const contactLine = phoneInfo ? `${m.contact} · ${phoneInfo.display}` : m.contact;
     const card=document.createElement('div');
     card.className='mik-card'+(i===0?' first':'');
-    card.innerHTML=`<div class="mik-pill ${cls}">${ico}</div><div class="mik-info"><div class="name">${m.name}</div><div class="addr">${m.addr}</div><div class="contact">${m.contact}</div></div><div class="mik-actions">${m.tel?`<a class="mik-btn primary" href="tel:${m.tel}" onclick="event.stopPropagation()">📞</a>`:''}<a class="mik-btn" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍</a></div>`;
+    card.innerHTML=`<div class="mik-pill ${cls}">${ico}</div><div class="mik-info"><div class="name">${m.name}</div><div class="addr">${m.addr}</div><div class="contact">${contactLine}</div></div><div class="mik-actions">${phoneInfo?`<a class="mik-btn primary" href="tel:${phoneInfo.href}" onclick="event.stopPropagation()" title="Appeler">📞</a>`:''}<a class="mik-btn" href="${mapsUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Google Maps">🗺️</a><a class="mik-btn" href="${wazeUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Waze">🚗</a></div>`;
     list.appendChild(card);
   });
 }
@@ -1974,6 +2103,9 @@ function isMinyanUrgent(m){
 function buildMapsUrl(lieu){
   const dest=encodeURIComponent(lieu);
   return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking`;
+}
+function buildWazeUrl(lieu){
+  return `https://waze.com/ul?q=${encodeURIComponent(lieu)}&navigate=yes`;
 }
 function buildShareUrl(minyanId){
   const u=new URL(window.location.href);
@@ -2086,11 +2218,12 @@ async function loadImpromptu(highlightId){
     const isCreator=m.createdBy===userId;
     const urgent=isMinyanUrgent(m);
     const mapsUrl=buildMapsUrl(m.lieu);
+    const wazeUrl=buildWazeUrl(m.lieu);
     const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
     const pillText=complet?'COMPLET ✓':(urgent?'URGENT · MANQUE '+manque:manque+' MANQUE'+(manque>1?'NT':''));
     const pillCls=complet?'complet':(urgent?'urgent':'');
     const highlightCls=(highlightId===m.id)?'highlight':'';
-    html+=`<div class="imp-item ${urgent?'urgent':''} ${highlightCls}" id="imp-item-${m.id}"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${pillCls}">${pillText}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener" title="Itinéraire">📍</a><button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}</div></div>`;
+    html+=`<div class="imp-item ${urgent?'urgent':''} ${highlightCls}" id="imp-item-${m.id}"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${pillCls}">${pillText}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener" title="Google Maps">🗺️</a><a class="imp-btn-maps" href="${wazeUrl}" target="_blank" rel="noopener" title="Waze">🚗</a><button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}</div></div>`;
   }
   list.innerHTML=html;
   if(highlightId){
@@ -2465,6 +2598,321 @@ function handleSynAdminDeepLink(){
 }
 
 // ============================================================
+// === CONTRIBUTE (Module 3) ==================================
+// ============================================================
+const CONTRIBUTE_EMAIL = 'noamamsellem@gmail.com';
+const CONTRIBUTE_ENDPOINT = `https://formsubmit.co/ajax/${CONTRIBUTE_EMAIL}`;
+let LAST_DETAIL_SYN = null;
+let CONTRIB_CURRENT_TAB = 'photo';
+let CONTRIB_CURRENT_SYN = null;
+
+function isSynIncomplete(syn){
+  if(!syn || !syn.h) return true;
+  const days = ['vendredi','shabbat','dimanche','lundi_jeudi','mardi_mercredi'];
+  for(const d of days){
+    const h = syn.h[d];
+    if(!h) return true;
+    if(!h.sh || !h.mi || !h.ar) return true;
+  }
+  return false;
+}
+
+function openSynContribute(syn){
+  CONTRIB_CURRENT_SYN = syn || null;
+  CONTRIB_CURRENT_TAB = 'photo';
+  const synBadge = syn ? `<div class="contrib-syn-badge">📍 ${escapeHtml(syn.name)}</div>` : '';
+  const body = `
+    <h2>Compléter <span class="em">les horaires</span></h2>
+    ${synBadge}
+    <p style="margin-bottom:14px;font-size:13.5px;">Trois façons de contribuer. Choisissez celle qui vous convient :</p>
+    <div class="contrib-tabs">
+      <button class="contrib-tab on" data-tab="photo" onclick="setContribTab(this,'photo')">📷 Photo/PDF</button>
+      <button class="contrib-tab" data-tab="text" onclick="setContribTab(this,'text')">✏️ Texte</button>
+      <button class="contrib-tab" data-tab="edit" onclick="setContribTab(this,'edit')">📝 Modifier</button>
+    </div>
+    <div id="contribTabBody"></div>
+  `;
+  openDetail('Compléter les horaires', body);
+  renderContribTab();
+}
+
+function setContribTab(btn, tab){
+  CONTRIB_CURRENT_TAB = tab;
+  document.querySelectorAll('.contrib-tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  renderContribTab();
+}
+
+function renderContribTab(){
+  const host = document.getElementById('contribTabBody');
+  if(!host) return;
+  const syn = CONTRIB_CURRENT_SYN;
+  const synName = syn ? escapeHtml(syn.name) : '';
+  const synAddr = syn ? escapeHtml(syn.addr || '') : '';
+  let html = '';
+  if(CONTRIB_CURRENT_TAB === 'photo'){
+    html = `
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Envoyez une photo ou un PDF des horaires affichés à la synagogue.</p>
+      <label class="contrib-file-label" for="contribFile">
+        <input type="file" id="contribFile" accept="image/*,application/pdf" onchange="updateContribFileLabel()" hidden>
+        <span id="contribFileName">📎 Cliquez pour choisir une photo ou un PDF</span>
+      </label>
+      <textarea class="ob-input" id="contribPhotoNote" rows="3" placeholder="Commentaire (optionnel)" style="resize:vertical;"></textarea>
+      <button class="ob-btn" onclick="submitContribPhoto()">📤 Envoyer</button>
+      <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
+    `;
+  }else if(CONTRIB_CURRENT_TAB === 'text'){
+    html = `
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Décrivez les horaires en texte libre.</p>
+      <label class="contrib-form-label">Synagogue</label>
+      <input type="text" class="ob-input" id="contribTextSyn" value="${synName}" placeholder="Nom de la synagogue">
+      <label class="contrib-form-label">Adresse</label>
+      <input type="text" class="ob-input" id="contribTextAddr" value="${synAddr}" placeholder="Adresse (rue, ville)">
+      <label class="contrib-form-label">Description libre</label>
+      <textarea class="ob-input" id="contribTextBody" rows="6" placeholder="Décrivez les horaires (jours, prières, heures)…" style="resize:vertical;"></textarea>
+      <button class="ob-btn" onclick="submitContribText()">📤 Envoyer</button>
+      <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
+    `;
+  }else{
+    html = `
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Indiquez précisément l'horaire à modifier ou ajouter.</p>
+      <label class="contrib-form-label">Synagogue</label>
+      <input type="text" class="ob-input" id="contribEditSyn" value="${synName}" placeholder="Nom de la synagogue">
+      <label class="contrib-form-label">Jour</label>
+      <select class="ob-input" id="contribEditDay">
+        <option value="vendredi">Vendredi</option>
+        <option value="shabbat">Shabbat</option>
+        <option value="dimanche">Dimanche + jours fériés</option>
+        <option value="lundi_jeudi">Lundi & Jeudi</option>
+        <option value="mardi_mercredi">Mardi & Mercredi</option>
+      </select>
+      <label class="contrib-form-label">Prière</label>
+      <select class="ob-input" id="contribEditPrayer">
+        <option value="sh">Shaharit</option>
+        <option value="mi">Minha</option>
+        <option value="ar">Arvit</option>
+      </select>
+      <label class="contrib-form-label">Nouvel horaire</label>
+      <input type="text" class="ob-input" id="contribEditTime" placeholder="ex: 7h00">
+      <textarea class="ob-input" id="contribEditNote" rows="2" placeholder="Commentaire (optionnel)" style="resize:vertical;"></textarea>
+      <button class="ob-btn" onclick="submitContribEdit()">📤 Envoyer</button>
+      <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
+    `;
+  }
+  host.innerHTML = html;
+}
+
+function updateContribFileLabel(){
+  const f = document.getElementById('contribFile');
+  const lbl = document.getElementById('contribFileName');
+  if(f && f.files && f.files[0] && lbl) lbl.textContent = '📎 ' + f.files[0].name;
+}
+
+async function submitContribPhoto(){
+  const f = document.getElementById('contribFile');
+  const note = (document.getElementById('contribPhotoNote').value || '').trim();
+  if(!f || !f.files || !f.files[0]){ showToast('Choisissez une photo ou un PDF', {type:'error'}); return; }
+  const file = f.files[0];
+  if(file.size > 5 * 1024 * 1024){ showToast('Fichier > 5 Mo — réduisez-le', {type:'error', duration:4000}); return; }
+  const synName = CONTRIB_CURRENT_SYN ? CONTRIB_CURRENT_SYN.name : '(non précisée)';
+  const formData = new FormData();
+  formData.append('_subject', `[Minyan Lyon] Photo horaires — ${synName}`);
+  formData.append('_captcha', 'false');
+  formData.append('_template', 'table');
+  formData.append('Synagogue', synName);
+  formData.append('Adresse', (CONTRIB_CURRENT_SYN && CONTRIB_CURRENT_SYN.addr) || '(non renseignée)');
+  formData.append('Commentaire', note || '(aucun)');
+  formData.append('Utilisateur', currentUser ? currentUser.email : 'invité');
+  formData.append('attachment', file);
+  showToast('Envoi en cours…', {duration:2000});
+  try{
+    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: formData, headers:{Accept:'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    showToast('Photo envoyée ✓ Merci !', {type:'success', duration:3500});
+    closeDetail();
+  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+}
+
+async function submitContribText(){
+  const syn = (document.getElementById('contribTextSyn').value || '').trim();
+  const addr = (document.getElementById('contribTextAddr').value || '').trim();
+  const body = (document.getElementById('contribTextBody').value || '').trim();
+  if(!syn || !body){ showToast('Synagogue et description obligatoires', {type:'error'}); return; }
+  const payload = {
+    _subject: `[Minyan Lyon] Texte horaires — ${syn}`,
+    _captcha: 'false',
+    _template: 'table',
+    Synagogue: syn,
+    Adresse: addr || '(non renseignée)',
+    Description: body,
+    Utilisateur: currentUser ? currentUser.email : 'invité'
+  };
+  showToast('Envoi en cours…', {duration:2000});
+  try{
+    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: JSON.stringify(payload), headers:{Accept:'application/json','Content-Type':'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    showToast('Message envoyé ✓ Merci !', {type:'success', duration:3500});
+    closeDetail();
+  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+}
+
+async function submitContribEdit(){
+  const syn = (document.getElementById('contribEditSyn').value || '').trim();
+  const day = document.getElementById('contribEditDay').value;
+  const prayer = document.getElementById('contribEditPrayer').value;
+  const time = (document.getElementById('contribEditTime').value || '').trim();
+  const note = (document.getElementById('contribEditNote').value || '').trim();
+  if(!syn || !time){ showToast('Synagogue et horaire obligatoires', {type:'error'}); return; }
+  const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
+  const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
+  const payload = {
+    _subject: `[Minyan Lyon] Modif horaire — ${syn}`,
+    _captcha: 'false',
+    _template: 'table',
+    Synagogue: syn,
+    Jour: dayLabels[day] || day,
+    Priere: prayerLabels[prayer] || prayer,
+    NouvelHoraire: time,
+    Commentaire: note || '(aucun)',
+    Utilisateur: currentUser ? currentUser.email : 'invité'
+  };
+  showToast('Envoi en cours…', {duration:2000});
+  try{
+    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: JSON.stringify(payload), headers:{Accept:'application/json','Content-Type':'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    showToast('Modification envoyée ✓ Merci !', {type:'success', duration:3500});
+    closeDetail();
+  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+}
+
+// ============================================================
+// === ROSH HODESH (Hebcal API + cache localStorage) ==========
+// ============================================================
+const HEBCAL_RH_URL = 'https://www.hebcal.com/hebcal?v=1&cfg=json&maj=off&min=off&mod=off&nx=off&year=now&month=x&ss=off&mf=off&c=off&D=on&d=on&geo=geoname&geonameid=2996944';
+const HEBCAL_CACHE_KEY = 'mlRoshHodesh';
+const HEBCAL_TTL_MS = 30 * 24 * 3600 * 1000; // 30 jours
+let ROSH_HODESH_EVENTS = [];
+
+function loadRoshHodeshFromCache(){
+  try{
+    const raw = localStorage.getItem(HEBCAL_CACHE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(parsed && Array.isArray(parsed.events)) return parsed;
+  }catch{}
+  return null;
+}
+async function loadRoshHodesh(){
+  const cached = loadRoshHodeshFromCache();
+  if(cached){ ROSH_HODESH_EVENTS = cached.events || []; }
+  // Cache encore frais ? On en reste là.
+  if(cached && cached.cachedAt && (Date.now() - cached.cachedAt < HEBCAL_TTL_MS)){
+    return ROSH_HODESH_EVENTS;
+  }
+  // Sinon refetch avec timeout 5s
+  try{
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), 5000);
+    const res = await fetch(HEBCAL_RH_URL, {signal: ctrl.signal});
+    clearTimeout(t);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const items = (data && Array.isArray(data.items)) ? data.items : [];
+    const events = items
+      .filter(it => it && it.category === 'roshchodesh' && it.date)
+      .map(it => ({date: it.date, hebrew: it.hebrew || it.title || 'Rosh Chodesh'}));
+    if(events.length){
+      ROSH_HODESH_EVENTS = events;
+      try{ localStorage.setItem(HEBCAL_CACHE_KEY, JSON.stringify({events, cachedAt: Date.now()})); }catch{}
+    }
+  }catch(e){
+    // Fallback gracieux : on garde le cache même périmé (déjà chargé)
+  }
+  return ROSH_HODESH_EVENTS;
+}
+
+function getRoshHodeshToday(){
+  if(!Array.isArray(ROSH_HODESH_EVENTS) || ROSH_HODESH_EVENTS.length === 0) return null;
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,'0');
+  const d = String(today.getDate()).padStart(2,'0');
+  const todayStr = `${y}-${m}-${d}`;
+  const hit = ROSH_HODESH_EVENTS.find(e => e.date === todayStr);
+  if(!hit) return null;
+  const parts = String(hit.hebrew || '').trim().split(/\s+/);
+  const month = parts.length ? parts[parts.length - 1] : 'Mois';
+  return {hebrew: hit.hebrew, month};
+}
+
+// ============================================================
+// === POPUP PWA "Ajouter à l'écran d'accueil" ================
+// ============================================================
+let deferredPwaPrompt = null;
+
+function isPwaStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function isIosUA(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function shouldShowPwaPrompt(){
+  if(isPwaStandalone()) return false;
+  if(localStorage.getItem('mlPwaPromptInstalled') === '1') return false;
+  const last = parseInt(localStorage.getItem('mlPwaPromptShown') || '0', 10);
+  if(!last) return true;
+  const dismissed = localStorage.getItem('mlPwaPromptDismissed') === '1';
+  if(!dismissed) return false; // affichée et pas (encore) fermée explicitement → on ne ré-affiche pas
+  const SEVEN_DAYS = 7 * 24 * 3600 * 1000;
+  return (Date.now() - last) > SEVEN_DAYS;
+}
+function showPwaPrompt(){
+  const body = document.getElementById('pwaBody');
+  if(!body) return;
+  if(isIosUA()){
+    body.innerHTML = `
+      <div class="pwa-steps">
+        <div class="pwa-step"><div class="pwa-step-n">1</div><div class="pwa-step-t">Appuyez sur le bouton <span class="em">Partager</span> 🔼 en bas de Safari.</div></div>
+        <div class="pwa-step"><div class="pwa-step-n">2</div><div class="pwa-step-t">Faites défiler et choisissez <span class="em">« Sur l'écran d'accueil »</span> ➕.</div></div>
+        <div class="pwa-step"><div class="pwa-step-n">3</div><div class="pwa-step-t">Appuyez sur <span class="em">« Ajouter »</span> en haut à droite.</div></div>
+      </div>
+      <button class="ob-btn secondary" onclick="dismissPwaPrompt()">J'ai compris</button>`;
+  }else if(deferredPwaPrompt){
+    body.innerHTML = `
+      <button class="ob-btn" onclick="installPwaAndroid()">📲 Installer l'application</button>
+      <button class="ob-btn secondary" style="margin-top:8px;" onclick="dismissPwaPrompt()">Plus tard</button>`;
+  }else{
+    body.innerHTML = `
+      <div class="pwa-fallback">Ouvrez le menu ⋮ de votre navigateur puis choisissez <b>« Installer l'application »</b>.</div>
+      <button class="ob-btn secondary" style="margin-top:14px;" onclick="dismissPwaPrompt()">J'ai compris</button>`;
+  }
+  document.getElementById('pwaOverlay').classList.add('show');
+  localStorage.setItem('mlPwaPromptShown', String(Date.now()));
+  localStorage.removeItem('mlPwaPromptDismissed');
+}
+function dismissPwaPrompt(){
+  document.getElementById('pwaOverlay').classList.remove('show');
+  localStorage.setItem('mlPwaPromptDismissed', '1');
+  localStorage.setItem('mlPwaPromptShown', String(Date.now()));
+}
+async function installPwaAndroid(){
+  if(!deferredPwaPrompt){ dismissPwaPrompt(); return; }
+  try{
+    deferredPwaPrompt.prompt();
+    const choice = await deferredPwaPrompt.userChoice;
+    if(choice && choice.outcome === 'accepted'){
+      localStorage.setItem('mlPwaPromptInstalled', '1');
+    }
+  }catch(e){}
+  deferredPwaPrompt = null;
+  document.getElementById('pwaOverlay').classList.remove('show');
+}
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('mlPwaPromptInstalled', '1');
+  const ov = document.getElementById('pwaOverlay');
+  if(ov) ov.classList.remove('show');
+});
+
+// ============================================================
 // === INIT ===================================================
 // ============================================================
 async function init(){
@@ -2525,9 +2973,32 @@ async function init(){
 
   document.getElementById('homeShabContainer').innerHTML=buildShabbatCardHtml(new Date());
 
-  buildMinyanList();updateCountdown();updateFindBtnText();
+  buildMinyanList();updateCountdown();updateFindBtnText();renderTopBadges();
   setInterval(updateCountdown,30000);setInterval(updateFindBtnText,60000);
   setInterval(()=>{const c=document.getElementById('homeShabContainer');if(c)c.innerHTML=buildShabbatCardHtml(new Date());},5*60000);
+
+  // === NOUVEAUX MODULES (v2026.05) ===
+
+  // 1. Charger Rosh Hodesh en arrière-plan, puis rafraîchir les badges quand c'est prêt.
+  loadRoshHodesh()
+    .then(()=>{ renderTopBadges(); })
+    .catch(e => console.warn('RoshHodesh load failed:', e));
+
+  // 2. Capter l'event beforeinstallprompt pour Android/Chrome.
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+  });
+
+  // 3. Afficher la popup PWA après 3s si les conditions sont OK.
+  setTimeout(() => { if(shouldShowPwaPrompt()) showPwaPrompt(); }, 3000);
+
+  // 4. Polling 60s : rafraîchir liste des minyanim, compte à rebours, badges.
+  setInterval(() => {
+    buildMinyanList();
+    updateCountdown();
+    renderTopBadges();
+  }, 60 * 1000);
 
   // Charger une première fois les minyans improvisés puis s'abonner au live
   const refreshFromFb=()=>fbReadMinyans().then(ms=>{CACHED_MINYANS=cleanExpiredMinyans(ms);refreshHomeImpromptu();if(document.getElementById('impList'))loadImpromptu();});
