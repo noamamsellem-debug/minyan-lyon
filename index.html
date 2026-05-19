@@ -375,6 +375,7 @@ body.watermark::before {
 /* === CONTRIBUTE FORM (Module 3) === */
 .syn-complete-btn{margin:18px 0 0;width:100%;padding:14px 18px;background:#7BA875;color:#fff;border:none;border-radius:14px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 22px -10px rgba(123,168,117,0.5);}
 .syn-complete-btn:active{transform:scale(0.985);}
+.syn-report-btn{background:var(--orange);box-shadow:0 8px 22px -10px rgba(230,138,74,0.5);}
 .contrib-tabs{display:flex;gap:4px;background:var(--bg-soft);padding:4px;border-radius:99px;margin-bottom:18px;}
 .contrib-tab{flex:1;min-width:0;padding:8px 6px;background:transparent;border:none;border-radius:99px;font-size:11.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:all 0.18s ease;text-align:center;}
 .contrib-tab.on{background:var(--ink);color:var(--bg);}
@@ -1948,7 +1949,10 @@ function openSynDetail(syn){
   const rh = getRoshHodeshToday();
   const rhBadge = rh ? `<div class="rh-badge" style="margin:10px 0 14px;"><span class="rh-ico">🌙</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>` : '';
   const holBadge = isShaharitHolidayRemap(new Date()) ? `<div class="hol-badge" style="margin:10px 0 14px;"><span class="ic">🇫🇷</span><span>Jour férié — Shaharit du dimanche</span></div>` : '';
-  const completeBtn = isSynIncomplete(syn) ? `<button class="syn-complete-btn" onclick="openSynContribute(LAST_DETAIL_SYN)">🆘 Compléter ces horaires</button>` : '';
+  const _incomplete = isSynIncomplete(syn);
+  const _btnLabel = _incomplete ? '🆘 Compléter ces horaires' : '⚠️ Signaler une erreur ou modification';
+  const _btnClass = _incomplete ? 'syn-complete-btn' : 'syn-complete-btn syn-report-btn';
+  const completeBtn = `<button class="${_btnClass}" onclick="openSynContribute(LAST_DETAIL_SYN)">${_btnLabel}</button>`;
   openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p>${rhBadge}${holBadge}${addrSection}${telSection}<h3>Horaires de la semaine</h3>${tableHTML}${completeBtn}`);
 }
 
