@@ -2707,6 +2707,44 @@ function updateContribFileLabel(){
   if(f && f.files && f.files[0] && lbl) lbl.textContent = '📎 ' + f.files[0].name;
 }
 
+// Helper unique pour envoyer à Formsubmit en multipart/form-data (sans preflight CORS).
+// Lit la réponse JSON, log tout dans la console, gère succès/échec proprement.
+async function _contribSubmit(formData, successLabel){
+  console.log('[Contrib] → POST', CONTRIBUTE_ENDPOINT);
+  for(const pair of formData.entries()){
+    if(pair[1] instanceof File){
+      console.log('[Contrib]   ', pair[0], '= File:', pair[1].name, '(', pair[1].size, 'b )');
+    } else {
+      console.log('[Contrib]   ', pair[0], '=', pair[1]);
+    }
+  }
+  showToast('Envoi en cours…', {duration:2500});
+  try{
+    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: formData, headers:{Accept:'application/json'}});
+    console.log('[Contrib] ← HTTP', res.status, res.statusText);
+    let data = null;
+    try{ data = await res.json(); }catch(parseErr){ console.warn('[Contrib] JSON parse failed:', parseErr); }
+    console.log('[Contrib] response body:', data);
+    if(!res.ok){
+      const msg = (data && (data.message || data.error)) || ('HTTP ' + res.status);
+      throw new Error(msg);
+    }
+    const success = data && (data.success === true || String(data.success).toLowerCase() === 'true');
+    if(data && !success){
+      throw new Error(data.message || data.error || 'Échec inconnu (success=false)');
+    }
+    showToast(successLabel + ' ✓ Merci !', {type:'success', duration:4500});
+    setTimeout(()=>{
+      alert("✅ Envoi réussi !\n\nIMPORTANT : si c'est ta TOUTE PREMIÈRE soumission, va dans Gmail (incl. spam + promotions) chercher un mail de no-reply@formsubmit.co et clique sur le bouton de confirmation. Sans ça, les futurs envois n'arriveront pas dans ta boîte.");
+    }, 200);
+    closeDetail();
+  }catch(e){
+    console.error('[Contrib] ERROR', e);
+    showToast('❌ Erreur : ' + e.message, {type:'error', duration:6000});
+    setTimeout(()=>{ alert("❌ Échec de l'envoi.\n\nDétail : " + e.message + "\n\nOuvre la console (F12 → Console) pour plus d'infos, et copie-colle le contenu pour diagnostic."); }, 200);
+  }
+}
+
 async function submitContribPhoto(){
   const f = document.getElementById('contribFile');
   const note = (document.getElementById('contribPhotoNote').value || '').trim();
@@ -2723,13 +2761,7 @@ async function submitContribPhoto(){
   formData.append('Commentaire', note || '(aucun)');
   formData.append('Utilisateur', currentUser ? currentUser.email : 'invité');
   formData.append('attachment', file);
-  showToast('Envoi en cours…', {duration:2000});
-  try{
-    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: formData, headers:{Accept:'application/json'}});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    showToast('Photo envoyée ✓ Merci !', {type:'success', duration:3500});
-    closeDetail();
-  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+  await _contribSubmit(formData, 'Photo envoyée');
 }
 
 async function submitContribText(){
@@ -2737,22 +2769,15 @@ async function submitContribText(){
   const addr = (document.getElementById('contribTextAddr').value || '').trim();
   const body = (document.getElementById('contribTextBody').value || '').trim();
   if(!syn || !body){ showToast('Synagogue et description obligatoires', {type:'error'}); return; }
-  const payload = {
-    _subject: `[Minyan Lyon] Texte horaires — ${syn}`,
-    _captcha: 'false',
-    _template: 'table',
-    Synagogue: syn,
-    Adresse: addr || '(non renseignée)',
-    Description: body,
-    Utilisateur: currentUser ? currentUser.email : 'invité'
-  };
-  showToast('Envoi en cours…', {duration:2000});
-  try{
-    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: JSON.stringify(payload), headers:{Accept:'application/json','Content-Type':'application/json'}});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    showToast('Message envoyé ✓ Merci !', {type:'success', duration:3500});
-    closeDetail();
-  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+  const formData = new FormData();
+  formData.append('_subject', `[Minyan Lyon] Texte horaires — ${syn}`);
+  formData.append('_captcha', 'false');
+  formData.append('_template', 'table');
+  formData.append('Synagogue', syn);
+  formData.append('Adresse', addr || '(non renseignée)');
+  formData.append('Description', body);
+  formData.append('Utilisateur', currentUser ? currentUser.email : 'invité');
+  await _contribSubmit(formData, 'Message envoyé');
 }
 
 async function submitContribEdit(){
@@ -2764,24 +2789,17 @@ async function submitContribEdit(){
   if(!syn || !time){ showToast('Synagogue et horaire obligatoires', {type:'error'}); return; }
   const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
   const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
-  const payload = {
-    _subject: `[Minyan Lyon] Modif horaire — ${syn}`,
-    _captcha: 'false',
-    _template: 'table',
-    Synagogue: syn,
-    Jour: dayLabels[day] || day,
-    Priere: prayerLabels[prayer] || prayer,
-    NouvelHoraire: time,
-    Commentaire: note || '(aucun)',
-    Utilisateur: currentUser ? currentUser.email : 'invité'
-  };
-  showToast('Envoi en cours…', {duration:2000});
-  try{
-    const res = await fetch(CONTRIBUTE_ENDPOINT, {method:'POST', body: JSON.stringify(payload), headers:{Accept:'application/json','Content-Type':'application/json'}});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    showToast('Modification envoyée ✓ Merci !', {type:'success', duration:3500});
-    closeDetail();
-  }catch(e){ showToast('Erreur d\'envoi : '+e.message, {type:'error', duration:4000}); }
+  const formData = new FormData();
+  formData.append('_subject', `[Minyan Lyon] Modif horaire — ${syn}`);
+  formData.append('_captcha', 'false');
+  formData.append('_template', 'table');
+  formData.append('Synagogue', syn);
+  formData.append('Jour', dayLabels[day] || day);
+  formData.append('Priere', prayerLabels[prayer] || prayer);
+  formData.append('NouvelHoraire', time);
+  formData.append('Commentaire', note || '(aucun)');
+  formData.append('Utilisateur', currentUser ? currentUser.email : 'invité');
+  await _contribSubmit(formData, 'Modification envoyée');
 }
 
 // ============================================================
