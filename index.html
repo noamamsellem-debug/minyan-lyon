@@ -495,6 +495,7 @@ body.watermark::before {
 .bull-table tr.bs-warn td{background:rgba(196,83,57,0.04);}
 .bull-table tr.bs-missing td{background:rgba(196,83,57,0.09);font-style:italic;}
 .bull-table tr.bs-fixed td{background:rgba(95,148,95,0.06);}
+.bull-table tr.bs-kept td{background:rgba(212,178,89,0.06);}
 .bull-table tr.bs-excluded td{opacity:0.4;text-decoration:line-through;}
 .bull-status{display:inline-block;width:14px;text-align:center;font-weight:bold;}
 .bull-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
@@ -3435,12 +3436,12 @@ if ('serviceWorker' in navigator) {
     return out;
   }
 
-  function matchSyn(pdfSyn){
+  function matchSyn(pdfSyn, canon){
     const pName=normalize(pdfSyn && pdfSyn.nom);
     const pAddr=normalize(pdfSyn && pdfSyn.adresse);
     if(!pName)return null;
     let best=null, bestScore=0;
-    for(const c of MLBULLETIN_CANON){
+    for(const c of canon){
       const cName=normalize(c.name);
       const cAddr=normalize(c.addr);
       let score=0;
@@ -3466,13 +3467,67 @@ if ('serviceWorker' in navigator) {
     return bestScore>=4 ? best : null;
   }
 
+  // Exceptions identifiées par NOM (les ids dépendent de l'ordre du Sheet).
+  function hasNoShabAr(name){
+    const n=normalize(name);
+    if(!n) return false;
+    return /\bnets\b/.test(n)
+      || /collel/.test(n)
+      || /achkenaze|ashkenaze/.test(n)
+      || (/menahem habad/.test(n))
+      || /neveh/.test(n)
+      || /part dieu|part-dieu/.test(n)
+      || /grange blanche/.test(n)
+      || /pinto or david/.test(n)
+      || /acib bron/.test(n)
+      || /ajeco/.test(n)
+      || /meyzieu/.test(n);
+  }
+  function getFixedShabAr(name){
+    const n=normalize(name);
+    if(/menahem sepharade|menahem separade/.test(n)) return '22h00';
+    if(/^mizrahi$|\bmizrahi\b/.test(n)) return '22h09';
+    if(/rav hyda/.test(n)) return '21h00';
+    return null;
+  }
+  function isNETS(name){ return /\bnets\b/.test(normalize(name)); }
+  function isBethHamidrach(name){
+    const n=normalize(name);
+    return /beth hamidrach|hamidrach/.test(n);
+  }
+
+  // Canon = ton Sheet en direct (SYNS), avec fallback sur la liste embarquée
+  // si le Sheet n'a pas pu être chargé. On garde aussi les horaires actuels
+  // pour pouvoir les conserver si une syn est absente du PDF.
+  function getCanon(){
+    if(typeof SYNS!=='undefined' && Array.isArray(SYNS) && SYNS.length>=10){
+      return SYNS.map(s=>({
+        id:s.id, name:s.name, addr:s.addr||'', rite:s.rite||'sefarde',
+        zone:s.zone||'', lat:s.lat||0, lng:s.lng||0, _h:s.h||null
+      })).sort((a,b)=>(a.id||0)-(b.id||0));
+    }
+    return MLBULLETIN_CANON;
+  }
+  function existingHoraires(canonRow){
+    const h=canonRow && canonRow._h;
+    if(!h) return null;
+    return {
+      ven_sh:h.vendredi&&h.vendredi.sh||'', ven_mi:h.vendredi&&h.vendredi.mi||'', ven_ar:h.vendredi&&h.vendredi.ar||'',
+      shab_sh:h.shabbat&&h.shabbat.sh||'', shab_mi:h.shabbat&&h.shabbat.mi||'', shab_ar:h.shabbat&&h.shabbat.ar||'',
+      dim_sh:h.dimanche&&h.dimanche.sh||'', dim_mi:h.dimanche&&h.dimanche.mi||'', dim_ar:h.dimanche&&h.dimanche.ar||'',
+      lj_sh:h.lundi_jeudi&&h.lundi_jeudi.sh||'', lj_mi:h.lundi_jeudi&&h.lundi_jeudi.mi||'', lj_ar:h.lundi_jeudi&&h.lundi_jeudi.ar||'',
+      mm_sh:h.mardi_mercredi&&h.mardi_mercredi.sh||'', mm_mi:h.mardi_mercredi&&h.mardi_mercredi.mi||'', mm_ar:h.mardi_mercredi&&h.mardi_mercredi.ar||''
+    };
+  }
+
   function applyRules(parsed, finChabbat){
     const warnings=[];
     const matched={};
     const unmatched=[];
+    const canon=getCanon();
     if(parsed && Array.isArray(parsed.synagogues)){
       for(const pdfSyn of parsed.synagogues){
-        const c=matchSyn(pdfSyn);
+        const c=matchSyn(pdfSyn, canon);
         if(c){
           if(matched[c.id])warnings.push({id:c.id, msg:'« '+c.name+' » : 2 lignes PDF matchent — la 2e a été ignorée'});
           else matched[c.id]={canon:c, data:pdfSyn};
@@ -3486,7 +3541,7 @@ if ('serviceWorker' in navigator) {
     }
 
     const rows=[];
-    for(const c of MLBULLETIN_CANON){
+    for(const c of canon){
       const row={
         id:c.id, name:c.name, addr:c.addr, rite:c.rite, zone:c.zone, lat:c.lat, lng:c.lng,
         ven_sh:'',ven_mi:'',ven_ar:'',shab_sh:'',shab_mi:'',shab_ar:'',dim_sh:'',dim_mi:'',dim_ar:'',lj_sh:'',lj_mi:'',lj_ar:'',mm_sh:'',mm_mi:'',mm_ar:'',
@@ -3495,7 +3550,7 @@ if ('serviceWorker' in navigator) {
 
       const m=matched[c.id];
       if(!m){
-        if(c.id===34){
+        if(isBethHamidrach(c.name)){
           row.ven_sh='7h00';row.ven_mi='19h15';row.ven_ar='19h45';
           row.shab_sh='8h00';row.shab_mi='19h00';row.shab_ar=finChabbat||'';
           row.dim_sh='7h45';row.dim_mi='19h00';row.dim_ar='19h20';
@@ -3503,9 +3558,17 @@ if ('serviceWorker' in navigator) {
           row.mm_sh='7h00';row.mm_mi='19h00';row.mm_ar='19h20';
           row._status='fixed';
         } else {
-          row._status='missing';
-          row._warnings.push('absente du PDF');
-          warnings.push({id:c.id, msg:'« '+c.name+' » : absente du PDF — horaires vides'});
+          const ex=existingHoraires(c);
+          if(ex){
+            for(const k of Object.keys(ex)) row[k]=ex[k];
+            row._status='kept';
+            row._warnings.push('absente du PDF — horaires actuels conservés');
+            warnings.push({id:c.id, msg:'« '+c.name+' » : absente du PDF, horaires actuels du Sheet conservés'});
+          } else {
+            row._status='missing';
+            row._warnings.push('absente du PDF');
+            warnings.push({id:c.id, msg:'« '+c.name+' » : absente du PDF — horaires vides'});
+          }
         }
         rows.push(row);
         continue;
@@ -3519,11 +3582,12 @@ if ('serviceWorker' in navigator) {
         for(const w of r.warnings) row._warnings.push(src+' : '+w);
       }
 
-      if(NO_SHAB_AR_IDS.has(c.id)) row.shab_ar='';
-      else if(FIXED_SHAB_AR[c.id]) row.shab_ar=FIXED_SHAB_AR[c.id];
+      const fixedAr=getFixedShabAr(c.name);
+      if(hasNoShabAr(c.name)) row.shab_ar='';
+      else if(fixedAr) row.shab_ar=fixedAr;
       else if(row.shab_mi) row.shab_ar=finChabbat||'';
 
-      if(c.id===1){
+      if(isNETS(c.name)){
         const mornings=[];
         for(const k of ['vendredi','dimanche','lundi_jeudi','mardi_mercredi']){
           const r=parseCell(d[k]); const mn=parseTime(r.sh);
@@ -3657,6 +3721,7 @@ if ('serviceWorker' in navigator) {
   function statusIcon(s){
     if(s==='warn')return '<span class="bull-status" title="à vérifier" style="color:#C45339;">⚠</span>';
     if(s==='missing')return '<span class="bull-status" title="absente">⊘</span>';
+    if(s==='kept')return '<span class="bull-status" title="conservé du Sheet" style="color:#D4B259;">≈</span>';
     if(s==='fixed')return '<span class="bull-status" title="valeurs fixes" style="color:#5BC97A;">✓</span>';
     return '<span class="bull-status" title="auto" style="color:#5BC97A;">✓</span>';
   }
@@ -3677,7 +3742,8 @@ if ('serviceWorker' in navigator) {
       warnsHtml += '</div>';
     }
 
-    let cerjHtml = '<div class="bull-cerj"><b>ℹ CERJ (id 14)</b> a été retirée du site à la demande du CERJ. Elle est <b>exclue de l\'export par défaut</b>.<label><input type="checkbox" id="bullCerjChk" '+(STATE.includeCERJ?'checked':'')+' onchange="MLBULLETIN_toggleCERJ(this.checked);"/> Réintégrer dans l\'export</label></div>';
+    const cerjRow = STATE.rows.find(r=>/cerj/.test(normalize(r.name||'')));
+    let cerjHtml = cerjRow ? ('<div class="bull-cerj"><b>ℹ CERJ (id '+cerjRow.id+')</b> a été retirée du site à la demande du CERJ. Elle est <b>exclue de l\'export par défaut</b>.<label><input type="checkbox" id="bullCerjChk" '+(STATE.includeCERJ?'checked':'')+' onchange="MLBULLETIN_toggleCERJ(this.checked);"/> Réintégrer dans l\'export</label></div>') : '';
 
     const dayLabels=[['ven','Vendredi'],['shab','Chabbat'],['dim','Dimanche+fériés'],['lj','Lundi/Jeudi'],['mm','Mardi/Merc.']];
     let headHtml='<tr><th></th><th>id</th><th>Synagogue</th>';
@@ -3689,7 +3755,7 @@ if ('serviceWorker' in navigator) {
     let rowsHtml='';
     for(let i=0;i<STATE.rows.length;i++){
       const r=STATE.rows[i];
-      const excluded = (r.id===14 && !STATE.includeCERJ);
+      const excluded = (/cerj/.test(normalize(r.name||'')) && !STATE.includeCERJ);
       const cls = 'bs-'+r._status + (excluded?' bs-excluded':'');
       rowsHtml += '<tr class="'+cls+'">';
       rowsHtml += '<td>'+statusIcon(r._status)+'</td>';
@@ -3750,7 +3816,7 @@ if ('serviceWorker' in navigator) {
       const idInput = tr.querySelector('td input[data-k="name"]');
       if(!idInput) return;
       const i=parseInt(idInput.getAttribute('data-i'),10);
-      if(STATE.rows[i] && STATE.rows[i].id===14){
+      if(STATE.rows[i] && /cerj/.test(normalize(STATE.rows[i].name||''))){
         if(STATE.includeCERJ) tr.classList.remove('bs-excluded');
         else tr.classList.add('bs-excluded');
       }
@@ -3759,7 +3825,7 @@ if ('serviceWorker' in navigator) {
 
   function exportRows(){
     return STATE.rows.filter(r=>{
-      if(r.id===14 && !STATE.includeCERJ) return false;
+      if(/cerj/.test(normalize(r.name||'')) && !STATE.includeCERJ) return false;
       return true;
     });
   }
