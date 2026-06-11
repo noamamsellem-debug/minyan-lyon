@@ -469,6 +469,39 @@ body.watermark::before {
 .tool-card.owner{background:linear-gradient(135deg,#161616 0%,#2a2a26 100%);color:var(--gold-soft);}
 .tool-card.owner .tool-info .t{color:var(--gold);}
 .tool-card.owner .tool-info .s{color:rgba(248,233,194,0.7);}
+
+/* === IMPORT BULLETIN === */
+.bull-drop{border:2px dashed var(--line);border-radius:14px;padding:24px 18px;text-align:center;cursor:pointer;background:var(--bg-soft);transition:all 0.15s;}
+.bull-drop:hover,.bull-drop.dragging{border-color:var(--gold);background:rgba(212,178,89,0.06);}
+.bull-drop .ic{font-size:32px;display:block;margin-bottom:6px;}
+.bull-drop .t{font-weight:600;font-size:14px;color:var(--ink);}
+.bull-drop .s{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+.bull-banner{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;padding:12px;background:var(--card);border-radius:10px;border:1px solid var(--line-soft);}
+.bull-banner .bull-bn-it{display:flex;flex-direction:column;}
+.bull-banner label{font-size:10.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;}
+.bull-banner input{width:100%;padding:7px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:13px;background:var(--bg);color:var(--ink);font-family:var(--sans);}
+.bull-banner input.fin{border-color:var(--gold);background:rgba(212,178,89,0.08);font-weight:700;}
+.bull-warns{margin:12px 0;}
+.bull-warn{background:rgba(196,83,57,0.08);border-left:3px solid var(--red);padding:8px 12px;margin:5px 0;border-radius:6px;font-size:12.5px;color:var(--ink);}
+.bull-cerj{background:rgba(212,178,89,0.12);border:1.5px solid var(--gold);padding:11px 13px;border-radius:10px;margin:12px 0;font-size:13px;}
+.bull-cerj label{display:flex;align-items:center;gap:8px;margin-top:6px;cursor:pointer;}
+.bull-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0;border:1px solid var(--line-soft);border-radius:10px;}
+.bull-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:11px;}
+.bull-table th{position:sticky;top:0;background:var(--bg-soft);padding:6px 5px;border-bottom:1.5px solid var(--line);font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);white-space:nowrap;text-align:left;}
+.bull-table td{padding:3px 4px;border-bottom:1px solid var(--line-soft);}
+.bull-table input{width:54px;padding:4px 5px;border:1px solid var(--line-soft);border-radius:4px;font-size:11px;font-family:monospace;background:var(--bg);color:var(--ink);}
+.bull-table input.bull-name{width:160px;font-family:var(--sans);font-size:11.5px;}
+.bull-table input:focus{outline:none;border-color:var(--gold);background:rgba(212,178,89,0.05);}
+.bull-table tr.bs-warn td{background:rgba(196,83,57,0.04);}
+.bull-table tr.bs-missing td{background:rgba(196,83,57,0.09);font-style:italic;}
+.bull-table tr.bs-fixed td{background:rgba(95,148,95,0.06);}
+.bull-table tr.bs-excluded td{opacity:0.4;text-decoration:line-through;}
+.bull-status{display:inline-block;width:14px;text-align:center;font-weight:bold;}
+.bull-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.bull-actions .ob-btn{flex:1;min-width:140px;}
+.bull-loader{text-align:center;padding:30px 12px;color:var(--ink-soft);}
+.bull-loader .spin{display:inline-block;width:24px;height:24px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:bspin 0.8s linear infinite;}
+@keyframes bspin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
@@ -2418,7 +2451,7 @@ function openProfile(){
       <button class="ob-btn" style="margin-top:8px;" onclick="showLoginScreen()">Se connecter avec Google</button>
     `;
   }
-  const ownerSection=isOwner()?`<h3>Administration</h3><button class="ob-btn" onclick="closeDetail();openOwnerAdmin();">🔑 Gérer les liens admin synagogues</button>`:'';
+  const ownerSection=isOwner()?`<h3>Administration</h3><button class="ob-btn" onclick="closeDetail();openOwnerAdmin();">🔑 Gérer les liens admin synagogues</button><button class="ob-btn" style="margin-top:8px;" onclick="closeDetail();MLBULLETIN_open();">📄 Importer le bulletin (PDF → Sheet)</button>`:'';
   openDetail('Profil',`
     <h2>Votre <span class="em">profil</span></h2>
     <p>Prénom actuel : <b>${name}</b></p>
@@ -3274,6 +3307,529 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
+
+// ============================================================
+// === IMPORT BULLETIN — pipeline PDF → Sheet (admin only) ====
+// ============================================================
+(function(){
+  const MLBULLETIN_CANON = [
+    {id:1, name:"Minian du NETS", addr:"37 Rue Alexandre Boutin, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.768, lng:4.87},
+    {id:2, name:"Yismah' Lev", addr:"14 Rue Pierre Loti, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.769, lng:4.868},
+    {id:3, name:"Torath Emeth", addr:"52 Rue H. Kahn, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.772, lng:4.88},
+    {id:4, name:"École Juive", addr:"40 Rue A. Boutin, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.768, lng:4.87},
+    {id:5, name:"Collel Na'halat Moché", addr:"43 Rue A. Boutin, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.768, lng:4.87},
+    {id:6, name:"Minian Achkenaze — École Juive", addr:"40 Rue A. Boutin, 69100 Villeurbanne", rite:"ashkenaze", zone:"villeurb", lat:45.768, lng:4.87},
+    {id:7, name:"Yéchiva Pinto", addr:"20 Rue des Muriers, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.77, lng:4.876},
+    {id:8, name:"Tal Orot", addr:"44 Rue H. Kahn, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.772, lng:4.88},
+    {id:9, name:"CIV Malherbe", addr:"4 Rue Malherbe, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.77, lng:4.882},
+    {id:10, name:"Beth Menahem Habad", addr:"295 Rue Francis-de-Pressensé, 69100 Villeurbanne", rite:"habad", zone:"villeurb", lat:45.768, lng:4.897},
+    {id:11, name:"Beth Menahem Sépharade", addr:"295 Rue Francis-de-Pressensé, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.768, lng:4.897},
+    {id:12, name:"Beth Habad Charpennes", addr:"86 Cours Emile Zola, 69100 Villeurbanne", rite:"habad", zone:"villeurb", lat:45.77, lng:4.875},
+    {id:13, name:"Neveh Chalom", addr:"317 Rue Duguesclin, 69007 Lyon", rite:"sefarde", zone:"lyon7", lat:45.751, lng:4.851},
+    {id:14, name:"CERJ", addr:"80 Rue Fontanières, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.766, lng:4.89},
+    {id:15, name:"Ohel Yaacov", addr:"26 Rue Chevreul, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.77, lng:4.876},
+    {id:16, name:"Harav Sidi Fredj Halimi", addr:"7 Rue du Dr Frappaz, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.77, lng:4.882},
+    {id:17, name:"Mizrahi", addr:"156 Rue Cuvier, 69006 Lyon", rite:"sefarde", zone:"lyon6", lat:45.766, lng:4.847},
+    {id:18, name:"Or David Lyon 6", addr:"109 Rue Tronchet, 69006 Lyon", rite:"sefarde", zone:"lyon6", lat:45.768, lng:4.852},
+    {id:19, name:"Beth Israel", addr:"26 Rue Tête d'Or, 69006 Lyon", rite:"sefarde", zone:"lyon6", lat:45.77, lng:4.853},
+    {id:20, name:"Chaaré Tsédék", addr:"16 Rue St Mathieu, 69008 Lyon", rite:"sefarde", zone:"lyon8", lat:45.731, lng:4.86},
+    {id:21, name:"Braha Vehatslaha", addr:"19 Rue J. Bourgey, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.770, lng:4.890},
+    {id:22, name:"ACIM Beth Moché", addr:"22 Cours du Dr Long, 69003 Lyon", rite:"sefarde", zone:"lyon3", lat:45.745, lng:4.88},
+    {id:23, name:"Mérone", addr:"61 Rue de Greuze, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.769, lng:4.866},
+    {id:24, name:"Grande Synagogue de Lyon", addr:"13 Quai Tilsitt, 69002 Lyon", rite:"sefarde", zone:"lyon2", lat:45.76, lng:4.829},
+    {id:25, name:"Rav Hyda", addr:"501 Rue de la Sauvegarde, 69009 Lyon (Duchère)", rite:"sefarde", zone:"lyon9", lat:45.787, lng:4.8},
+    {id:26, name:"Beth Habad Part-Dieu", addr:"119 Rue Servient, 69003 Lyon", rite:"habad", zone:"lyon3", lat:45.76, lng:4.853},
+    {id:27, name:"Beth Habad Grange Blanche", addr:"10 Promenade Bullukian, 69003 Lyon", rite:"habad", zone:"lyon3", lat:45.745, lng:4.872},
+    {id:28, name:"Ateret Eliyaou", addr:"20 Chemin Louis Chirpaz, 69130 Écully", rite:"sefarde", zone:"ecully", lat:45.776, lng:4.77},
+    {id:29, name:"Yechiva Pinto Or David", addr:"41 Chemin du Chancelier, 69130 Écully", rite:"sefarde", zone:"ecully", lat:45.785, lng:4.772},
+    {id:30, name:"CI Caluire", addr:"2 Chemin des Bruyères, 69300 Caluire-et-Cuire", rite:"sefarde", zone:"caluire", lat:45.793, lng:4.846},
+    {id:31, name:"ACIB Bron", addr:"97 Rue de la Pagère, 69500 Bron", rite:"sefarde", zone:"banlieue", lat:45.745, lng:4.91},
+    {id:32, name:"AJECO Oullins", addr:"18 Rue Aulagne, 69600 Oullins", rite:"sefarde", zone:"banlieue", lat:45.715, lng:4.815},
+    {id:33, name:"ACI Meyzieu", addr:"6 Avenue de la Libération, 69330 Meyzieu", rite:"sefarde", zone:"banlieue", lat:45.77, lng:4.998},
+    {id:34, name:"Beth Hamidrach", addr:"91 Rue Magenta, 69100 Villeurbanne", rite:"sefarde", zone:"villeurb", lat:45.770, lng:4.870},
+  ];
+
+  const NO_SHAB_AR_IDS = new Set([1,5,6,10,13,26,27,29,31,32,33]);
+  const FIXED_SHAB_AR = {11:'22h00', 17:'22h09', 25:'21h00'};
+  const HEADER_COLS = ['id','name','addr','rite','zone','lat','lng','ven_sh','ven_mi','ven_ar','shab_sh','shab_mi','shab_ar','dim_sh','dim_mi','dim_ar','lj_sh','lj_mi','lj_ar','mm_sh','mm_mi','mm_ar'];
+
+  const STATE = { raw:null, parsed:null, rows:[], warnings:[], banner:{}, finChabbat:'', includeCERJ:false };
+
+  function normalize(s){
+    const str=(s==null?'':String(s)).normalize('NFD');
+    let out='';
+    for(let i=0;i<str.length;i++){
+      const c=str.charCodeAt(i);
+      if(c>=0x0300 && c<=0x036F) continue;
+      out += str[i];
+    }
+    return out.toLowerCase().replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
+  }
+  function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function parseTime(s){
+    if(s==null)return null;
+    const t=String(s).trim();
+    const m=/^(\d{1,2})\s*[h:.]\s*(\d{0,2})/.exec(t);
+    if(!m)return null;
+    const h=parseInt(m[1],10);
+    const mn=m[2]?parseInt(m[2],10):0;
+    if(isNaN(h)||h<0||h>24||isNaN(mn)||mn<0||mn>59)return null;
+    return h*60+mn;
+  }
+  function formatTime(mins){
+    if(mins==null)return '';
+    let m=((mins%(24*60))+24*60)%(24*60);
+    const h=Math.floor(m/60), mn=m%60;
+    return h+'h'+(mn<10?'0'+mn:mn);
+  }
+  function isRange(s){return /\d\s*[h:]\s*\d{0,2}\s*[-–]\s*\d/.test(String(s));}
+  function isSuivi(s){return /suivi/i.test(String(s));}
+
+  function parseCell(values){
+    const out={sh:'', mi:'', ar:'', warnings:[]};
+    if(!Array.isArray(values))return out;
+    const items=values.map(v=>(v==null?'':String(v)).trim()).filter(v=>v.length>0);
+    if(items.length===0)return out;
+
+    let suiviStr=null;
+    const tims=[];
+    for(const it of items){
+      if(isSuivi(it)){
+        if(suiviStr!=null)out.warnings.push('plusieurs « Suivi »');
+        suiviStr=it;
+      } else {
+        tims.push(it);
+      }
+    }
+
+    let shFilled=false, miFilled=false, arFilled=false;
+    for(const t of tims){
+      if(isRange(t)){
+        if(!shFilled){out.sh=t.replace(/\s*[-–]\s*/,' - '); shFilled=true;}
+        else out.warnings.push('plage en position non-shaharit : '+t);
+        continue;
+      }
+      const m=parseTime(t);
+      if(m==null){
+        if(!shFilled){out.sh=t; shFilled=true; out.warnings.push('valeur non horaire en shaharit : '+t);}
+        else out.warnings.push('valeur non parsable : '+t);
+        continue;
+      }
+      if(!shFilled && m<12*60){ out.sh=formatTime(m); shFilled=true; continue; }
+      if(!miFilled){ out.mi=formatTime(m); miFilled=true; continue; }
+      if(!arFilled){ out.ar=formatTime(m); arFilled=true; continue; }
+      out.warnings.push('plus de 3 valeurs horaires');
+    }
+
+    if(suiviStr){
+      const m=/suivi\s*(\d{1,2})\s*[h:.]\s*(\d{0,2})/i.exec(suiviStr);
+      if(m){
+        const mn=parseInt(m[1],10)*60+(m[2]?parseInt(m[2],10):0);
+        out.ar=formatTime(mn);
+      } else {
+        const miMin=parseTime(out.mi);
+        if(miMin!=null){ out.ar=formatTime(miMin+20); }
+        else out.warnings.push('« Suivi » sans minha');
+      }
+    }
+    return out;
+  }
+
+  function matchSyn(pdfSyn){
+    const pName=normalize(pdfSyn && pdfSyn.nom);
+    const pAddr=normalize(pdfSyn && pdfSyn.adresse);
+    if(!pName)return null;
+    let best=null, bestScore=0;
+    for(const c of MLBULLETIN_CANON){
+      const cName=normalize(c.name);
+      const cAddr=normalize(c.addr);
+      let score=0;
+      const pWords=new Set(pName.split(' ').filter(w=>w.length>=3));
+      const cWords=new Set(cName.split(' ').filter(w=>w.length>=3));
+      let common=0;
+      for(const w of pWords) if(cWords.has(w))common++;
+      score+=common*3;
+      if(cName===pName)score+=10;
+      if(cName.includes(pName)||pName.includes(cName))score+=4;
+      if(pAddr){
+        const pT=pAddr.split(' ').filter(w=>w.length>=4||/^\d+$/.test(w));
+        const cT=cAddr.split(' ').filter(w=>w.length>=4||/^\d+$/.test(w));
+        let acommon=0;
+        for(const t of pT) if(cT.indexOf(t)>=0)acommon++;
+        score+=acommon;
+      }
+      if(pName.indexOf('tsedek')>=0||pName.indexOf('tsedeq')>=0){ if(cName.indexOf('tsedek')>=0)score+=5; }
+      if(pName.indexOf('meyziau')>=0||pName.indexOf('meyzieu')>=0){ if(cName.indexOf('meyzieu')>=0)score+=5; }
+      if(pName.indexOf('caluire')>=0){ if(cName.indexOf('caluire')>=0)score+=5; }
+      if(score>bestScore){ best=c; bestScore=score; }
+    }
+    return bestScore>=4 ? best : null;
+  }
+
+  function applyRules(parsed, finChabbat){
+    const warnings=[];
+    const matched={};
+    const unmatched=[];
+    if(parsed && Array.isArray(parsed.synagogues)){
+      for(const pdfSyn of parsed.synagogues){
+        const c=matchSyn(pdfSyn);
+        if(c){
+          if(matched[c.id])warnings.push({id:c.id, msg:'« '+c.name+' » : 2 lignes PDF matchent — la 2e a été ignorée'});
+          else matched[c.id]={canon:c, data:pdfSyn};
+        } else {
+          unmatched.push(pdfSyn);
+        }
+      }
+    }
+    for(const u of unmatched){
+      warnings.push({id:0, msg:'PDF non matché : « '+(u.nom||'?')+' »'});
+    }
+
+    const rows=[];
+    for(const c of MLBULLETIN_CANON){
+      const row={
+        id:c.id, name:c.name, addr:c.addr, rite:c.rite, zone:c.zone, lat:c.lat, lng:c.lng,
+        ven_sh:'',ven_mi:'',ven_ar:'',shab_sh:'',shab_mi:'',shab_ar:'',dim_sh:'',dim_mi:'',dim_ar:'',lj_sh:'',lj_mi:'',lj_ar:'',mm_sh:'',mm_mi:'',mm_ar:'',
+        _status:'auto', _warnings:[]
+      };
+
+      const m=matched[c.id];
+      if(!m){
+        if(c.id===34){
+          row.ven_sh='7h00';row.ven_mi='19h15';row.ven_ar='19h45';
+          row.shab_sh='8h00';row.shab_mi='19h00';row.shab_ar=finChabbat||'';
+          row.dim_sh='7h45';row.dim_mi='19h00';row.dim_ar='19h20';
+          row.lj_sh='7h00';row.lj_mi='19h00';row.lj_ar='19h20';
+          row.mm_sh='7h00';row.mm_mi='19h00';row.mm_ar='19h20';
+          row._status='fixed';
+        } else {
+          row._status='missing';
+          row._warnings.push('absente du PDF');
+          warnings.push({id:c.id, msg:'« '+c.name+' » : absente du PDF — horaires vides'});
+        }
+        rows.push(row);
+        continue;
+      }
+
+      const d=m.data||{};
+      const days=[['vendredi','ven'],['chabbat','shab'],['dimanche','dim'],['lundi_jeudi','lj'],['mardi_mercredi','mm']];
+      for(const [src,pref] of days){
+        const r=parseCell(d[src]);
+        row[pref+'_sh']=r.sh; row[pref+'_mi']=r.mi; row[pref+'_ar']=r.ar;
+        for(const w of r.warnings) row._warnings.push(src+' : '+w);
+      }
+
+      if(NO_SHAB_AR_IDS.has(c.id)) row.shab_ar='';
+      else if(FIXED_SHAB_AR[c.id]) row.shab_ar=FIXED_SHAB_AR[c.id];
+      else if(row.shab_mi) row.shab_ar=finChabbat||'';
+
+      if(c.id===1){
+        const mornings=[];
+        for(const k of ['vendredi','dimanche','lundi_jeudi','mardi_mercredi']){
+          const r=parseCell(d[k]); const mn=parseTime(r.sh);
+          if(mn!=null) mornings.push(mn);
+        }
+        const earliest=mornings.length?formatTime(Math.min.apply(null,mornings)):row.ven_sh;
+        row.ven_sh=earliest; row.ven_mi=''; row.ven_ar='';
+        row.dim_sh=earliest; row.dim_mi=''; row.dim_ar='';
+        row.lj_sh=earliest;  row.lj_mi='';  row.lj_ar='';
+        row.mm_sh=earliest;  row.mm_mi='';  row.mm_ar='';
+        row.shab_sh=''; row.shab_mi=''; row.shab_ar='';
+      }
+
+      if(row._warnings.length){
+        row._status='warn';
+        for(const w of row._warnings) warnings.push({id:c.id, msg:c.name+' — '+w});
+      }
+      rows.push(row);
+    }
+    return {rows, warnings};
+  }
+
+  function rebuildRows(){
+    const r=applyRules(STATE.parsed, STATE.finChabbat);
+    STATE.rows=r.rows; STATE.warnings=r.warnings;
+    renderPreview();
+  }
+
+  function renderUpload(){
+    openDetail('Importer le bulletin', `
+      <h2>Importer le <span class="em">bulletin</span></h2>
+      <p>Glisse-dépose le PDF Kol Villeurbanne de la semaine, ou choisis-le. L'extraction prend 5 à 15 s.</p>
+      <div id="bullDrop" class="bull-drop" onclick="document.getElementById('bullFileInput').click();">
+        <span class="ic">📄</span>
+        <div class="t">Choisir un PDF</div>
+        <div class="s">ou glisser-déposer ici</div>
+      </div>
+      <input type="file" id="bullFileInput" accept="application/pdf" style="display:none;" onchange="MLBULLETIN_handleFile(this.files&&this.files[0]);"/>
+      <p style="font-size:11.5px;color:var(--ink-soft);font-style:italic;margin-top:14px;">La clé Anthropic reste côté serveur (Edge Function Supabase). Le PDF n'est pas stocké.</p>
+    `);
+    setTimeout(()=>{
+      const drop=document.getElementById('bullDrop');
+      if(!drop)return;
+      drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragging');});
+      drop.addEventListener('dragleave',()=>drop.classList.remove('dragging'));
+      drop.addEventListener('drop',e=>{
+        e.preventDefault(); drop.classList.remove('dragging');
+        const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if(f) window.MLBULLETIN_handleFile(f);
+      });
+    }, 50);
+  }
+
+  function renderLoading(msg){
+    openDetail('Importer le bulletin', `
+      <h2>Extraction <span class="em">en cours…</span></h2>
+      <div class="bull-loader"><div class="spin"></div><p style="margin-top:10px;">${escHtml(msg||'Lecture du PDF par Claude…')}</p></div>
+    `);
+  }
+
+  async function handleFile(file){
+    if(!file){ return; }
+    if(!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)){
+      showToast('Fichier doit être un PDF', {type:'error'}); return;
+    }
+    if(typeof isOwner==='function' && !isOwner()){
+      showToast('Réservé au propriétaire', {type:'error'}); return;
+    }
+    renderLoading('Lecture du PDF…');
+    let b64;
+    try {
+      b64 = await fileToBase64(file);
+    } catch(e){
+      showToast('Lecture du PDF impossible', {type:'error'}); renderUpload(); return;
+    }
+    let session;
+    try {
+      const r = await supabaseClient.auth.getSession();
+      session = r && r.data && r.data.session;
+    } catch(e){}
+    if(!session || !session.access_token){
+      showToast('Session expirée, reconnecte-toi', {type:'error'}); renderUpload(); return;
+    }
+    renderLoading('Claude analyse le bulletin…');
+    let res;
+    try {
+      res = await fetch(SUPABASE_URL + '/functions/v1/parse-bulletin', {
+        method:'POST',
+        headers:{
+          'Authorization': 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({pdf_base64: b64}),
+      });
+    } catch(e){
+      showToast('Réseau : '+e.message, {type:'error'}); renderUpload(); return;
+    }
+    let data;
+    try { data = await res.json(); } catch { data = null; }
+    if(!res.ok){
+      const detail = data && (data.error || data.detail) || ('HTTP '+res.status);
+      showToast('Erreur : '+detail, {type:'error', duration:6000});
+      renderUpload(); return;
+    }
+    if(!data || !data.parsed){
+      showToast('Réponse Claude non parsable', {type:'error', duration:5000});
+      console.warn('Raw Anthropic response:', data && data.raw_text);
+      renderUpload(); return;
+    }
+    STATE.raw = data.raw_text;
+    STATE.parsed = data.parsed;
+    STATE.banner = (data.parsed.banniere || data.parsed.banner || {});
+    STATE.finChabbat = STATE.banner.fin_chabbat || STATE.banner.finChabbat || '';
+    STATE.includeCERJ = false;
+    rebuildRows();
+  }
+
+  function fileToBase64(file){
+    return new Promise((resolve,reject)=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        const s=String(r.result||'');
+        const i=s.indexOf(',');
+        resolve(i>=0 ? s.slice(i+1) : s);
+      };
+      r.onerror=()=>reject(new Error('read error'));
+      r.readAsDataURL(file);
+    });
+  }
+
+  function statusIcon(s){
+    if(s==='warn')return '<span class="bull-status" title="à vérifier" style="color:#C45339;">⚠</span>';
+    if(s==='missing')return '<span class="bull-status" title="absente">⊘</span>';
+    if(s==='fixed')return '<span class="bull-status" title="valeurs fixes" style="color:#5BC97A;">✓</span>';
+    return '<span class="bull-status" title="auto" style="color:#5BC97A;">✓</span>';
+  }
+
+  function renderPreview(){
+    const b=STATE.banner||{};
+    const allumage=escHtml(b.allumage||'');
+    const coucher=escHtml(b.coucher_soleil||b.coucherSoleil||'');
+    const rt=escHtml(b.rt||b.RT||'');
+    const fin=escHtml(STATE.finChabbat||'');
+
+    let warnsHtml='';
+    if(STATE.warnings && STATE.warnings.length){
+      warnsHtml = '<div class="bull-warns"><div style="font-weight:600;margin-bottom:6px;">⚠ '+STATE.warnings.length+' point'+(STATE.warnings.length>1?'s':'')+' à vérifier</div>';
+      for(const w of STATE.warnings){
+        warnsHtml += '<div class="bull-warn">'+escHtml(w.msg)+'</div>';
+      }
+      warnsHtml += '</div>';
+    }
+
+    let cerjHtml = '<div class="bull-cerj"><b>ℹ CERJ (id 14)</b> a été retirée du site à la demande du CERJ. Elle est <b>exclue de l\'export par défaut</b>.<label><input type="checkbox" id="bullCerjChk" '+(STATE.includeCERJ?'checked':'')+' onchange="MLBULLETIN_toggleCERJ(this.checked);"/> Réintégrer dans l\'export</label></div>';
+
+    const dayLabels=[['ven','Vendredi'],['shab','Chabbat'],['dim','Dimanche+fériés'],['lj','Lundi/Jeudi'],['mm','Mardi/Merc.']];
+    let headHtml='<tr><th></th><th>id</th><th>Synagogue</th>';
+    for(const [_,l] of dayLabels){ headHtml += '<th colspan="3" style="text-align:center;border-left:1px solid var(--line);">'+l+'</th>'; }
+    headHtml += '</tr><tr><th></th><th></th><th></th>';
+    for(const _ of dayLabels){ headHtml += '<th style="border-left:1px solid var(--line);">Sh</th><th>Mi</th><th>Ar</th>'; }
+    headHtml += '</tr>';
+
+    let rowsHtml='';
+    for(let i=0;i<STATE.rows.length;i++){
+      const r=STATE.rows[i];
+      const excluded = (r.id===14 && !STATE.includeCERJ);
+      const cls = 'bs-'+r._status + (excluded?' bs-excluded':'');
+      rowsHtml += '<tr class="'+cls+'">';
+      rowsHtml += '<td>'+statusIcon(r._status)+'</td>';
+      rowsHtml += '<td style="color:var(--ink-soft);">'+r.id+'</td>';
+      rowsHtml += '<td><input class="bull-name" data-i="'+i+'" data-k="name" value="'+escHtml(r.name)+'" oninput="MLBULLETIN_edit(this);"/></td>';
+      for(const [pref,_] of dayLabels){
+        for(const sub of ['sh','mi','ar']){
+          const k=pref+'_'+sub;
+          rowsHtml += '<td'+(sub==='sh'?' style="border-left:1px solid var(--line);"':'')+'><input data-i="'+i+'" data-k="'+k+'" value="'+escHtml(r[k]||'')+'" oninput="MLBULLETIN_edit(this);"/></td>';
+        }
+      }
+      rowsHtml += '</tr>';
+    }
+
+    openDetail('Bulletin — aperçu', `
+      <h2>Aperçu <span class="em">éditable</span></h2>
+      <div class="bull-banner">
+        <div class="bull-bn-it"><label>Allumage</label><input value="${allumage}" id="bullAllumage" disabled/></div>
+        <div class="bull-bn-it"><label>Coucher</label><input value="${coucher}" id="bullCoucher" disabled/></div>
+        <div class="bull-bn-it"><label>Fin de Chabbat (à appliquer)</label><input class="fin" value="${fin}" id="bullFinChabbat" oninput="MLBULLETIN_finChabbatChange(this.value);" placeholder="ex: 22h28"/></div>
+        <div class="bull-bn-it"><label>R'T</label><input value="${rt}" id="bullRT" disabled/></div>
+      </div>
+      ${warnsHtml}
+      ${cerjHtml}
+      <div class="bull-tw"><table class="bull-table"><thead>${headHtml}</thead><tbody>${rowsHtml}</tbody></table></div>
+      <div class="bull-actions">
+        <button class="ob-btn" onclick="MLBULLETIN_copyTSV();">📋 Copier (TSV)</button>
+        <button class="ob-btn" onclick="MLBULLETIN_downloadCSV();">⬇️ Télécharger CSV (;)</button>
+      </div>
+      <button class="ob-btn secondary" style="margin-top:10px;" onclick="MLBULLETIN_open();">↶ Recharger un autre PDF</button>
+    `);
+  }
+
+  function editCell(inp){
+    const i=parseInt(inp.getAttribute('data-i'),10);
+    const k=inp.getAttribute('data-k');
+    if(isNaN(i)||!k||!STATE.rows[i])return;
+    STATE.rows[i][k]=inp.value;
+  }
+
+  function finChabbatChange(v){
+    STATE.finChabbat = (v||'').trim();
+    for(const r of STATE.rows){
+      if(NO_SHAB_AR_IDS.has(r.id)) continue;
+      if(FIXED_SHAB_AR[r.id]) continue;
+      if(r.id===1) continue;
+      if(r.shab_mi || r.id===34) r.shab_ar = STATE.finChabbat;
+    }
+    document.querySelectorAll('.bull-table input[data-k="shab_ar"]').forEach(inp=>{
+      const i=parseInt(inp.getAttribute('data-i'),10);
+      if(STATE.rows[i]) inp.value = STATE.rows[i].shab_ar || '';
+    });
+  }
+
+  function toggleCERJ(v){
+    STATE.includeCERJ = !!v;
+    document.querySelectorAll('.bull-table tr').forEach(tr=>{
+      const idInput = tr.querySelector('td input[data-k="name"]');
+      if(!idInput) return;
+      const i=parseInt(idInput.getAttribute('data-i'),10);
+      if(STATE.rows[i] && STATE.rows[i].id===14){
+        if(STATE.includeCERJ) tr.classList.remove('bs-excluded');
+        else tr.classList.add('bs-excluded');
+      }
+    });
+  }
+
+  function exportRows(){
+    return STATE.rows.filter(r=>{
+      if(r.id===14 && !STATE.includeCERJ) return false;
+      return true;
+    });
+  }
+
+  function buildTSV(){
+    const rows=exportRows();
+    const lines=[HEADER_COLS.join('\t')];
+    for(const r of rows){
+      const cells=HEADER_COLS.map(k=>{
+        const v=r[k]==null?'':String(r[k]);
+        return v.replace(/[\t\r\n]/g,' ');
+      });
+      lines.push(cells.join('\t'));
+    }
+    return lines.join('\n');
+  }
+  function buildCSV(){
+    const rows=exportRows();
+    const lines=[HEADER_COLS.join(';')];
+    const esc=v=>{
+      v=v==null?'':String(v);
+      if(/[;"\n\r]/.test(v)) return '"'+v.replace(/"/g,'""')+'"';
+      return v;
+    };
+    for(const r of rows){
+      lines.push(HEADER_COLS.map(k=>esc(r[k])).join(';'));
+    }
+    return lines.join('\n');
+  }
+
+  function copyTSV(){
+    const t=buildTSV();
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(
+        ()=>showToast('TSV copié ✓ ('+exportRows().length+' lignes)', {type:'success'}),
+        ()=>fallbackCopy(t)
+      );
+    } else fallbackCopy(t);
+  }
+  function fallbackCopy(t){
+    const ta=document.createElement('textarea');
+    ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); showToast('TSV copié ✓', {type:'success'}); }
+    catch { showToast('Copie impossible', {type:'error'}); }
+    document.body.removeChild(ta);
+  }
+  function downloadCSV(){
+    const t=buildCSV();
+    const blob=new Blob(['﻿'+t], {type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const d=new Date(); const stamp=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    a.href=url; a.download='minyan-lyon-'+stamp+'.csv';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 100);
+    showToast('CSV téléchargé ✓', {type:'success'});
+  }
+
+  window.MLBULLETIN_open = function(){
+    if(typeof isOwner!=='function' || !isOwner()){ showToast('Réservé au propriétaire', {type:'error'}); return; }
+    renderUpload();
+  };
+  window.MLBULLETIN_handleFile = handleFile;
+  window.MLBULLETIN_edit = editCell;
+  window.MLBULLETIN_finChabbatChange = finChabbatChange;
+  window.MLBULLETIN_toggleCERJ = toggleCERJ;
+  window.MLBULLETIN_copyTSV = copyTSV;
+  window.MLBULLETIN_downloadCSV = downloadCSV;
+})();
 </script>
 
 </body>
