@@ -5,7 +5,7 @@
 // ⚠️ INCRÉMENTER À CHAQUE MISE EN LIGNE.
 // Le nom du cache est la seule chose qui purge les anciens contenus :
 // `activate` supprime tout cache dont la clé diffère de celle-ci.
-const CACHE = 'ml-v4-2026-08-perf';
+const CACHE = 'ml-v5-2026-08-design';
 // Les images sont désormais des fichiers séparés (elles pesaient 167 Ko de
 // base64 dans index.html). Le logo de connexion est pré-caché ; les deux logos
 // de navigation sont pris au vol, ils ne servent qu'à l'ouverture de la feuille.

@@ -182,7 +182,7 @@ body.watermark::before {
 
 /* Champ masqué pour le niveau d'accès */
 .locked-val{display:inline-flex;align-items:center;gap:5px;color:var(--ink-faint);font-style:italic;font-size:12px;}
-.locked-val::before{content:"🔒";font-style:normal;font-size:11px;}
+.locked-val::before{content:"";}
 
 .topbar{padding:18px 22px 4px;display:flex;justify-content:space-between;align-items:center;}
 .tag{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft);}
@@ -1151,6 +1151,219 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 /* La traçabilité peut se réduire, jamais les commandes */
 .mcard-foot .trace{flex:1;min-width:0;font-size:11.5px;}
 
+
+/* ============================================================
+   ====  §1 à §4 — UNIFICATION DU DESIGN  =====================
+   Ce bloc est le dernier de la feuille : il prime sur tout le
+   CSS hérité de la V1 encore présent plus haut.
+   ============================================================ */
+
+/* ---------- Icônes : un seul jeu, une seule taille optique ---------- */
+.ic{width:20px;height:20px;flex-shrink:0;display:inline-block;vertical-align:-4px;}
+.btn-primary .ic,.btn-outline .ic,.link-quiet .ic{margin-inline-end:8px;}
+
+/* ============================================================
+   §1 — TABLEAU D'HORAIRES
+   ============================================================ */
+.ht{width:100%;border-collapse:collapse;table-layout:fixed;margin:4px 0 0;}
+.ht thead th{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--ink-soft);background:var(--card-bg);padding:8px 6px;text-align:right;}
+.ht thead th:first-child{text-align:start;border-start-start-radius:8px;border-end-start-radius:8px;padding-inline-start:12px;}
+.ht thead th:last-child{border-start-end-radius:8px;border-end-end-radius:8px;padding-inline-end:12px;}
+.ht tbody tr{border-top:1px solid rgba(0,0,0,.06);}
+.ht tbody tr:first-child{border-top:none;}
+.ht tbody th{font-size:14px;font-weight:500;color:var(--ink-soft);text-align:start;
+  padding:11px 6px 11px 12px;white-space:nowrap;}
+.ht tbody td{font-size:15px;font-weight:700;color:var(--ink);text-align:right;padding:11px 6px;
+  font-variant-numeric:tabular-nums;}
+.ht tbody td:last-child{padding-inline-end:12px;}
+.ht .ht-empty{color:var(--ink-faint);font-weight:400;}
+/* Ligne du jour en cours : c'est l'information que l'on cherche en premier */
+.ht tbody tr.ht-today{background:var(--card-bg);}
+.ht tbody tr.ht-today th{color:var(--blue);font-weight:700;}
+.ht tbody tr.ht-today:first-child th{border-start-start-radius:8px;}
+.ht tbody tr.ht-today:last-child th{border-end-start-radius:8px;}
+/* La prochaine prière du jour : pastille pleine */
+.ht-now{display:inline-block;background:var(--blue);color:#fff;border-radius:999px;
+  padding:4px 11px;font-weight:700;}
+.empty-inline{padding:16px 12px;color:var(--ink-soft);font-size:14px;font-style:italic;}
+
+/* ============================================================
+   §2 — FICHE SYNAGOGUE
+   ============================================================ */
+.detail{background:var(--bg) !important;}
+.detail-header{background:var(--bg);border-bottom:1px solid var(--line);
+  opacity:0;pointer-events:none;transition:opacity .18s ease;}
+.detail-header.visible{opacity:1;pointer-events:auto;}
+.detail-back{width:44px;height:44px;border-radius:12px;background:var(--field);border:none;
+  color:var(--ink);font-size:20px;}
+.detail-title{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--ink);}
+.detail-body{padding:16px 16px 96px;}
+.detail-body h2,.detail-body h3{font-family:var(--sans);}
+
+.fs-title{font-size:20px;font-weight:700;line-height:1.25;color:var(--ink);margin:4px 0 8px;}
+.fs-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.pill-rite{background:var(--card-bg);color:var(--blue-dark);border-radius:999px;
+  padding:5px 12px;font-size:13px;font-weight:600;}
+.pill-zone{background:var(--field);color:var(--ink-soft);border-radius:999px;
+  padding:5px 12px;font-size:13px;font-weight:500;}
+.fs-addr{display:block;width:100%;text-align:start;background:var(--field);border:none;
+  border-radius:12px;padding:12px;font-family:inherit;font-size:15px;color:var(--ink);
+  cursor:pointer;min-height:44px;}
+.fs-addr:active{background:var(--card-bg);}
+.fs-dist{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;
+  color:var(--ink-soft);margin:8px 0 0;}
+.fs-dist .ic{width:16px;height:16px;color:var(--orange);}
+.fs-itin{width:100%;margin:12px 0 4px;display:flex;align-items:center;justify-content:center;}
+.fs-tel{width:100%;margin:8px 0 4px;display:flex;align-items:center;justify-content:center;
+  text-decoration:none;}
+.fs-h2{font-size:16px;font-weight:700;color:var(--ink);margin:24px 0 8px;}
+.fs-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0 12px;}
+.fs-actions .btn-outline{padding:12px 8px;font-size:14px;display:flex;align-items:center;
+  justify-content:center;min-height:48px;}
+.link-quiet{display:block;width:100%;background:none;border:none;padding:12px;
+  font-family:inherit;font-size:13px;color:var(--ink-soft);text-decoration:underline;
+  cursor:pointer;min-height:44px;}
+.note-band{display:flex;align-items:center;gap:8px;background:var(--orange-bg);
+  border-radius:12px;padding:10px 12px;margin:12px 0;font-size:13px;color:var(--ink);}
+.note-band .ic{color:var(--orange);width:18px;height:18px;}
+.locked-box{background:var(--card-bg);border:1px solid var(--line);border-radius:18px;
+  padding:20px 16px;text-align:center;margin:8px 0;}
+.locked-box .locked-ic{display:inline-block;color:var(--blue);margin-bottom:6px;}
+.locked-box .locked-ic .ic{width:28px;height:28px;}
+.locked-box .locked-t{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.locked-box p{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-bottom:14px;}
+.locked-box .btn-primary{width:auto;padding:11px 22px;}
+
+/* La mention de mise à jour, une seule fois, sous le tableau */
+.detail-body .trace{margin-top:10px;font-size:11px;font-style:italic;color:var(--ink-faint);}
+
+/* ============================================================
+   §4 — COHÉRENCE : on repeint les écrans hérités
+   ============================================================ */
+.chip{background:var(--field);color:var(--ink);font-size:13px;padding:5px 12px;}
+.ob-btn{background:var(--blue);color:#fff;border-radius:12px;font-family:var(--sans);}
+.ob-btn.secondary{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
+.mik-locked,.locked-box{background:var(--card-bg);border:1px solid var(--line);}
+.mik-locked h3{color:var(--ink);font-family:var(--sans);font-weight:700;}
+.mik-locked p{color:var(--ink-soft);}
+.mik-locked-btn{background:var(--blue);color:#fff;border-radius:12px;font-family:var(--sans);}
+.imp-card.create{background:var(--blue);color:#fff;}
+.imp-card.join{background:var(--card-bg);color:var(--blue-dark);}
+.imp-card .ttl{font-family:var(--sans);font-weight:700;}
+.imp-item{border-radius:18px;border:1px solid var(--line);background:var(--surface);}
+.imp-item-name{font-family:var(--sans);font-weight:700;color:var(--ink);}
+.imp-item-pill{background:var(--orange);color:#fff;border-radius:999px;}
+.imp-item-pill.complet{background:var(--green);color:#fff;}
+.imp-progress-fill{background:var(--blue);}
+.imp-progress-fill.complet{background:var(--green);}
+.mb-card,.tool-card,.event-card{border-radius:18px;border:1px solid var(--line-soft);
+  background:var(--surface);}
+.event-card{border-radius:12px;}
+.syn-complete-btn{background:var(--blue);color:#fff;border-radius:12px;
+  font-family:var(--sans);font-weight:650;}
+.syn-report-btn{background:transparent;color:var(--ink-soft);border:none;
+  text-decoration:underline;font-weight:500;font-size:13px;}
+.h-tab{display:none;}          /* remplacé par .ht */
+
+/* ============================================================
+   §3 — ANIMATIONS : sobres, courtes, en transform/opacity
+   ============================================================ */
+.detail{transition:transform .28s cubic-bezier(.32,.72,0,1);}
+.detail.dragging{transition:none;}
+.detail-scrim{position:fixed;inset:0;background:rgba(8,14,28,.4);z-index:299;
+  opacity:0;pointer-events:none;transition:opacity .28s ease;}
+.detail-scrim.show{opacity:1;pointer-events:auto;}
+.detail-grip{position:sticky;top:0;height:22px;display:flex;align-items:center;
+  justify-content:center;background:var(--bg);z-index:2;cursor:grab;touch-action:none;}
+.detail-grip::before{content:'';width:38px;height:4px;border-radius:999px;background:var(--line);}
+
+/* Accordéon : grid-template-rows, jamais height — pas de reflow */
+.mcard-extra{display:grid;grid-template-rows:0fr;transition:grid-template-rows .2s ease-out;}
+.mcard-extra.open{grid-template-rows:1fr;}
+.mcard-extra > .acc-inner{overflow:hidden;min-height:0;}
+.more-link .chev{transition:transform .18s ease;}
+.more-link[aria-expanded="true"] .chev{transform:rotate(180deg);}
+
+/* Fondu croisé au changement d'onglet, sans saut de défilement */
+.page.on{animation:pageIn .15s ease-out;}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+
+/* Appui sur une carte */
+.mcard{transition:transform .1s ease;}
+.mcard:active{transform:scale(.98);}
+
+/* Pastille de la prière en cours : pulsation à peine perceptible */
+/* Uniquement sur les pastilles pleines : une ombre sur du texte simple
+   dessinerait un rectangle disgracieux. */
+.pcard.next .pcard-time,.ht-now{animation:pulseSoft 2.5s ease-in-out infinite;}
+@keyframes pulseSoft{0%,100%{box-shadow:0 0 0 0 rgba(31,95,224,0)}50%{box-shadow:0 0 0 4px rgba(31,95,224,.10)}}
+
+/* Feuille d'itinéraire : montée + icônes décalées */
+.confirm-box{animation:sheetUp .22s cubic-bezier(.32,.72,0,1);}
+@keyframes sheetUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.nav-app{animation:appIn .2s ease-out both;}
+.nav-app:nth-child(1){animation-delay:0ms}
+.nav-app:nth-child(2){animation-delay:30ms}
+.nav-app:nth-child(3){animation-delay:60ms}
+@keyframes appIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Bascule de langue / thème : fondu, pour éviter le clignotement */
+.app.fading{animation:fadeSwap .2s ease;}
+@keyframes fadeSwap{0%{opacity:1}40%{opacity:.35}100%{opacity:1}}
+
+/* Confirmation 👍 : remplissage + micro-rebond */
+.icon-btn.thumb.done .ic,.icon-btn.thumb.just .ic{fill:currentColor;}
+.icon-btn.thumb.just{animation:thumbPop .15s ease-out;}
+@keyframes thumbPop{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+/* Squelettes de chargement, à la forme des cartes */
+.skel{margin:0 14px 8px;background:var(--card-bg);border-radius:18px;padding:12px;}
+.skel-l{height:12px;border-radius:6px;margin-bottom:8px;
+  background:linear-gradient(90deg,var(--line-soft) 25%,var(--line) 37%,var(--line-soft) 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;}
+.skel-l.w60{width:60%}.skel-l.w40{width:40%}.skel-l.w100{width:100%;height:34px;border-radius:12px;}
+@keyframes shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+/* Obligatoire : on respecte le réglage système */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+/* Bouton principal : --blue (et non --blue-dark), conformément au §4 */
+.btn-primary{background:var(--blue);}
+/* La barre de la fiche reste en place (le retour doit toujours être atteignable) ;
+   seul le TITRE apparaît en fondu quand le grand titre sort de l'écran. */
+.detail-header{opacity:1;pointer-events:auto;padding:6px 12px;min-height:56px;}
+.detail-title{opacity:0;transition:opacity .18s ease;}
+.detail-header.visible .detail-title{opacity:1;}
+.detail-grip{height:16px;}
+.detail-body{padding-top:6px;}
+
+/* Étoile favori : icône du jeu, remplie et orange à l'état actif */
+.mcard-fav .ic{width:24px;height:24px;stroke-width:1.9;}
+.mcard-fav{color:var(--ink-faint);}
+.mcard-fav.on{color:var(--orange);}
+.mcard-fav.on .ic{fill:var(--orange);}
+
+/* Compteurs +/- : 44 px de zone tactile (§4) */
+.stepper button{width:44px;height:44px;font-size:22px;}
+.stepper{padding:2px 8px;}
+
+/* Accordéon replié : rien ne doit dépasser. Le fond et le remplissage
+   vivent dans .acc-inner, que grid-template-rows:0fr écrase à zéro. */
+.mcard-extra{margin:-8px 14px 8px;padding:0;background:transparent;border-radius:0 0 18px 18px;overflow:hidden;}
+.mcard-extra > .acc-inner{background:var(--card-bg);padding:2px 12px 10px;border-radius:0 0 18px 18px;}
+.mcard-extra:not(.open){margin-bottom:0;}
+
+/* Le remplissage de .acc-inner restait visible hors du bloc de hauteur nulle */
+.mcard-extra:not(.open) > .acc-inner{padding:0;}
+.mcard-extra:not(.open){margin:0 14px;}
+
 </style>
 </head>
 <body>
@@ -1173,7 +1386,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
     <div class="login-divider">ou</div>
     <button class="btn-outline" style="width:100%;" onclick="continueAsGuest()">Continuer en tant qu'invité</button>
     <div class="login-notice">
-      <span class="ti">🔒 Pourquoi se connecter ?</span>
+      <span class="ti"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg> Pourquoi se connecter ?</span>
       Pour des raisons de sécurité, les adresses et contacts ne sont visibles que par les personnes identifiées.
       En tant qu'invité, vous voyez les horaires du jour.
     </div>
@@ -1222,7 +1435,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 
   <!-- Bandeau accès limité (paliers N0–N3, inchangé) -->
   <div class="auth-banner locked hidden" id="authBanner">
-    <span class="ic">🔒</span>
+    <span class="ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span>
     <span class="txt"><span class="lvl" id="authBannerLvl">Accès limité</span> · <span id="authBannerMsg">Connectez-vous pour voir les adresses</span></span>
     <button class="auth-banner-btn" onclick="showLoginScreen()">Connexion</button>
   </div>
@@ -1378,9 +1591,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
       <span id="themeLbl">Mode d'affichage</span>
     </div>
     <div class="seg" id="themeSeg">
-      <button data-theme-choice="light" onclick="setTheme('light')">☀ <span id="themeLight">Clair</span></button>
+      <button data-theme-choice="light" onclick="setTheme('light')"><span id="themeLight">Clair</span></button>
       <button data-theme-choice="auto" onclick="setTheme('auto')"><span id="themeAuto">Auto</span></button>
-      <button data-theme-choice="dark" onclick="setTheme('dark')">☾ <span id="themeDark">Sombre</span></button>
+      <button data-theme-choice="dark" onclick="setTheme('dark')"><span id="themeDark">Sombre</span></button>
     </div>
   </div>
 </aside>
@@ -2409,7 +2622,7 @@ function renderTopBadges(){
   }
   const rh = (typeof getRoshHodeshToday === 'function') ? getRoshHodeshToday() : null;
   if(rh){
-    parts.push(`<div class="rh-badge"><span class="rh-ico">🌙</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>`);
+    parts.push(`<div class="rh-badge"><span class="rh-ico">${ICON.moon}</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>`);
   }
   host.innerHTML = parts.join('');
 }
@@ -2475,7 +2688,7 @@ function openGuestSynBlock(syn){
   openDetail(syn.name, `
     <h2>${syn.name}</h2>
     <div class="mik-locked" style="margin:14px 0;">
-      <div class="mik-locked-ic">🔒</div>
+      <div class="mik-locked-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></div>
       <h3>Détails réservés</h3>
       <p>Pour voir l'adresse, le planning complet et les détails de cette synagogue, connectez-vous avec votre compte Google.</p>
       <button class="mik-locked-btn" onclick="closeDetail();showLoginScreen();">Se connecter</button>
@@ -2519,6 +2732,48 @@ function getGuestDisplayPrayer(syn, now){
 // L'ordre d'affichage suit la semaine juive : dimanche → chabbat.
 const DAYKEY_TO_DOWS={dimanche:[0],lundi_jeudi:[1,4],mardi_mercredi:[2,3],vendredi:[5],shabbat:[6]};
 const DAYKEY_SHORT={dimanche:'dim',lundi_jeudi:'lj',mardi_mercredi:'mm',vendredi:'ven',shabbat:'shab'};
+// ============================================================
+// === §4 JEU D'ICÔNES UNIQUE =================================
+// ============================================================
+// Les emojis changeaient d'aspect d'un appareil à l'autre et cassaient la
+// cohérence. Un seul jeu de traits, même épaisseur (1.9), même boîte 24×24.
+// Exceptions volontaires conservées ailleurs : ⚡ (minyan temporaire) et 🕯
+// (bandeau Chabbat), qui sont des signes, pas des icônes d'interface.
+const _sv=(d,extra)=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICON={
+  pin:_sv('<path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>'),
+  nav:_sv('<polygon points="12 3 20 20 12 16 4 20"/>'),
+  phone:_sv('<path d="M6 3h3l2 5-2.4 1.4a12 12 0 0 0 5.9 5.9L16 13l5 2v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 5.2 2 2 0 0 1 6 3z"/>'),
+  lock:_sv('<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/>'),
+  thumb:_sv('<path d="M7 21V10l4.5-7.5A2 2 0 0 1 14.6 5l-.9 4.4h5.1a2 2 0 0 1 1.9 2.6l-1.6 6A2 2 0 0 1 17.2 21z"/><rect x="3" y="10" width="4" height="11" rx="1"/>'),
+  pencil:_sv('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1l1-4z"/>'),
+  camera:_sv('<path d="M4 8h3l1.6-2.4h6.8L17 8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="3.4"/>'),
+  clock:_sv('<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>'),
+  moon:_sv('<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>'),
+  info:_sv('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/>'),
+  warn:_sv('<path d="M12 3.5 21 19.5H3z"/><line x1="12" y1="9.5" x2="12" y2="14"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/>'),
+  search:_sv('<circle cx="11" cy="11" r="7"/><line x1="16.2" y1="16.2" x2="21" y2="21"/>'),
+  home:_sv('<path d="M4 21V10l8-6l8 6v11z"/><path d="M9 21v-5h6v5"/>'),
+  drop:_sv('<path d="M12 3s6 6.6 6 10.5a6 6 0 0 1-12 0C6 9.6 12 3 12 3z"/>'),
+  book:_sv('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/>'),
+  bell:_sv('<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'),
+  share:_sv('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>'),
+  mail:_sv('<rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/>'),
+  heart:_sv('<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1l8.8 8.8l8.8-8.8a5 5 0 0 0 0-7.1z"/>'),
+  globe:_sv('<circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/>'),
+  user:_sv('<circle cx="12" cy="8" r="3.4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
+  file:_sv('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/>'),
+  clip:_sv('<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L10 17.9a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/>'),
+  users:_sv('<circle cx="9" cy="8" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 19a4.5 4.5 0 0 1 6-3.9"/>'),
+  headset:_sv('<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="13.5" width="4" height="6" rx="1.6"/><rect x="17.5" y="13.5" width="4" height="6" rx="1.6"/>'),
+  star:_sv('<polygon points="12 3.6 14.6 9.2 20.6 10 16.3 14.2 17.4 20.2 12 17.3 6.6 20.2 7.7 14.2 3.4 10 9.4 9.2"/>'),
+  calendar:_sv('<rect x="3.5" y="5" width="17" height="16" rx="2"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/>'),
+  scroll:_sv('<path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 0 2 2H8a2 2 0 0 1-2-2z"/><line x1="9.5" y1="8.5" x2="15.5" y2="8.5"/><line x1="9.5" y1="12" x2="15.5" y2="12"/>'),
+  wheel:_sv('<circle cx="11" cy="5" r="1.8"/><path d="M10 9v5h5l2.5 5"/><path d="M14.5 14a5.5 5.5 0 1 1-5-4.9"/>'),
+  park:_sv('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9.5 17V8h3.2a2.6 2.6 0 0 1 0 5.2H9.5"/>'),
+  sparkle:_sv('<path d="M12 3.5l1.8 4.7L18.5 10l-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/>')
+};
+
 // Libellés traduits à la volée : ils changent avec la langue active.
 Object.defineProperty(globalThis,"DOW_LABELS",{get:()=>t("days"),configurable:true});
 Object.defineProperty(globalThis,"PRAYER_LABELS",{get:()=>t("prayer"),configurable:true});
@@ -2815,6 +3070,17 @@ function isAdminLabel(n){return ADMIN_LABELS.has(String(n).toLowerCase().trim())
 function isOwnerEmail(e){return typeof OWNER_EMAILS!=='undefined'&&OWNER_EMAILS.includes(String(e).toLowerCase());}
 
 // Confirmations « 👍 » — affichées seulement dans le déplié, sous l'horaire.
+function verifBlock(syn){
+  const keys=groupPrayers(syn).flatMap(g=>g.keys);
+  let best=null;
+  for(const k of keys){const v=getVerif(syn.id,k);if(v&&v.last&&(!best||v.last>best.last))best=v;}
+  if(!best)return '';
+  const nb=best.count||1;
+  return `<div class="pcard-verif">${nb>1
+    ? t('trace.verifiedN').replace('{n}',nb).replace('{when}',fmtDayMonth(best.last))
+    : t('trace.verified1').replace('{who}',best.lastBy?escapeHtml(best.lastBy):'—').replace('{when}',fmtDayMonth(best.last))}</div>`;
+}
+
 function verifLine(syn,g){
   let best=null;
   for(const key of g.keys){
@@ -2881,6 +3147,7 @@ function buildMinyanList(){
   const list=document.getElementById('minyanList');
   if(!list)return;
   renderSourceNotice();
+  if(!SYNS.length){list.innerHTML=skeletonCards(4);return;}
   const now=new Date();
   const isGuest=!currentUser;
   let syns=filteredSyns(now);
@@ -2925,7 +3192,7 @@ function buildMinyanList(){
 
   setResultCount(cards.length);
   if(!cards.length){
-    list.innerHTML=`<div class="empty"><span class="em-ic">🔍</span>${t('empty.minyan')}</div>`;
+    list.innerHTML=`<div class="empty"><span class="em-ic">${ICON.search}</span>${t('empty.minyan')}</div>`;
     return;
   }
   list.innerHTML=cards.map(({syn,groups})=>renderMinyanCard(syn,groups,now,isGuest)).join('');
@@ -2950,11 +3217,11 @@ function renderMinyanCard(syn,groups,now,isGuest){
   const rite=t('rite.'+syn.rite)||syn.rite;
   const zone=ZONE_LABELS[syn.zone]||syn.zone;
   const dist=(geolocMode&&userLocation&&hasCoords(syn))
-    ? `<span class="mcard-dist"><span class="pin">📍</span>${fmtDist(distTo(syn))}</span>`
+    ? `<span class="mcard-dist">${ICON.pin}${fmtDist(distTo(syn))}</span>`
     : '';
   const itin=hasCoords(syn)
-    ? `<button class="itin-btn" onclick="openItineraire(${syn.lat},${syn.lng},'${escapeAttr(syn.name)}','${escapeAttr(syn.addr||syn.name)}')">▲ ${t('itineraire')}</button>`
-    : (syn.addr?`<button class="itin-btn" onclick="openItineraire(null,null,'${escapeAttr(syn.name)}','${escapeAttr(syn.addr)}')">▲ ${t('itineraire')}</button>`:'');
+    ? `<button class="itin-btn" onclick="openItineraireSyn(${syn.id})">${ICON.nav}${t('itineraire')}</button>`
+    : (syn.addr?`<button class="itin-btn" onclick="openItineraireSyn(${syn.id})">${ICON.nav}${t('itineraire')}</button>`:'');
 
   // --- Mode dégradé : ni horaire ni promesse ---
   if(SYNS_SOURCE==='defaut'){
@@ -2982,14 +3249,13 @@ function renderMinyanCard(syn,groups,now,isGuest){
     : `<div class="next-slot muted">${t('card.noOfficeToday')}</div>`;
 
   const open=EXPANDED.has(syn.id);
-  const rest=open
-    ? `<div class="all-slots">${groups.map(g=>renderPrayerCard(syn,g,g===next)).join('')}</div>`
-    : '';
+  // §1.2 : le déplié montre le MÊME tableau que la fiche.
+  const rest=`<div class="acc-inner">${renderHoraireTable(syn,{compact:true})}${verifBlock(syn)}</div>`;
   const more=groups.length
-    ? `<button class="more-link" onclick="toggleCard(${syn.id},event)">${open?t('card.hideAll'):t('card.showAll')} <span class="chev">${open?'▴':'▾'}</span></button>`
+    ? `<button class="more-link" aria-expanded="${open}" onclick="toggleCard(${syn.id},event)">${open?t('card.hideAll'):t('card.showAll')} <span class="chev">▾</span></button>`
     : '';
 
-  return cardShell(syn,zone,rite,dist,itin,fav,slot,traceLine(syn),more)+ (open?`<div class="mcard-extra" data-for="${syn.id}">${rest}</div>`:'');
+  return cardShell(syn,zone,rite,dist,itin,fav,slot,traceLine(syn),more)+ `<div class="mcard-extra${open?' open':''}" data-for="${syn.id}">${rest}</div>`;
 }
 
 // Coquille commune — exactement 3 lignes au repos :
@@ -2999,7 +3265,7 @@ function renderMinyanCard(syn,groups,now,isGuest){
 function cardShell(syn,zone,rite,dist,itin,fav,slot,trace,tail){
   const sub=`${escapeHtml(zone)}<span class="dot">·</span><span class="rite">${escapeHtml(rite)}</span>${dist}`;
   // L'étoile vit dans la ligne du bas : elle ne chevauche plus le bouton Itinéraire.
-  const star=`<button class="mcard-fav${fav?' on':''}" onclick="toggleFav(${syn.id},event)" aria-label="${t('fav')}">${fav?'★':'☆'}</button>`;
+  const star=`<button class="mcard-fav${fav?' on':''}" onclick="toggleFav(${syn.id},event)" aria-label="${t('fav')}">${ICON.star}</button>`;
   const foot=`<div class="mcard-foot">${trace||'<span></span>'}${star}${tail}</div>`;
   return `<div class="mcard" data-syn="${syn.id}">
     <div class="mcard-top">
@@ -3024,7 +3290,7 @@ function renderPrayerCard(syn,g,isNext){
       <button class="icon-btn" onclick="openEditMinyan(${syn.id},'${g.type}','${escapeAttr(g.time)}','${keys}')" aria-label="${t('edit')}">
         <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1l1-4z"/></svg>
       </button>
-      <span class="pcard-time"><span class="clk">🕐</span>${escapeHtml(g.time)}</span>
+      <span class="pcard-time">${escapeHtml(g.time)}</span>
       <button class="icon-btn thumb${mine?' done':''}" onclick="confirmPrayer(${syn.id},'${keys}',event)" aria-label="${t('confirmHour')}">
         <svg viewBox="0 0 24 24"><path d="M7 22V11l5-9a2.2 2.2 0 0 1 2 3l-1 5h5.5a2.2 2.2 0 0 1 2.1 2.8l-1.7 6A2.2 2.2 0 0 1 16.8 22z"/><rect x="2.5" y="11" width="4.5" height="11" rx="1"/></svg>
       </button>
@@ -3153,56 +3419,285 @@ function getCurrentPrayerLabel(){
   return`Prochainement : ${next.name} · ${fmt(next.time)}`;
 }
 
-function openDetail(title,bodyHTML){document.getElementById('detailTitle').textContent=title;document.getElementById('detailBody').innerHTML=bodyHTML;document.getElementById('detailView').classList.add('show');}
-function closeDetail(){document.getElementById('detailView').classList.remove('show');}
+// ============================================================
+// === §3 ANIMATIONS ==========================================
+// ============================================================
+// Toutes en transform/opacity : jamais height, top ou width, qui déclenchent
+// un recalcul de mise en page et saccadent sur iPhone.
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// --- Feuille de détail : montée du bas + fermeture au doigt ---
+function openDetail(title,bodyHTML){
+  const view=document.getElementById('detailView');
+  const body=document.getElementById('detailBody');
+  document.getElementById('detailTitle').textContent=title;
+  body.innerHTML=bodyHTML;
+  // Poignée de glissement, insérée une seule fois
+  if(!view.querySelector('.detail-grip')){
+    const g=document.createElement('div');
+    g.className='detail-grip';
+    view.insertBefore(g,view.firstChild);
+    bindDetailDrag(g,view);
+  }
+  scrim(true);
+  view.style.transform='';
+  view.classList.add('show');
+  body.scrollTop=0;
+  bindDetailHeaderFade();
+}
+
+function closeDetail(){
+  const view=document.getElementById('detailView');
+  view.classList.remove('show');
+  view.style.transform='';
+  scrim(false);
+}
+
+function scrim(on){
+  let s=document.getElementById('detailScrim');
+  if(!s){
+    s=document.createElement('div');
+    s.id='detailScrim';s.className='detail-scrim';
+    s.addEventListener('click',closeDetail);
+    document.body.appendChild(s);
+  }
+  s.classList.toggle('show',on);
+}
+
+// La barre collante n'affiche le nom qu'une fois le titre principal sorti.
+function bindDetailHeaderFade(){
+  const body=document.getElementById('detailBody');
+  const head=document.querySelector('.detail-header');
+  if(!body||!head||body.dataset.fadeBound)return;
+  body.dataset.fadeBound='1';
+  body.addEventListener('scroll',()=>{
+    const t=body.querySelector('.fs-title');
+    const seuil=t?t.offsetTop+t.offsetHeight:40;
+    head.classList.toggle('visible',body.scrollTop>seuil);
+  },{passive:true});
+}
+
+// Fermeture au doigt : au-delà de 40 % de la hauteur ou d'un geste rapide.
+function bindDetailDrag(poignee,view){
+  let y0=null,t0=0,dy=0;
+  const debut=e=>{const p=e.touches?e.touches[0]:e;y0=p.clientY;t0=Date.now();dy=0;
+    view.classList.add('dragging');};
+  const bouge=e=>{
+    if(y0===null)return;
+    const p=e.touches?e.touches[0]:e;
+    dy=Math.max(0,p.clientY-y0);
+    view.style.transform=`translateY(${dy}px)`;
+    const s=document.getElementById('detailScrim');
+    if(s)s.style.opacity=String(Math.max(0,1-dy/window.innerHeight));
+    e.preventDefault();
+  };
+  const fin=()=>{
+    if(y0===null)return;
+    const rapide=(Date.now()-t0)<250&&dy>60;
+    view.classList.remove('dragging');
+    const s=document.getElementById('detailScrim');
+    if(s)s.style.opacity='';
+    if(dy>window.innerHeight*0.4||rapide)closeDetail();
+    else view.style.transform='';
+    y0=null;
+  };
+  poignee.addEventListener('touchstart',debut,{passive:true});
+  poignee.addEventListener('touchmove',bouge,{passive:false});
+  poignee.addEventListener('touchend',fin);
+  poignee.addEventListener('mousedown',debut);
+  window.addEventListener('mousemove',e=>{if(y0!==null)bouge(e);});
+  window.addEventListener('mouseup',fin);
+}
+
+// --- Squelettes de chargement, à la forme des cartes ---
+function skeletonCards(n){
+  let h='';
+  for(let i=0;i<(n||4);i++){
+    h+=`<div class="skel" aria-hidden="true">
+      <div class="skel-l w60"></div><div class="skel-l w40"></div><div class="skel-l w100"></div>
+    </div>`;
+  }
+  return h;
+}
+
+// --- Fondu global lors d'une bascule de langue ou de thème ---
+function fadeSwap(fn){
+  const app=document.getElementById('mainApp');
+  if(REDUCED||!app){fn();return;}
+  app.classList.add('fading');
+  setTimeout(()=>{fn();},80);
+  setTimeout(()=>app.classList.remove('fading'),220);
+}
 
 function openMinyanInfo(){openDetail('Pourquoi prier en minyan ?',`<h2>L'importance de la <span class="em">prière communautaire</span></h2><p>La prière en <b>minyan</b> (מניין) — quorum de dix hommes juifs adultes — est un pilier fondamental de la pratique juive.</p><h3>1. Une prière toujours acceptée</h3><p>La prière de la communauté est toujours exaucée par Hachem, même lorsque les intentions individuelles ne sont pas parfaites.</p><div class="pull">« La prière de la communauté n'est jamais repoussée » — Mishna Broura O.H. 90:5</div><h3>2. Une obligation rigoureuse</h3><p>On doit prier chaque jour en minyan, sauf cas de force majeure (onès). Certains avis considèrent même cette obligation comme absolue, nécessitant de parcourir une distance pour trouver un minyan.</p><h3>3. Les "Davar Shebikdousha"</h3><p>Certains éléments sacrés ne peuvent être récités qu'en présence d'un minyan :</p><ul><li>Le <b>Kaddish</b></li><li>La <b>Kedousha</b></li><li>Le <b>Barekhou</b></li><li>Les <b>13 Attributs de Miséricorde</b></li><li>La <b>répétition de la Amida</b> par le Chaliah Tsibour</li></ul><h3>4. Préférer le minyan au lieu fixe</h3><p>Si aucun minyan ne s'est réuni à votre endroit habituel, déplacez-vous pour en trouver un — la valeur du minyan est supérieure à celle du lieu fixe.</p><h3>5. La répétition de la Amida</h3><p>Les Sages ont institué que l'officiant (Chaliah Tsibour) répète la Amida à voix haute, permettant à ceux qui ne sont pas experts ou qui n'ont pas eu la kavana lors de leur prière silencieuse de s'acquitter de leur obligation.</p><h3>En résumé</h3><p>La prière en minyan est <b>hautement valorisée</b> dans le judaïsme — plus apte à être acceptée par Hachem, et indispensable pour les "choses de sainteté".</p><div class="sources">Sources : Yalkout Yossef · Peninei Halakhah · Aroukh HaShoulhan · B'Mareh HaBazak (Vol. III, IX, X)</div>`);}
 
+// ============================================================
+// === §1 TABLEAU D'HORAIRES — COMPOSANT DE RÉFÉRENCE =========
+// ============================================================
+// Un seul rendu, réutilisé par la fiche synagogue, le déplié « Tous les
+// horaires » de la liste et (adapté) la fiche mikvé. L'affichage en lignes
+// groupées par prière est abandonné : le tableau jour × prière se lit plus
+// vite, c'est la forme sous laquelle on lit des horaires depuis toujours.
+
+// Créneaux du Sheet -> jours réels, dans l'ordre de la semaine juive.
+const TAB_ROWS=[
+  ['dimanche','Dim',[0]],
+  ['lundi_jeudi','Lun–Jeu',[1,4]],
+  ['mardi_mercredi','Mar & Mer',[2,3]],
+  ['vendredi','Ven',[5]],
+  ['shabbat','Chabbat',[6]]
+];
+
+// Fusionne les créneaux consécutifs qui portent exactement les mêmes horaires.
+function fusionnerLignes(syn){
+  const H=syn.h||{};
+  const brut=TAB_ROWS.map(([k,lbl,dows])=>{
+    const h=H[k]||{};
+    return {cle:[h.sh||'',h.mi||'',h.ar||''].join('|'),sh:h.sh||null,mi:h.mi||null,ar:h.ar||null,dows:[...dows],labels:[lbl]};
+  });
+  const out=[];
+  for(const r of brut){
+    const prec=out[out.length-1];
+    if(prec&&prec.cle===r.cle&&r.cle!=='||'){
+      prec.dows.push(...r.dows);
+      prec.labels.push(...r.labels);
+    }else out.push(r);
+  }
+  return out.map(r=>({...r,jour:libelleJours(r.dows,r.labels)}));
+}
+
+// [1,4] -> « Lun–Jeu » ; [0,1,2,3,4] -> « Dim–Jeu » ; [6] -> « Chabbat »
+function libelleJours(dows,replis){
+  const s=[...new Set(dows)].sort((a,b)=>a-b);
+  if(!s.length)return replis.join(' · ');
+  if(s.length===7)return 'Tous les jours';
+  const noms=t('days');
+  const runs=[];let d=s[0],p=s[0];
+  for(let i=1;i<s.length;i++){ if(s[i]===p+1){p=s[i];continue;} runs.push([d,p]);d=s[i];p=s[i]; }
+  runs.push([d,p]);
+  return runs.map(([a,b])=>a===b?noms[a]:(b===a+1?`${noms[a]} & ${noms[b]}`:`${noms[a]}–${noms[b]}`)).join(' · ');
+}
+
+// La prochaine prière du jour : c'est elle qui porte la pastille pleine.
+function prochainePriereAujourdhui(syn,now){
+  const dow=now.getDay(), nowH=now.getHours()+now.getMinutes()/60;
+  const H=syn.h||{};
+  const dk=TAB_ROWS.find(r=>r[2].includes(dow));
+  if(!dk)return null;
+  const h=H[dk[0]]||{};
+  const cand=[['sh',h.sh],['mi',h.mi],['ar',h.ar]]
+    .map(([t2,v])=>({t:t2,v,h:parseHour(v)}))
+    .filter(x=>x.h!==null&&x.h>=nowH-0.25)
+    .sort((a,b)=>a.h-b.h);
+  return cand.length?cand[0].t:null;
+}
+
+// Rendu du tableau. compact=true réduit les en-têtes pour le déplié de la liste.
+function renderHoraireTable(syn,opts){
+  opts=opts||{};
+  const now=new Date();
+  const dow=now.getDay();
+  const lignes=fusionnerLignes(syn);
+  if(!lignes.some(l=>l.sh||l.mi||l.ar)){
+    return `<div class="empty-inline">${t('card.noHours2')}</div>`;
+  }
+  const prochaine=prochainePriereAujourdhui(syn,now);
+  const th=opts.compact
+    ? [t('tab.day'),t('prayer.shShort'),t('prayer.miShort'),t('prayer.arShort')]
+    : [t('tab.day'),t('prayer.sh'),t('prayer.mi'),t('prayer.ar')];
+  const cell=(val,type,estAujourdhui)=>{
+    if(!val)return `<td class="ht-empty">—</td>`;
+    const pastille=estAujourdhui&&type===prochaine;
+    return `<td>${pastille?`<span class="ht-now">${escapeHtml(val)}</span>`:escapeHtml(val)}</td>`;
+  };
+  const rows=lignes.map(l=>{
+    const auj=l.dows.includes(dow);
+    return `<tr class="${auj?'ht-today':''}">
+      <th scope="row">${escapeHtml(l.jour)}</th>
+      ${cell(l.sh,'sh',auj)}${cell(l.mi,'mi',auj)}${cell(l.ar,'ar',auj)}
+    </tr>`;
+  }).join('');
+  return `<table class="ht"><thead><tr>
+      <th scope="col">${th[0]}</th><th scope="col">${th[1]}</th><th scope="col">${th[2]}</th><th scope="col">${th[3]}</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ============================================================
+// === §2 FICHE SYNAGOGUE =====================================
+// ============================================================
 function openSynDetail(syn){
   LAST_DETAIL_SYN = syn;
-  const days=[['vendredi','Vendredi'],['shabbat','Shabbat'],['dimanche','Dimanche'],['lundi_jeudi','Lun & Jeu'],['mardi_mercredi','Mar & Mer']];
-  let tableRows='';let hasAny=false;
-  days.forEach(([k,l])=>{
-    const h=(syn.h||{})[k];
-    if(!h){tableRows+=`<tr><td>${l}</td><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td></tr>`;return;}
-    if(h.sh||h.mi||h.ar)hasAny=true;
-    tableRows+=`<tr><td>${l}</td><td class="${h.sh?'':'empty'}">${h.sh||'—'}</td><td class="${h.mi?'':'empty'}">${h.mi||'—'}</td><td class="${h.ar?'':'empty'}">${h.ar||'—'}</td></tr>`;
-  });
-  const tableHTML=hasAny?`<table class="h-tab"><thead><tr><th>Jour</th><th>Shaharit</th><th>Minha</th><th>Arvit</th></tr></thead><tbody>${tableRows}</tbody></table>`:'<p style="color:var(--ink-faint);font-style:italic;">Horaires non renseignés.</p>';
+  const rite=t('rite.'+syn.rite)||syn.rite;
+  const zone=ZONE_LABELS[syn.zone]||syn.zone;
+  const dist=(userLocation&&hasCoords(syn))
+    ? `<span class="fs-dist">${ICON.pin}${fmtDist(distTo(syn))}</span>` : '';
 
-  // Adresse + distance + bouton Maps : uniquement si niveau >= 2
-  let addrSection = '';
-  if(syn.addr){
-    const distHTML=userLocation?`<p><b>Distance :</b> ${fmtDist(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))} (${fmtWalk(distance(userLocation.lat,userLocation.lng,syn.lat,syn.lng))})</p>`:'';
-    const addrEnc = encodeURIComponent(syn.addr);
-    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${addrEnc}`;
-    const waze = `https://waze.com/ul?q=${addrEnc}&navigate=yes`;
-    addrSection = `<p>${syn.addr}</p>${distHTML}<div style="display:flex;gap:10px;margin:18px 0;"><a class="ob-btn" style="flex:1;text-decoration:none;" href="${gmaps}" target="_blank" rel="noopener">🗺️ Google Maps</a><a class="ob-btn" style="flex:1;text-decoration:none;" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a></div>`;
-  }else{
-    addrSection = `<div class="mik-locked" style="margin:14px 0;"><div class="mik-locked-ic">🔒</div><h3>Adresse masquée</h3><p>Pour des raisons de sécurité, l'adresse précise n'est visible que pour les comptes vérifiés.</p><button class="mik-locked-btn" onclick="showLoginScreen()">${currentUser?'Mon compte':'Se connecter'}</button></div>`;
-  }
+  // Adresse cliquable -> ouvre la feuille d'itinéraire (§2)
+  const adresse = syn.addr
+    ? `<button class="fs-addr" onclick="openItineraireSyn(${syn.id})">
+         ${escapeHtml(syn.addr)}</button>${dist}`
+    : `<div class="locked-box">
+         <span class="locked-ic">${ICON.lock}</span>
+         <div class="locked-t">${t('detail.addrHidden')}</div>
+         <p>${t('detail.addrHiddenSub')}</p>
+         <button class="btn-primary" onclick="${currentUser?'openProfile()':'showLoginScreen()'}">${currentUser?t('menu.profile'):t('login.signin')}</button>
+       </div>`;
 
-  // Téléphone : uniquement si niveau >= 3
-  let telSection = '';
-  if(syn.tel){
-    const p = formatPhoneFR(syn.tel);
-    telSection = `<h3>Contact</h3><p><a href="tel:${p.href}" style="color:var(--ink);font-weight:600;">📞 ${p.display}</a></p>`;
-  }
+  const itin = (hasCoords(syn)||syn.addr)
+    ? `<button class="btn-primary fs-itin" onclick="openItineraireSyn(${syn.id})">
+         ${ICON.nav}<span>${t('itineraire')}</span></button>`
+    : '';
 
-  const riteLabel={sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'}[syn.rite]||syn.rite;
+  const tel = syn.tel ? (function(){
+    const p=formatPhoneFR(syn.tel);
+    return `<a class="btn-outline fs-tel" href="tel:${p.href}">${ICON.phone}<span>${escapeHtml(p.display)}</span></a>`;
+  })() : '';
+
   const rh = getRoshHodeshToday();
-  const rhBadge = rh ? `<div class="rh-badge" style="margin:10px 0 14px;"><span class="rh-ico">🌙</span><span class="rh-txt">Rosh Hodesh <b>${rh.month}</b> — Horaires spéciaux possibles</span></div>` : '';
-  const holBadge = isShaharitHolidayRemap(new Date()) ? `<div class="hol-badge" style="margin:10px 0 14px;"><span class="ic">🇫🇷</span><span>Jour férié — Shaharit du dimanche</span></div>` : '';
-  const _incomplete = isSynIncomplete(syn);
-  const _btnLabel = _incomplete ? '🆘 Compléter ces horaires' : '⚠️ Signaler une erreur ou modification';
-  const _btnClass = _incomplete ? 'syn-complete-btn' : 'syn-complete-btn syn-report-btn';
-  const completeBtn = `<button class="${_btnClass}" onclick="openSynContribute(LAST_DETAIL_SYN)">${_btnLabel}</button>`
-    // §8.4 / §8.5 : import IA d'un document et historique tracé des changements.
-    + `<div style="display:flex;gap:10px;margin-top:10px;">`
-    + `<button class="btn-outline" style="flex:1;font-size:14px;padding:13px 8px;" onclick="closeDetail();openPhotoImport(${syn.id})">📷 Photo / PDF</button>`
-    + `<button class="btn-outline" style="flex:1;font-size:14px;padding:13px 8px;" onclick="closeDetail();openHistorique(${syn.id})">🕘 Historique</button>`
-    + `</div>`;
-  openDetail(syn.name,`<h2>${syn.name}</h2><p style="margin-bottom:8px;"><span class="chip">${riteLabel}</span></p>${rhBadge}${holBadge}${addrSection}${telSection}<h3>Horaires de la semaine</h3>${tableHTML}${completeBtn}`);
+  const badges = (rh?`<div class="note-band">${ICON.moon}<span>${t('detail.roshHodesh').replace('{m}',escapeHtml(rh.month))}</span></div>`:'')
+    + (isShaharitHolidayRemap(new Date())?`<div class="note-band">${ICON.info}<span>${t('detail.holiday')}</span></div>`:'');
+
+  const trace = traceLine(syn);
+
+  openDetail(syn.name,`
+    <h1 class="fs-title">${escapeHtml(syn.name)}</h1>
+    <div class="fs-meta">
+      <span class="pill-rite">${escapeHtml(rite)}</span>
+      <span class="pill-zone">${escapeHtml(zone)}</span>
+    </div>
+    ${adresse}
+    ${badges}
+    ${itin}
+    ${tel}
+    <h2 class="fs-h2">${t('detail.week')}</h2>
+    ${renderHoraireTable(syn)}
+    ${trace}
+    <div class="fs-actions">
+      <button class="btn-outline" onclick="confirmAllPrayers(${syn.id})">${ICON.thumb}<span>${t('detail.confirm')}</span></button>
+      <button class="btn-outline" onclick="closeDetail();openEditFromDetail(${syn.id})">${ICON.pencil}<span>${t('detail.propose')}</span></button>
+      <button class="btn-outline" onclick="closeDetail();openPhotoImport(${syn.id})">${ICON.camera}<span>${t('detail.photo')}</span></button>
+      <button class="btn-outline" onclick="closeDetail();openHistorique(${syn.id})">${ICON.clock}<span>${t('detail.history')}</span></button>
+    </div>
+    <button class="link-quiet" onclick="openSynContribute(LAST_DETAIL_SYN)">${t('detail.report')}</button>
+  `);
+}
+
+// Ouvre l'écran de modification sur la première prière renseignée.
+function openEditFromDetail(id){
+  const syn=SYNS.find(s=>s.id===id);
+  if(!syn)return;
+  const g=groupPrayers(syn)[0];
+  if(g)openEditMinyan(id,g.type,g.time,g.keys.join(','));
+  else openEditMinyan(id,'sh','','');
+}
+
+// Confirme d'un coup tous les créneaux renseignés de la synagogue.
+async function confirmAllPrayers(id){
+  const syn=SYNS.find(s=>s.id===id);
+  if(!syn)return;
+  const keys=groupPrayers(syn).flatMap(g=>g.keys);
+  if(!keys.length)return;
+  await confirmPrayer(id,keys.join(','));
 }
 
 // ============================================================
@@ -3736,28 +4231,28 @@ function buildTorahCalendar(){
 
   const cards=[];
 
-  // 📖 Daf Yomi — carte cliquable vers Sefaria.
+  // Daf Yomi — carte cliquable vers Sefaria.
   const daf=getDafYomi(now);
   if(daf){
     cards.push(`<div class="tc-card link" onclick="window.open('https://www.sefaria.org/daf-yomi','_blank','noopener')">
-      <div class="tc-ic">📖</div>
+      <div class="tc-ic">${ICON.book}</div>
       <div class="tc-body"><div class="tc-t">Daf Yomi du jour</div><div class="tc-s">${escapeHtml(daf)}</div>
       <div class="tc-src">Ouvrir sur Sefaria ↗</div></div></div>`);
   }
 
-  // ✦ Tehilim du jour
+  // Tehilim du jour
   const teh=tehilimDuJour(j);
   if(teh){
-    cards.push(`<div class="tc-card"><div class="tc-ic">✦</div>
+    cards.push(`<div class="tc-card"><div class="tc-ic">${ICON.sparkle}</div>
       <div class="tc-body"><div class="tc-t">Tehilim du jour</div>
       <div class="tc-s">${escapeHtml(teh)} · ${j.day} ${escapeHtml(j.monthName)}</div></div></div>`);
   }
 
-  // 📜 Mishna Broura du jour
+  // Mishna Broura du jour
   if(typeof MB!=='undefined'&&MB.length){
     const idx=Math.floor((now-new Date(now.getFullYear(),0,0))/86400000)%MB.length;
     const mb=MB[idx];
-    cards.push(`<div class="tc-card"><div class="tc-ic">📜</div>
+    cards.push(`<div class="tc-card"><div class="tc-ic">${ICON.scroll}</div>
       <div class="tc-body"><div class="tc-t">Mishna Broura du jour</div>
       <div class="tc-s"><b>${escapeHtml(mb.ref)}</b><br/>${escapeHtml(mb.text)}</div>
       <div class="tc-src">Mishna Broura — Orah Haïm</div></div></div>`);
@@ -3776,28 +4271,28 @@ function buildTorahCalendar(){
       <div class="tc-src">Horaires communiqués par les communautés — vérifiez auprès de votre synagogue.</div></div></div>`);
   }
 
-  // 🌙 Birkat HaLevana — mise en avant seulement pendant la fenêtre.
+  // Birkat HaLevana — mise en avant seulement pendant la fenêtre.
   const bk=birkatEnCours(now);
   if(bk){
     const fin=bk.fin||bk.to||bk.end;
     const reste=fin?Math.ceil((new Date(fin)-now)/86400000):null;
     const sub=[escapeHtml(bk.mois||bk.label||bk.name||'Bénédiction de la lune')];
     if(reste!==null&&reste>=0)sub.push(reste===0?"dernier soir":`encore ${reste} jour${reste>1?'s':''}`);
-    cards.push(`<div class="tc-card hot"><div class="tc-ic">🌙</div>
+    cards.push(`<div class="tc-card hot"><div class="tc-ic">${ICON.moon}</div>
       <div class="tc-body"><div class="tc-t">Birkat HaLevana</div>
       <div class="tc-s">${sub.join(' · ')}</div></div></div>`);
   }
 
-  // 🗓 Prochaines fêtes — les 6 suivantes.
+  // Prochaines fêtes — les 6 suivantes.
   if(typeof FETES!=='undefined'&&FETES.length){
     const today0=new Date();today0.setHours(0,0,0,0);
     const next=FETES.filter(f=>f.date>=today0).slice(0,6);
     if(next.length){
-      cards.push(`<div class="sec-t">🗓 Prochaines fêtes</div>`);
+      cards.push(`<div class="sec-t">Prochaines fêtes</div>`);
       next.forEach(f=>{
         const d=Math.ceil((f.date-today0)/86400000);
         const when=d===0?"Auj.":d===1?'Demain':d<7?`Dans ${d}j`:`${d}j`;
-        cards.push(`<div class="tc-card"><div class="tc-ic">✦</div>
+        cards.push(`<div class="tc-card"><div class="tc-ic">${ICON.sparkle}</div>
           <div class="tc-body"><div class="tc-t">${escapeHtml(f.name)}</div>
           <div class="tc-s">${escapeHtml(f.note||'')}</div></div>
           <div class="tc-badge">${when}</div></div>`);
@@ -3805,9 +4300,9 @@ function buildTorahCalendar(){
     }
   }
 
-  // 📅 Cours de Torah — pas de données pour l'instant : état vide honnête.
-  cards.push(`<div class="sec-t">📅 Cours de Torah</div>
-    <div class="tc-card"><div class="tc-ic">📅</div>
+  // Cours de Torah — pas de données pour l'instant : état vide honnête.
+  cards.push(`<div class="sec-t">${ICON.calendar} Cours de Torah</div>
+    <div class="tc-card"><div class="tc-ic">${ICON.calendar}</div>
       <div class="tc-body"><div class="tc-t">Bientôt disponible</div>
       <div class="tc-s">Vous donnez ou connaissez un cours à Lyon ? Proposez-le, nous l'ajouterons.</div>
       <div style="margin-top:10px;"><button class="chip on" onclick="openContact()">Proposer un cours</button></div></div></div>`);
@@ -3851,7 +4346,7 @@ function buildMikvaot(){
   if(!list)return;
 
   if(currentNiveau<3){
-    locked.innerHTML=`<div class="mik-locked"><div class="mik-locked-ic">🔒</div><h3>Mikvaot — Accès réservé</h3>
+    locked.innerHTML=`<div class="mik-locked"><div class="mik-locked-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></div><h3>Mikvaot — Accès réservé</h3>
       <p>Les coordonnées des mikvaot sont visibles uniquement pour les comptes vérifiés (connectés depuis +7 jours ou parrainés). Cela protège la communauté.</p>
       <button class="mik-locked-btn" onclick="${currentUser?'openProfile()':'showLoginScreen()'}">${currentUser?'Mon compte':'Se connecter'}</button></div>`;
     list.innerHTML='';
@@ -3865,7 +4360,7 @@ function buildMikvaot(){
   }
   setResultCount(items.length);
   if(!items.length){
-    list.innerHTML=`<div class="empty"><span class="em-ic">🛁</span>${t('empty.mikve')}</div>`;
+    list.innerHTML=`<div class="empty"><span class="em-ic">${ICON.drop}</span>${t('empty.mikve')}</div>`;
     return;
   }
   list.innerHTML=items.map((m,i)=>renderMikveCard(m,i)).join('');
@@ -3873,11 +4368,11 @@ function buildMikvaot(){
 
 function renderMikveCard(m,idx){
   const cls=m.who==='women'?'women':m.who==='men'?'men':'';
-  const badge={women:'👥 Femmes',men:'👤 Hommes',both:'👥 Hommes & Femmes',kelim:'🍽 Kelim'}[m.who]||'';
+  const badge={women:`${ICON.users} Femmes`,men:`${ICON.user} Hommes`,both:`${ICON.users} Hommes & Femmes`,kelim:'Kelim'}[m.who]||'';
   const phone=m.tel?formatPhoneFR(m.tel):null;
-  const dist=(userLocation&&m.lat)?`<span class="mcard-dist"><span class="pin">📍</span>${fmtDist(distance(userLocation.lat,userLocation.lng,m.lat,m.lng))}</span>`:'';
+  const dist=(userLocation&&m.lat)?`<span class="mcard-dist">${ICON.pin}${fmtDist(distance(userLocation.lat,userLocation.lng,m.lat,m.lng))}</span>`:'';
   const destination=m.lat?`${m.lat},${m.lng}`:encodeURIComponent(m.addr||'');
-  const itin=`<button class="itin-btn" onclick="openItineraireAddr('${escapeAttr(m.addr||'')}',${m.lat||'null'},${m.lng||'null'})">▲ ${t('itineraire')}</button>`;
+  const itin=`<button class="itin-btn" onclick="openItineraireMikve(${idx})">${ICON.nav}${t('itineraire')}</button>`;
   // Les horaires d'ouverture ne sont affichés que s'ils existent dans les données.
   const hours=Array.isArray(m.hours)?m.hours:[];
   const hoursHtml=hours.length
@@ -3907,6 +4402,20 @@ function renderMikveCard(m,idx){
 }
 
 // Même feuille à 3 choix, que la mikvé ait des coordonnées ou seulement une adresse.
+// Les noms de synagogues contiennent des apostrophes (« Na'halat », « Yismah' »).
+// Passées dans un onclick, elles cassaient la chaîne JS et le bouton ne faisait
+// rien. On ne transmet plus que l'identifiant, le texte est résolu ici.
+function openItineraireSyn(id){
+  const s=SYNS.find(x=>x.id===id);
+  if(!s)return;
+  openItineraire(hasCoords(s)?s.lat:null,hasCoords(s)?s.lng:null,s.name,s.addr||s.name);
+}
+function openItineraireMikve(i){
+  const m=(MIKVAOT||[])[i];
+  if(!m)return;
+  openItineraire(m.lat||null,m.lng||null,m.name,m.addr||m.name);
+}
+
 function openItineraireAddr(addr,lat,lng){
   return openItineraire(lat,lng,addr,addr);
 }
@@ -3922,7 +4431,7 @@ function openMikveConfirm(idx){
     <div class="confirm-recap">
       <span class="big">${escapeHtml(m.addr||'')}</span>
       <span>${escapeHtml(m.name)}</span><br/>
-      ${phone?`<a href="tel:${phone.href}">📞 ${escapeHtml(phone.display)}</a><br/>`:''}
+      ${phone?`<a href="tel:${phone.href}">${escapeHtml(phone.display)}</a><br/>`:''}
       ${hours.length?hours.map(h=>`<span>🕐 ${escapeHtml(h)}</span>`).join('<br/>'):'<span style="color:var(--ink-soft);">Horaires non renseignés</span>'}
     </div>
     <div class="confirm-actions">
@@ -3983,13 +4492,13 @@ function buildShuls(){
   }
   setResultCount(items.length);
   if(!items.length){
-    list.innerHTML=`<div class="empty"><span class="em-ic">🏛</span>${t('empty.shuls')}</div>`;
+    list.innerHTML=`<div class="empty"><span class="em-ic">${ICON.home}</span>${t('empty.shuls')}</div>`;
     return;
   }
   list.innerHTML=items.map(s=>{
     const ov=(typeof SYN_OVERRIDES!=='undefined'&&SYN_OVERRIDES)?SYN_OVERRIDES[s.id]:null;
     const upd=ov&&ov.updatedAt?`<div class="upd">Mis à jour ${fmtRelativeLong(ov.updatedAt)}</div>`:'';
-    const dist=(userLocation&&hasCoords(s))?`<span class="mcard-dist"><span class="pin">📍</span>${fmtDist(distTo(s))}</span>`:'';
+    const dist=(userLocation&&hasCoords(s))?`<span class="mcard-dist">${ICON.pin}${fmtDist(distTo(s))}</span>`:'';
     return `<div class="shulcard">
       <div class="mik-row">
         <div style="min-width:0;flex:1;">
@@ -3998,7 +4507,7 @@ function buildShuls(){
           ${upd}
         </div>
         <div class="mcard-right">${dist}
-          ${(hasCoords(s)||s.addr)?`<button class="itin-btn" onclick="openItineraire(${hasCoords(s)?s.lat:null},${hasCoords(s)?s.lng:null},'${escapeAttr(s.name)}','${escapeAttr(s.addr||s.name)}')">▲ ${t('itineraire')}</button>`:''}
+          ${(hasCoords(s)||s.addr)?`<button class="itin-btn" onclick="openItineraireSyn(${s.id})">${ICON.nav}${t('itineraire')}</button>`:''}
         </div>
       </div>
     </div>`;
@@ -4021,14 +4530,23 @@ const I18N={
     label:'Français', dir:'ltr',
     tabs:{minyan:'Minyan',torah:'Torah',mikve:'Mikvé',shuls:'Shuls'},
     search:{minyan:'Rechercher une synagogue…',mikve:'Rechercher un mikvé…',addr:'Rechercher par adresse…',name:'Rechercher par nom…'},
-    prayer:{sh:'Shaharit',mi:'Minha',ar:'Arvit',sel:'Sélichot'},
+    prayer:{sh:'Shaharit',mi:'Minha',ar:'Arvit',sel:'Sélichot',shShort:'SHAH.',miShort:'MIN.',arShort:'ARV.'},
+    tab:{day:"Jour"},
+    detail:{week:"Horaires de la semaine",addrHidden:"Adresse masquée",
+      addrHiddenSub:"L'adresse précise n'est visible que par les comptes vérifiés.",
+      roshHodesh:"Rosh Hodesh {m} — horaires spéciaux possibles",
+      holiday:"Jour férié — Shaharit du dimanche",
+      confirm:"Confirmer",propose:"Corriger",photo:"Photo / PDF",history:"Historique",
+      report:"Signaler une erreur"},
+    login:{signin:"Se connecter"},
+
     rite:{sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'},
     days:['Dim','Lun','Mar','Mer','Jeu','Ven','Chabbat'],
     find:{title:'Trouver un minyan maintenant',sub:'Trier par distance',within:'dans les {h} h',
           on:'Tri par distance actif · toucher pour annuler',locating:'Localisation en cours…',
           failed:'Localisation impossible',unavailable:'Géolocalisation non disponible'},
     card:{showAll:'Tous les horaires',hideAll:'Masquer les horaires',
-          noOfficeToday:"Pas d'office aujourd'hui",noHours:'Horaires indisponibles hors connexion',
+          noOfficeToday:"Pas d'office aujourd'hui",noHours2:"Horaires non renseignés",noHours:'Horaires indisponibles hors connexion',
           loginForAll:'Connectez-vous pour voir tous les horaires'},
     trace:{updated:'Mis à jour le',by:'par',team:"l'équipe",toCheck:'À vérifier',
            verified1:'Vérifié par {who} le {when}',verifiedN:'Vérifié par {n} personnes · dernière fois le {when}'},
@@ -4053,14 +4571,23 @@ const I18N={
     label:'English', dir:'ltr',
     tabs:{minyan:'Minyan',torah:'Torah',mikve:'Mikveh',shuls:'Shuls'},
     search:{minyan:'Search a synagogue…',mikve:'Search a mikveh…',addr:'Search by address…',name:'Search by name…'},
-    prayer:{sh:'Shacharit',mi:'Mincha',ar:'Arvit',sel:'Selichot'},
+    prayer:{sh:'Shacharit',mi:'Mincha',ar:'Arvit',sel:'Selichot',shShort:'SHACH.',miShort:'MIN.',arShort:'ARV.'},
+    tab:{day:"Day"},
+    detail:{week:"This week",addrHidden:"Address hidden",
+      addrHiddenSub:"The exact address is only visible to verified accounts.",
+      roshHodesh:"Rosh Chodesh {m} — times may differ",
+      holiday:"Public holiday — Sunday Shacharit",
+      confirm:"Confirm",propose:"Suggest a fix",photo:"Photo / PDF",history:"History",
+      report:"Report an error"},
+    login:{signin:"Sign in"},
+
     rite:{sefarde:'Sephardi',ashkenaze:'Ashkenazi',habad:'Chabad',mixte:'Mixed'},
     days:['Sun','Mon','Tue','Wed','Thu','Fri','Shabbat'],
     find:{title:'Find a minyan now',sub:'Sort by distance',within:'within {h} h',
           on:'Sorted by distance · tap to cancel',locating:'Locating…',
           failed:'Location unavailable',unavailable:'Geolocation not available'},
     card:{showAll:'All times',hideAll:'Hide times',
-          noOfficeToday:'No service today',noHours:'Times unavailable offline',
+          noOfficeToday:'No service today',noHours2:'No times recorded',noHours:'Times unavailable offline',
           loginForAll:'Sign in to see all times'},
     trace:{updated:'Updated on',by:'by',team:'the team',toCheck:'To verify',
            verified1:'Confirmed by {who} on {when}',verifiedN:'Confirmed by {n} people · last on {when}'},
@@ -4085,14 +4612,23 @@ const I18N={
     label:'עברית', dir:'rtl',
     tabs:{minyan:'מניין',torah:'תורה',mikve:'מקווה',shuls:'בתי כנסת'},
     search:{minyan:'חיפוש בית כנסת…',mikve:'חיפוש מקווה…',addr:'חיפוש לפי כתובת…',name:'חיפוש לפי שם…'},
-    prayer:{sh:'שחרית',mi:'מנחה',ar:'ערבית',sel:'סליחות'},
+    prayer:{sh:'שחרית',mi:'מנחה',ar:'ערבית',sel:'סליחות',shShort:'שחרית',miShort:'מנחה',arShort:'ערבית'},
+    tab:{day:"יום"},
+    detail:{week:"זמני השבוע",addrHidden:"הכתובת מוסתרת",
+      addrHiddenSub:"הכתובת המדויקת גלויה רק לחשבונות מאומתים.",
+      roshHodesh:"ראש חודש {m} — ייתכנו זמנים מיוחדים",
+      holiday:"יום חג — שחרית של יום ראשון",
+      confirm:"אישור",propose:"הצעת תיקון",photo:"תמונה / PDF",history:"היסטוריה",
+      report:"דיווח על טעות"},
+    login:{signin:"התחברות"},
+
     rite:{sefarde:'ספרדי',ashkenaze:'אשכנזי',habad:'חב״ד',mixte:'מעורב'},
     days:['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'],
     find:{title:'מצא מניין עכשיו',sub:'מיון לפי מרחק',within:'בתוך {h} שעות',
           on:'ממוין לפי מרחק · הקש לביטול',locating:'מאתר מיקום…',
           failed:'לא ניתן לאתר מיקום',unavailable:'איתור מיקום אינו זמין'},
     card:{showAll:'כל הזמנים',hideAll:'הסתר זמנים',
-          noOfficeToday:'אין תפילה היום',noHours:'הזמנים אינם זמינים במצב לא מקוון',
+          noOfficeToday:'אין תפילה היום',noHours2:'לא הוזנו זמנים',noHours:'הזמנים אינם זמינים במצב לא מקוון',
           loginForAll:'התחברו כדי לראות את כל הזמנים'},
     trace:{updated:'עודכן ב־',by:'על ידי',team:'הצוות',toCheck:'לבדיקה',
            verified1:'אושר על ידי {who} ב־{when}',verifiedN:'אושר על ידי {n} אנשים · לאחרונה ב־{when}'},
@@ -4190,18 +4726,22 @@ function applyLang(){
 
 function setLang(code){
   if(!I18N[code])return;
-  LANG=code;
-  localStorage.setItem('mlLang',code);
-  applyLang();
-  closeInfoSheet();
+  fadeSwap(()=>{
+    LANG=code;
+    localStorage.setItem('mlLang',code);
+    applyLang();
+    closeInfoSheet();
+  });
 }
 
 // ============================================================
 // === §3.8 Mode d'affichage clair / auto / sombre ============
 // ============================================================
 function setTheme(mode){
-  localStorage.setItem('mlTheme',mode);
-  applyTheme();
+  fadeSwap(()=>{
+    localStorage.setItem('mlTheme',mode);
+    applyTheme();
+  });
 }
 function applyTheme(){
   // Par défaut : clair. On ne suit plus prefers-color-scheme tant que
@@ -4271,15 +4811,15 @@ function openLangue(){
 function openContact(){
   openInfoSheet('Contact',`
     <div style="text-align:center;padding:10px 0 22px;">
-      <div style="font-size:44px;">🎧</div>
+      <div style="font-size:44px;">${ICON.headset}</div>
       <p style="color:var(--ink-soft);margin-top:10px;">Nous sommes ravis de vous entendre !<br/>Choisissez votre moyen de contact préféré.</p>
     </div>
     <button class="btn-primary" style="width:100%;background:var(--blue);margin-bottom:10px;"
-      onclick="window.location.href='mailto:${CONTRIBUTE_EMAIL}?subject=Minyan%20Lyon'">✉️ Envoyer un e-mail</button>
+      onclick="window.location.href='mailto:${CONTRIBUTE_EMAIL}?subject=Minyan%20Lyon'">${ICON.mail} Envoyer un e-mail</button>
     <button class="btn-primary" style="width:100%;background:var(--green);"
-      onclick="window.open('https://wa.me/?text=${encodeURIComponent('Bonjour, à propos de Minyan Lyon : ')}','_blank','noopener')">💬 WhatsApp</button>
+      onclick="window.open('https://wa.me/?text=${encodeURIComponent('Bonjour, à propos de Minyan Lyon : ')}','_blank','noopener')">${ICON.share} WhatsApp</button>
     <div style="margin-top:26px;padding:16px;border-radius:14px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);text-align:center;">
-      <div style="font-size:22px;">👥</div>
+      <div style="font-size:22px;">${ICON.users}</div>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-top:8px;">Vous connaissez Minyan Lyon et avez des idées d'amélioration ?<br/>Écrivez-nous, on lit tout.</p>
     </div>`);
 }
@@ -4311,7 +4851,7 @@ function openNotifications(){
       <div class="seg">${[1,2,5,10,30].map(r=>
         `<button class="${p.radius===r?'on':''}" onclick="setNotifRadius(${r})">${r} km</button>`).join('')}</div>
     </div>
-    ${p.on?`<div class="coord-ok">✅ Les notifications sont actives même lorsque l'application est fermée</div>`:''}
+    ${p.on?`<div class="coord-ok">Les notifications sont actives même lorsque l'application est fermée</div>`:''}
     <div class="tc-src">Note technique : l'envoi effectif des notifications push nécessite encore
       l'activation du service worker côté serveur. La préférence est bien enregistrée dès maintenant.</div>`);
 }
@@ -4343,7 +4883,7 @@ function openApropos(){
       <div class="tc-s">Les horaires sont communiqués par les communautés et vérifiés par les utilisateurs.
       Vérifiez toujours auprès de votre synagogue.</div></div></div>
 
-    <div class="tc-card link" onclick="openMinyanInfo()"><div class="tc-ic">🤝</div><div class="tc-body">
+    <div class="tc-card link" onclick="openMinyanInfo()"><div class="tc-ic">${ICON.users}</div><div class="tc-body">
       <div class="tc-t">Pourquoi prier en minyan ?</div>
       <div class="tc-s">L'importance de la prière communautaire</div></div></div>
 
@@ -4628,7 +5168,7 @@ function offerWhatsAppShare(contrib){
 // === §3.7 CRÉER UN MINYAN TEMPORAIRE ========================
 // ============================================================
 const NUSACH_CHIPS=[['none','Sans préférence'],['hazzan','Selon le hazzan'],['ashkenaze','Ashkénaze'],['sefarde','Séfarade'],['habad','Loubavitch']];
-const FEATURE_CHIPS=[['sefer','📖 Sefer Torah'],['access','♿ Accessible'],['parking','🅿️ Parking']];
+const FEATURE_CHIPS=[['sefer',`${ICON.book} Sefer Torah`],['access',`${ICON.wheel} Accessible`],['parking',`${ICON.park} Parking`]];
 
 function openTempMinyan(){
   const now=new Date();
@@ -4677,7 +5217,7 @@ function tempMinyanBody(){
         </button>
       </div>
       <input class="inp" style="margin-top:10px;" value="Lyon / Villeurbanne" disabled/>
-      ${FORM_STATE.coords?`<div class="coord-ok">✅ ${FORM_STATE.coords.lat.toFixed(4)}, ${FORM_STATE.coords.lng.toFixed(4)}</div>`:''}</div>
+      ${FORM_STATE.coords?`<div class="coord-ok">${FORM_STATE.coords.lat.toFixed(4)}, ${FORM_STATE.coords.lng.toFixed(4)}</div>`:''}</div>
 
     <div class="fld"><span class="fld-lbl">Nusach</span>${formChips('nusach',NUSACH_CHIPS)}</div>
     <div class="fld"><span class="fld-lbl">Caractéristiques</span>${formChips('feats',FEATURE_CHIPS,true)}</div>
@@ -4961,8 +5501,8 @@ function renderDiffScreen(){
     const checked=!same&&!low;
     IMPORT_STATE.checked[field]=checked;
     const flag=same?'<span style="color:var(--ink-faint);">(inchangé)</span>'
-      : low?'<span style="color:var(--orange);">⚠️ confiance faible — à vérifier</span>'
-      : '<span style="color:var(--green);">✅</span>';
+      : low?'<span style="color:var(--orange);">confiance faible — à vérifier</span>'
+      : '<span style="color:var(--green);">OK</span>';
     rows.push(`<div class="switch-row" style="align-items:flex-start;">
       <div style="min-width:0;flex:1;">
         <div style="font-weight:650;">${prayer} <span style="color:var(--ink-soft);font-weight:500;">${days}</span></div>
@@ -5051,7 +5591,7 @@ async function openHistorique(synId){
     .sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
   if(!mine.length){
     document.getElementById('infoBody').innerHTML=
-      `<div class="empty"><span class="em-ic">🕘</span>Aucun changement enregistré pour ${escapeHtml(syn?syn.name:'cette synagogue')}.</div>`;
+      `<div class="empty"><span class="em-ic">${ICON.clock}</span>Aucun changement enregistré pour ${escapeHtml(syn?syn.name:'cette synagogue')}.</div>`;
     return;
   }
   const STATUS={pending:'en attente',propose:'en attente',valide:'appliqué',valid:'appliqué',rejete:'rejeté',annule:'annulé'};
@@ -5062,9 +5602,9 @@ async function openHistorique(synId){
       ? `<div style="margin-top:8px;"><button class="chip" style="border-color:var(--red);color:var(--red);" onclick="revertContrib('${escapeAttr(c.id)}')">Annuler ce changement</button></div>`
       : '';
     const clip=c.fichierUrl&&(currentNiveau>=2||isOwner())
-      ? `<button class="chip" style="margin-top:8px;" onclick="openJustificatif('${escapeAttr(c.fichierUrl)}')">📎 Justificatif</button>`
+      ? `<button class="chip" style="margin-top:8px;" onclick="openJustificatif('${escapeAttr(c.fichierUrl)}')">${ICON.clip} Justificatif</button>`
       : '';
-    return `<div class="tc-card"><div class="tc-ic">${c.source==='photo'?'📷':c.source==='pdf'?'📄':'✏️'}</div>
+    return `<div class="tc-card"><div class="tc-ic">${c.source==='photo'?ICON.camera:c.source==='pdf'?'${ICON.file}':'✏️'}</div>
       <div class="tc-body">
         <div class="tc-t">${escapeHtml(c.champ||c.type||'modification')}</div>
         <div class="tc-s" style="font-variant-numeric:tabular-nums;">
@@ -5296,11 +5836,11 @@ async function loadImpromptu(highlightId){
     const urgent=isMinyanUrgent(m);
     const mapsUrl=buildMapsUrl(m.lieu);
     const wazeUrl=buildWazeUrl(m.lieu);
-    const contactHTML=m.contact?`<div class="imp-item-contact">📞 <a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
+    const contactHTML=m.contact?`<div class="imp-item-contact"><a href="tel:${escapeHtml(m.contact.replace(/\s/g,''))}">${escapeHtml(m.contact)}</a></div>`:'';
     const pillText=complet?'COMPLET ✓':(urgent?'URGENT · MANQUE '+manque:manque+' MANQUE'+(manque>1?'NT':''));
     const pillCls=complet?'complet':(urgent?'urgent':'');
     const highlightCls=(highlightId===m.id)?'highlight':'';
-    html+=`<div class="imp-item ${urgent?'urgent':''} ${highlightCls}" id="imp-item-${m.id}"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${pillCls}">${pillText}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener" title="Google Maps">🗺️</a><a class="imp-btn-maps" href="${wazeUrl}" target="_blank" rel="noopener" title="Waze">🚗</a><button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">📤</button>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}</div></div>`;
+    html+=`<div class="imp-item ${urgent?'urgent':''} ${highlightCls}" id="imp-item-${m.id}"><div class="imp-item-head"><div><div class="imp-item-name">${escapeHtml(m.type)}</div><div class="imp-item-when">${fmtImpDateTime(m.timestamp)}</div></div><div class="imp-item-pill ${pillCls}">${pillText}</div></div><div class="imp-item-addr">📍 ${escapeHtml(m.lieu)}</div>${contactHTML}<div class="imp-item-progress"><div class="imp-progress-bar"><div class="imp-progress-fill ${complet?'complet':''}" style="width:${pct}%;"></div></div><div class="imp-progress-text">${total}/10</div></div><div class="imp-item-actions">${complet&&!isJoined?'<button class="imp-btn complet" disabled>Complet ✓</button>':`<button class="imp-btn ${isJoined?'secondary':''}" onclick="joinMinyan('${m.id}')">${isJoined?'✓ Inscrit':'+1 Je participe'}</button>`}<a class="imp-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener" title="Google Maps">🗺️</a><a class="imp-btn-maps" href="${wazeUrl}" target="_blank" rel="noopener" title="Waze">🚗</a><button class="imp-btn-maps" onclick="shareMinyan('${m.id}')" title="Partager">${ICON.share}</button>${isCreator?`<button class="imp-btn-maps" onclick="deleteMinyan('${m.id}')" title="Supprimer">🗑</button>`:''}</div></div>`;
   }
   list.innerHTML=html;
   if(highlightId){
@@ -5392,7 +5932,7 @@ async function openInvite(){
             </div>
             ${complet
               ? '<div style="font-size:12px;color:#7BA875;font-weight:600;">✓ Lien complet (10 personnes inscrites)</div>'
-              : `<button class="invite-btn" style="margin-top:4px;" onclick="shareInvite('${inv.code}','${link.replace(/'/g,"\\\\'")}')">📤 Partager via WhatsApp (${max-used} place${max-used>1?'s':''} restante${max-used>1?'s':''})</button>`
+              : `<button class="invite-btn" style="margin-top:4px;" onclick="shareInvite('${inv.code}','${link.replace(/'/g,"\\\\'")}')">${ICON.share} Partager via WhatsApp (${max-used} place${max-used>1?'s':''} restante${max-used>1?'s':''})</button>`
             }
           </div>
         `;
@@ -5427,7 +5967,7 @@ async function generateInvite(){
         <h4>✅ Nouveau lien généré</h4>
         <p>Ce lien peut être utilisé par 10 personnes. Partage-le sur ton WhatsApp de communauté !</p>
         <div class="invite-code-display">${code}</div>
-        <button class="invite-btn" onclick="shareInvite('${code}','${link.replace(/'/g,"\\\\'")}')">📤 Partager via WhatsApp</button>
+        <button class="invite-btn" onclick="shareInvite('${code}','${link.replace(/'/g,"\\\\'")}')">${ICON.share} Partager via WhatsApp</button>
       </div>
     `;
     // Recharger la liste après 1s pour voir le nouveau lien dans "Mes liens actifs"
@@ -5466,7 +6006,7 @@ function openProfile(){
       <button class="ob-btn" style="margin-top:8px;" onclick="showLoginScreen()">Se connecter avec Google</button>
     `;
   }
-  const ownerSection=isOwner()?`<h3>Administration</h3><button class="ob-btn" onclick="closeDetail();openOwnerAdmin();">🔑 Gérer les liens admin synagogues</button><button class="ob-btn" style="margin-top:8px;" onclick="closeDetail();MLBULLETIN_open();">📄 Importer le bulletin (PDF → Sheet)</button>`:'';
+  const ownerSection=isOwner()?`<h3>Administration</h3><button class="ob-btn" onclick="closeDetail();openOwnerAdmin();">🔑 Gérer les liens admin synagogues</button><button class="ob-btn" style="margin-top:8px;" onclick="closeDetail();MLBULLETIN_open();">${ICON.file} Importer le bulletin (PDF → Sheet)</button>`:'';
   openDetail('Profil',`
     <h2>Votre <span class="em">profil</span></h2>
     <p>Prénom actuel : <b>${name}</b></p>
@@ -5576,7 +6116,7 @@ async function openOwnerAdmin(){
     const fresh=ov&&(Date.now()-ov.updatedAt<SYN_OVERRIDE_FRESH_MS);
     const stale=ov&&!fresh;
     const status=fresh?`<span class="adm-pill ok">✓ ${fmtRelative(ov.updatedAt)}</span>`:(stale?`<span class="adm-pill stale">⚠ ${fmtRelative(ov.updatedAt)}</span>`:`<span class="adm-pill none">Pas de soumission</span>`);
-    const tokenPart=adm?`<div class="adm-link"><code>…${adm.token.slice(-6)}</code><button class="adm-mini" onclick="copyAdminLink('${adm.token}')">📋 Copier</button><button class="adm-mini" onclick="waReminder(${syn.id})">📤 WhatsApp</button><button class="adm-mini danger" onclick="regenerateToken(${syn.id})">↻ Nouveau lien</button></div>`:`<button class="ob-btn" style="margin-top:8px;" onclick="generateSynToken(${syn.id})">🔑 Générer un lien admin</button>`;
+    const tokenPart=adm?`<div class="adm-link"><code>…${adm.token.slice(-6)}</code><button class="adm-mini" onclick="copyAdminLink('${adm.token}')">📋 Copier</button><button class="adm-mini" onclick="waReminder(${syn.id})">${ICON.share} WhatsApp</button><button class="adm-mini danger" onclick="regenerateToken(${syn.id})">↻ Nouveau lien</button></div>`:`<button class="ob-btn" style="margin-top:8px;" onclick="generateSynToken(${syn.id})">🔑 Générer un lien admin</button>`;
     html+=`<div class="adm-row"><div class="adm-row-head"><div><div class="adm-name">${escapeHtml(syn.name)}</div>${status}</div></div>${tokenPart}</div>`;
   }
   if(rows.length===0)html='<p style="color:var(--ink-faint);font-style:italic;">Aucune synagogue chargée.</p>';
@@ -5693,8 +6233,8 @@ function openSynContribute(syn){
     ${synBadge}
     <p style="margin-bottom:14px;font-size:13.5px;">Trois façons de contribuer. Choisissez celle qui vous convient :</p>
     <div class="contrib-tabs">
-      <button class="contrib-tab on" data-tab="photo" onclick="setContribTab(this,'photo')">📷 Photo/PDF</button>
-      <button class="contrib-tab" data-tab="text" onclick="setContribTab(this,'text')">✏️ Texte</button>
+      <button class="contrib-tab on" data-tab="photo" onclick="setContribTab(this,'photo')">Photo / PDF</button>
+      <button class="contrib-tab" data-tab="text" onclick="setContribTab(this,'text')">Texte</button>
       <button class="contrib-tab" data-tab="edit" onclick="setContribTab(this,'edit')">📝 Modifier</button>
     </div>
     <div id="contribTabBody"></div>
@@ -5721,10 +6261,10 @@ function renderContribTab(){
       <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Envoyez une photo ou un PDF des horaires affichés à la synagogue.</p>
       <label class="contrib-file-label" for="contribFile">
         <input type="file" id="contribFile" accept="image/*,application/pdf" onchange="updateContribFileLabel()" hidden>
-        <span id="contribFileName">📎 Cliquez pour choisir une photo ou un PDF</span>
+        <span id="contribFileName">Choisir une photo ou un PDF</span>
       </label>
       <textarea class="ob-input" id="contribPhotoNote" rows="3" placeholder="Commentaire (optionnel)" style="resize:vertical;"></textarea>
-      <button class="ob-btn" onclick="submitContribPhoto()">📤 Envoyer</button>
+      <button class="ob-btn" onclick="submitContribPhoto()">${ICON.share} Envoyer</button>
       <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
     `;
   }else if(CONTRIB_CURRENT_TAB === 'text'){
@@ -5736,7 +6276,7 @@ function renderContribTab(){
       <input type="text" class="ob-input" id="contribTextAddr" value="${synAddr}" placeholder="Adresse (rue, ville)">
       <label class="contrib-form-label">Description libre</label>
       <textarea class="ob-input" id="contribTextBody" rows="6" placeholder="Décrivez les horaires (jours, prières, heures)…" style="resize:vertical;"></textarea>
-      <button class="ob-btn" onclick="submitContribText()">📤 Envoyer</button>
+      <button class="ob-btn" onclick="submitContribText()">${ICON.share} Envoyer</button>
       <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
     `;
   }else{
@@ -5761,7 +6301,7 @@ function renderContribTab(){
       <label class="contrib-form-label">Nouvel horaire</label>
       <input type="text" class="ob-input" id="contribEditTime" placeholder="ex: 7h00">
       <textarea class="ob-input" id="contribEditNote" rows="2" placeholder="Commentaire (optionnel)" style="resize:vertical;"></textarea>
-      <button class="ob-btn" onclick="submitContribEdit()">📤 Envoyer</button>
+      <button class="ob-btn" onclick="submitContribEdit()">${ICON.share} Envoyer</button>
       <button class="ob-btn secondary" style="margin-top:8px;" onclick="closeDetail()">Annuler</button>
     `;
   }
@@ -5771,7 +6311,7 @@ function renderContribTab(){
 function updateContribFileLabel(){
   const f = document.getElementById('contribFile');
   const lbl = document.getElementById('contribFileName');
-  if(f && f.files && f.files[0] && lbl) lbl.textContent = '📎 ' + f.files[0].name;
+  if(f && f.files && f.files[0] && lbl) lbl.textContent = f.files[0].name;
 }
 
 // === FIREBASE CONTRIBUTIONS (modération admin) ============
@@ -6663,7 +7203,7 @@ if ('serviceWorker' in navigator) {
       <h2>Importer le <span class="em">bulletin</span></h2>
       <p>Glisse-dépose le PDF Kol Villeurbanne de la semaine, ou choisis-le. L'extraction prend 5 à 15 s.</p>
       <div id="bullDrop" class="bull-drop" onclick="document.getElementById('bullFileInput').click();">
-        <span class="ic">📄</span>
+        <span class="ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/></svg></span>
         <div class="t">Choisir un PDF</div>
         <div class="s">ou glisser-déposer ici</div>
       </div>
