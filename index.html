@@ -1009,22 +1009,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 
 /* --- §6 Carte interactive --- */
 .mapwrap{touch-action:none;}
-.map-canvas{position:absolute;inset:0;overflow:hidden;background:#e8e6e1;cursor:grab;}
-.map-canvas.dragging{cursor:grabbing;}
-.map-tiles{position:absolute;top:0;left:0;will-change:transform;}
-.map-tiles img{position:absolute;width:256px;height:256px;user-select:none;-webkit-user-drag:none;}
-.map-pins{position:absolute;inset:0;pointer-events:none;}
-.map-pin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));}
-.map-pin svg{width:34px;height:44px;display:block;}
-.map-pin.me svg{width:26px;height:26px;transform:translateY(50%);}
-.map-ctrl{position:absolute;top:12px;inset-inline-end:12px;display:flex;flex-direction:column;gap:8px;z-index:5;}
-.map-ctrl button{width:38px;height:38px;border-radius:10px;background:var(--surface);border:1px solid var(--line);
-  color:var(--ink);font-size:19px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;
-  align-items:center;justify-content:center;box-shadow:var(--shadow);}
-.map-ctrl button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;}
-.map-attr{position:absolute;bottom:0;inset-inline-start:0;font-size:9.5px;background:rgba(255,255,255,.75);
-  color:#333;padding:2px 6px;border-start-end-radius:6px;z-index:4;}
 .map-sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;transform:translateY(110%);
   transition:transform .24s cubic-bezier(.3,.8,.4,1);padding:10px;}
 .map-sheet.show{transform:translateY(0);}
@@ -1364,6 +1349,89 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .mcard-extra:not(.open) > .acc-inner{padding:0;}
 .mcard-extra:not(.open){margin:0 14px;}
 
+
+/* ============================================================
+   §6 CARTE — Leaflet habillé aux tokens V2
+   ============================================================ */
+.mapwrap{position:relative;overflow:hidden;}
+.map-canvas{position:absolute;inset:0;background:var(--bg-soft);}
+.map-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;}
+.map-loading .skel-l{width:100%;max-width:240px;}
+
+/* Contrôles de zoom : mêmes formes et couleurs que le reste de l'app */
+.leaflet-control-zoom{border:none !important;box-shadow:none !important;margin:12px !important;}
+.leaflet-control-zoom a{
+  width:40px !important;height:40px !important;line-height:38px !important;
+  background:var(--surface) !important;color:var(--ink) !important;
+  border:1px solid var(--line) !important;border-radius:12px !important;
+  font-size:20px !important;font-weight:600 !important;
+  box-shadow:var(--shadow) !important;margin-bottom:8px !important;}
+.leaflet-control-zoom a:hover{background:var(--field) !important;}
+.leaflet-control-zoom a.leaflet-disabled{opacity:.45 !important;}
+
+/* Bouton recentrer, aligné sous les commandes de zoom */
+.map-recenter{position:absolute;top:112px;inset-inline-end:12px;z-index:1000;
+  width:40px;height:40px;border-radius:12px;background:var(--surface);
+  border:1px solid var(--line);color:var(--ink);cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);}
+.map-recenter svg{width:20px;height:20px;}
+
+.leaflet-control-attribution{
+  background:rgba(255,255,255,.75) !important;font-size:10px !important;
+  color:#333 !important;padding:1px 6px !important;}
+.leaflet-control-attribution a{color:#1F5FE0 !important;}
+
+/* Les divIcon ne doivent porter ni fond ni bordure */
+.pin-shul,.pin-me{background:none !important;border:none !important;}
+.pin-shul svg{filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));display:block;}
+.pin-me svg{display:block;}
+
+/* Feuille basse au clic sur un pin — au-dessus des couches Leaflet */
+.map-sheet{z-index:1001;}
+
+/* Mode sombre : Leaflet sert des tuiles claires. On n'inverse QUE la couche
+   de tuiles — surtout pas les pins ni les commandes, qui garderaient des
+   couleurs fausses. */
+:root[data-theme="dark"] .leaflet-tile-pane{
+  filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.92);}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .leaflet-tile-pane{
+    filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.92);}
+}
+:root[data-theme="dark"] .leaflet-control-attribution{
+  background:rgba(11,18,32,.75) !important;color:#9AA6B8 !important;}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .leaflet-control-attribution{
+    background:rgba(11,18,32,.75) !important;color:#9AA6B8 !important;}
+}
+
+/* En RTL, les commandes Leaflet restent à droite : elles sont positionnées
+   par la bibliothèque, on ne les met pas en miroir. */
+[dir="rtl"] .leaflet-container{direction:ltr;}
+[dir="rtl"] .map-recenter{inset-inline-end:auto;right:12px;}
+/* --- Écran de diagnostic géolocalisation (admin) --- */
+.diag-actions{display:flex;gap:8px;margin-bottom:16px;}
+.diag-sec{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--ink-faint);margin:18px 0 6px;}
+.diag-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:8px 10px;border-radius:8px;font-size:13.5px;border-bottom:1px solid var(--line-soft);}
+.diag-row span{color:var(--ink-soft);}
+.diag-row b{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;
+  word-break:break-word;direction:ltr;unicode-bidi:isolate;}
+.diag-row.alert{background:var(--orange-bg);border-bottom-color:transparent;}
+.diag-row.alert b{color:var(--orange);}
+.diag-empty{padding:14px 10px;color:var(--ink-soft);font-style:italic;font-size:13.5px;}
+.diag-hist{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;}
+.diag-hist span{min-width:44px;text-align:center;padding:5px 8px;border-radius:8px;
+  font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;}
+.diag-hist .ok{background:rgba(34,197,94,.15);color:var(--green);}
+.diag-hist .moy{background:var(--orange-bg);color:var(--orange);}
+.diag-hist .bad{background:rgba(239,68,68,.15);color:var(--red);}
+.diag-note{font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin-top:6px;}
+
+.leaflet-top.leaflet-right{top:0;}
+.map-recenter{top:112px;}
+
 </style>
 </head>
 <body>
@@ -1580,6 +1648,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
     </button>
     <button class="drawer-item hidden" id="drawerAdmin" onclick="closeDrawer();openContributionsPanel()">
       <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg><span id="drawerAdminLbl">Notifications admin</span><span id="drawerAdminBadge"></span>
+    </button>
+    <button class="drawer-item hidden" id="drawerGeoDiag" onclick="closeDrawer();openGeoDiag()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg><span>Diagnostic géoloc</span>
     </button>
     <button class="drawer-item hidden" id="drawerInvite" onclick="closeDrawer();openInvite()">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg><span id="drawerInviteLbl">Inviter un ami</span>
@@ -3344,10 +3415,59 @@ function toggleFav(id,e){
 }
 
 // --- Géolocalisation : bouton cible de la barre de recherche (§2, §3.3) ---
-// §1 — la fonction clé de l'application. Un clic active le mode géoloc
-// (tri par distance + priorité aux prières des 4 h à venir), un second l'annule.
-// Le bouton pleine largeur et la cible de la barre de recherche appellent tous
-// deux cette fonction et restent visuellement synchronisés.
+// ============================================================
+// === GÉOLOCALISATION ========================================
+// ============================================================
+// maximumAge valait 60 000 : le navigateur avait le droit de resservir un
+// point vieux d'une minute. Sur iOS, ce point en cache est presque toujours
+// une position réseau/wifi grossière — enableHighAccuracy n'y changeait rien,
+// puisque le GPS n'était jamais sollicité. C'était la cause principale.
+//
+// Deux autres appels (minyan temporaire, rayon des notifications) ne
+// passaient AUCUNE option : enableHighAccuracy y valait false par défaut.
+const GEO_OPTS={enableHighAccuracy:true,timeout:15000,maximumAge:0};
+let GEO_WATCH=null;
+
+function setUserLocation(p){
+  userLocation={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
+}
+
+// Le premier point renvoyé par iOS est souvent large ; les suivants se
+// resserrent en quelques secondes. On affine jusqu'à 30 m ou 20 s.
+function affinerPosition(){
+  if(GEO_WATCH!==null||!navigator.geolocation.watchPosition)return;
+  const t0=Date.now();
+  const stop=()=>{
+    if(GEO_WATCH===null)return;
+    navigator.geolocation.clearWatch(GEO_WATCH);
+    GEO_WATCH=null;
+  };
+  GEO_WATCH=navigator.geolocation.watchPosition(p=>{
+    const a=p.coords.accuracy;
+    if(!userLocation||a<=(userLocation.acc||Infinity)){
+      setUserLocation(p);
+      updateGeoUI();
+      if(MAP_VIEW&&MAP.carte)dessinerPins();
+      refreshCurrentTab();
+    }
+    if(a<=30||Date.now()-t0>20000)stop();
+  },stop,GEO_OPTS);
+  setTimeout(stop,20000);
+}
+
+// Précision affichée : au-dessus de 100 m, c'est du positionnement réseau.
+function fmtAccuracy(a){
+  if(a==null)return '';
+  return a<1000 ? `±${Math.round(a)} m` : `±${(a/1000).toFixed(1)} km`;
+}
+function updateGeoUI(){
+  const sub=document.getElementById('findSub');
+  if(sub&&geolocMode){
+    const a=userLocation&&userLocation.acc;
+    sub.textContent = t('find.on') + (a?` · ${fmtAccuracy(a)}`:'');
+  }
+}
+
 function setFindState(state){
   const btn=document.getElementById('findBtn');
   const geo=document.getElementById('sbGeo');
@@ -3357,8 +3477,8 @@ function setFindState(state){
   if(geo)geo.classList.toggle('on',state==='on');
   if(arrow)arrow.textContent = state==='on' ? '✕' : '→';
   if(sub){
-    sub.textContent = state==='on' ? t('find.on')
-                    : state==='locating' ? t('find.locating')
+    if(state==='on'){updateGeoUI();return;}
+    sub.textContent = state==='locating' ? t('find.locating')
                     : state==='failed' ? t('find.failed')
                     : t('find.sub');
   }
@@ -3367,6 +3487,7 @@ function setFindState(state){
 function findNearestMinyan(){
   if(geolocMode){
     geolocMode=false;userLocation=null;
+    if(GEO_WATCH!==null){navigator.geolocation.clearWatch(GEO_WATCH);GEO_WATCH=null;}
     setFindState('off');
     refreshCurrentTab();
     return;
@@ -3378,17 +3499,18 @@ function findNearestMinyan(){
   }
   setFindState('locating');
   navigator.geolocation.getCurrentPosition(pos=>{
-    userLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    setUserLocation(pos);
     geolocMode=true;
     setFindState('on');
     refreshCurrentTab();
+    affinerPosition();          // les points suivants resserrent la position
     const list=document.getElementById('minyanList');
     if(list)setTimeout(()=>list.scrollIntoView({behavior:'smooth',block:'start'}),150);
   },()=>{
     setFindState('failed');
     showToast(t('find.failed'),{type:'error'});
     setTimeout(()=>{if(!geolocMode)setFindState('off');},2500);
-  },{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
+  },GEO_OPTS);
 }
 
 function onSearch(){
@@ -3937,59 +4059,45 @@ function toggleRangeBar(){
 }
 
 // ============================================================
-// === §6 CARTE INTERACTIVE ===================================
+// === §6 CARTE — LEAFLET =====================================
 // ============================================================
-// L'ancienne version utilisait openstreetmap.org/export/embed.html.
-// Cet embed est STATIQUE : il n'accepte qu'un seul paramètre `marker`,
-// ne sait pas dessiner d'icône personnalisée, et — étant cross-origin —
-// ne peut émettre aucun événement de clic vers la page parente.
-// Les pins multiples, le pin utilisateur, le bouton recentrer et le clic
-// vers une feuille basse y étaient donc impossibles par construction.
+// Le moteur de tuiles maison a été entièrement retiré : panoramique et
+// pincement restaient instables sur iOS Safari malgré la réécriture
+// (calque unique, translate3d, recyclage, rAF). Leaflet gère ces gestes
+// depuis quinze ans, c'est un problème résolu.
 //
-// Remplacé ici par un rendu « slippy map » minimal écrit à la main :
-// tuiles raster OSM en <img> positionnées en absolu, projection Web
-// Mercator, panoramique et zoom au doigt. Aucune bibliothèque externe,
-// aucune clé API, le fichier reste mono-fichier.
-const MAP={
-  z:13, cx:LYON_LNG, cy:LYON_LAT,   // centre courant
-  el:null, tiles:null, pins:null,
-  w:0, h:0, drag:null, moved:false, ready:false
-};
-const TILE=256, MIN_Z=10, MAX_Z=18;
+// Chargement PARESSEUX : la bibliothèque n'est demandée qu'à la première
+// ouverture de la carte. Elle ne pèse donc rien sur le premier rendu de
+// l'application, qui est le chemin critique.
+const LEAFLET_JS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+const LEAFLET_CSS='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const LEAFLET_SRI_JS='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+const LEAFLET_SRI_CSS='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
 
-// Web Mercator : degrés -> pixels monde au zoom z
-function lngToX(lng,z){return (lng+180)/360*TILE*Math.pow(2,z);}
-function latToY(lat,z){
-  const s=Math.sin(lat*Math.PI/180);
-  return (0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*TILE*Math.pow(2,z);
-}
-function xToLng(x,z){return x/(TILE*Math.pow(2,z))*360-180;}
-function yToLat(y,z){
-  const n=Math.PI-2*Math.PI*y/(TILE*Math.pow(2,z));
-  return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));
-}
+const MAP={ carte:null, couche:null, pins:null, moi:null, cercle:null, pts:[], pret:false };
+const MIN_Z=10, MAX_Z=18;
 
-// Cadre englobant les synagogues affichées -> centre + zoom
-function fitBounds(pts){
-  if(!pts.length)return;
-  const lats=pts.map(p=>p.lat), lngs=pts.map(p=>p.lng);
-  const minLat=Math.min(...lats), maxLat=Math.max(...lats);
-  const minLng=Math.min(...lngs), maxLng=Math.max(...lngs);
-  MAP.cx=(minLng+maxLng)/2;
-  MAP.cy=(minLat+maxLat)/2;
-  const w=MAP.w||360, h=MAP.h||480;
-  let z=MAX_Z;
-  while(z>MIN_Z){
-    const dx=Math.abs(lngToX(maxLng,z)-lngToX(minLng,z));
-    const dy=Math.abs(latToY(minLat,z)-latToY(maxLat,z));
-    if(dx<w-70&&dy<h-90)break;
-    z--;
-  }
-  MAP.z=z;
+let LEAFLET=null;
+function chargerLeaflet(){
+  if(LEAFLET)return LEAFLET;
+  LEAFLET=new Promise((res,rej)=>{
+    if(window.L)return res(window.L);
+    const css=document.createElement('link');
+    css.rel='stylesheet';css.href=LEAFLET_CSS;
+    css.integrity=LEAFLET_SRI_CSS;css.crossOrigin='anonymous';
+    document.head.appendChild(css);
+    const js=document.createElement('script');
+    js.src=LEAFLET_JS;js.integrity=LEAFLET_SRI_JS;js.crossOrigin='anonymous';
+    js.onload=()=>res(window.L);
+    js.onerror=()=>rej(new Error('Leaflet indisponible'));
+    document.head.appendChild(js);
+  });
+  return LEAFLET;
 }
 
-const PIN_SHUL=`<svg viewBox="0 0 34 44"><path d="M17 1C8.7 1 2 7.7 2 16c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#1F5FE0" stroke="#fff" stroke-width="2"/><path d="M10 22v-6l7-5 7 5v6z" fill="#fff"/><path d="M17 12.4l.6 1.1h1.2l-.6 1.1.6 1.1h-1.2l-.6 1.1-.6-1.1h-1.2l.6-1.1-.6-1.1h1.2z" fill="#1F5FE0"/></svg>`;
-const PIN_ME=`<svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="#EF4444" stroke="#fff" stroke-width="3"/><circle cx="13" cy="13" r="3" fill="#fff"/></svg>`;
+// Mêmes pins bleus qu'avant, en divIcon Leaflet.
+const PIN_SHUL=`<svg viewBox="0 0 34 44" width="34" height="44"><path d="M17 1C8.7 1 2 7.7 2 16c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#1F5FE0" stroke="#fff" stroke-width="2"/><path d="M10 22v-6l7-5 7 5v6z" fill="#fff"/><path d="M17 12.4l.6 1.1h1.2l-.6 1.1.6 1.1h-1.2l-.6 1.1-.6-1.1h-1.2l.6-1.1-.6-1.1h1.2z" fill="#1F5FE0"/></svg>`;
+const PIN_ME=`<svg viewBox="0 0 26 26" width="26" height="26"><circle cx="13" cy="13" r="9" fill="#EF4444" stroke="#fff" stroke-width="3"/><circle cx="13" cy="13" r="3" fill="#fff"/></svg>`;
 
 function toggleMapView(){setMapView(!MAP_VIEW);}
 function setMapView(on){
@@ -3999,7 +4107,8 @@ function setMapView(on){
   document.getElementById('fabViewIcon').innerHTML = on
     ? '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.3" fill="currentColor" stroke="none"/>'
     : '<polygon points="2 6 9 3 15 6 22 3 22 18 15 21 9 18 2 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>';
-  if(on)renderMap();else buildMinyanList();
+  if(on)renderMap();
+  else{ if(MAP.carte){MAP.carte.remove();MAP.carte=null;MAP.pret=false;} buildMinyanList(); }
 }
 
 function mapSyns(){
@@ -4007,178 +4116,128 @@ function mapSyns(){
   return filteredSyns(new Date()).filter(s=>degraded||!currentUser||visibleGroups(s).length);
 }
 
-function renderMap(){
+async function renderMap(){
   const host=document.getElementById('minyanMap');
   if(!host)return;
   const all=mapSyns();
   setResultCount(all.length);
-  const pts=all.filter(hasCoords);
+  MAP.pts=all.filter(hasCoords);
 
-  if(!pts.length){
-    MAP.ready=false;
+  if(!MAP.pts.length){
+    if(MAP.carte){MAP.carte.remove();MAP.carte=null;MAP.pret=false;}
     host.innerHTML=`<div class="map-empty">${all.length
       ? 'Coordonnées indisponibles hors connexion — la carte reviendra une fois la liaison rétablie.'
       : t('empty.minyan')}</div>`;
     return;
   }
 
-  host.innerHTML=`
-    <div class="map-canvas" id="mapCanvas">
-      <div class="map-tiles" id="mapTiles"></div>
-      <div class="map-pins" id="mapPins"></div>
-    </div>
-    <div class="map-ctrl">
-      <button onclick="mapRecenter()" aria-label="Recentrer">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
+  // Squelette pendant le chargement de la bibliothèque
+  if(!MAP.carte){
+    host.innerHTML=`<div class="map-loading"><div class="skel-l w100"></div></div>`;
+  }
+
+  let L;
+  try{ L=await chargerLeaflet(); }
+  catch(e){
+    host.innerHTML=`<div class="map-empty">La carte n'a pas pu être chargée. Vérifiez votre connexion.</div>`;
+    return;
+  }
+
+  if(!MAP.carte){
+    host.innerHTML=`<div id="mapCanvas" class="map-canvas"></div>
+      <button class="map-recenter" onclick="mapRecenter()" aria-label="Recentrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
       </button>
-      <button onclick="mapZoom(1)" aria-label="Zoomer">+</button>
-      <button onclick="mapZoom(-1)" aria-label="Dézoomer">−</button>
-    </div>
-    <div class="map-attr">© OpenStreetMap</div>
-    <div class="map-sheet" id="mapSheet"></div>`;
+      <div class="map-sheet" id="mapSheet"></div>`;
 
-  MAP.el=document.getElementById('mapCanvas');
-  MAP.tiles=document.getElementById('mapTiles');
-  MAP.pins=document.getElementById('mapPins');
+    MAP.carte=L.map('mapCanvas',{
+      zoomControl:false,
+      attributionControl:true,
+      tap:false,                 // laisse Safari gérer le tap nativement
+      minZoom:MIN_Z, maxZoom:MAX_Z
+    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:MAX_Z,
+      attribution:'© OpenStreetMap',
+      crossOrigin:true
+    }).addTo(MAP.carte);
+    // Commandes regroupées en haut à droite, avec le bouton recentrer.
+    L.control.zoom({position:'topright'}).addTo(MAP.carte);
+    MAP.pins=L.layerGroup().addTo(MAP.carte);
+    MAP.carte.setView([LYON_LAT,LYON_LNG],13);
+    MAP.pret=true;
+    // La feuille basse se referme quand on touche le fond de carte.
+    MAP.carte.on('click',()=>closeMapSheet());
+  }
 
-  // Mesurer la taille APRÈS que l'onglet soit visible : si le conteneur est
-  // encore à 0 px (onglet caché, transition CSS en cours), calculer la grille
-  // donnerait une carte vide.
-  // On réessaie avec setTimeout et NON requestAnimationFrame : rAF est gelé
-  // dans un onglet en arrière-plan, ce qui laissait la carte définitivement
-  // vide quand elle était ouverte hors du premier plan.
-  let tries=0;
-  const measure=()=>{
-    const r=MAP.el.getBoundingClientRect();
-    if((r.width<10||r.height<10)&&tries++<40){setTimeout(measure,50);return;}
-    MAP.w=r.width||MAP.el.offsetWidth||320;
-    MAP.h=r.height||MAP.el.offsetHeight||360;
-    if(!MAP.ready){fitBounds(pts);MAP.ready=true;}
-    bindMapEvents();
-    drawMap(pts);
-  };
-  measure();
+  dessinerPins();
+  cadrer();
+  // Le conteneur peut avoir été mesuré à zéro s'il était encore masqué.
+  setTimeout(()=>{ if(MAP.carte)MAP.carte.invalidateSize(); },60);
 }
 
-function drawMap(pts){
-  if(!MAP.el)return;
-  pts=pts||mapSyns().filter(hasCoords);
-  const z=MAP.z;
-  const cxPx=lngToX(MAP.cx,z), cyPx=latToY(MAP.cy,z);
-  const left=cxPx-MAP.w/2, top=cyPx-MAP.h/2;
+function dessinerPins(){
+  const L=window.L;
+  if(!L||!MAP.pins)return;
+  MAP.pins.clearLayers();
 
-  // Grille de tuiles couvrant le viewport, avec une tuile de marge
-  const x0=Math.floor(left/TILE)-1, x1=Math.floor((left+MAP.w)/TILE)+1;
-  const y0=Math.floor(top/TILE)-1,  y1=Math.floor((top+MAP.h)/TILE)+1;
-  const n=Math.pow(2,z);
-  let html='';
-  for(let x=x0;x<=x1;x++){
-    for(let y=y0;y<=y1;y++){
-      if(y<0||y>=n)continue;                 // pas de tuile au-delà des pôles
-      const tx=((x%n)+n)%n;                  // enroulement est-ouest
-      const sub='abc'[Math.abs(tx+y)%3];
-      html+=`<img loading="lazy" alt="" src="https://${sub}.tile.openstreetmap.org/${z}/${tx}/${y}.png"
-        style="left:${x*TILE-left}px;top:${y*TILE-top}px">`;
-    }
-  }
-  MAP.tiles.innerHTML=html;
-  MAP.tiles.style.transform='translate(0,0)';
-
-  // Pins : les synagogues sans coordonnées sont écartées en amont,
-  // elles ne peuvent donc pas casser la boucle.
-  let pins='';
-  for(const s of pts){
-    const px=lngToX(s.lng,z)-left, py=latToY(s.lat,z)-top;
-    if(px<-40||py<-60||px>MAP.w+40||py>MAP.h+60)continue;
-    pins+=`<div class="map-pin" style="left:${px}px;top:${py}px" onclick="openMapSheet(${s.id})"
-      role="button" aria-label="${escapeAttr(s.name)}">${PIN_SHUL}</div>`;
-  }
-  if(userLocation){
-    const px=lngToX(userLocation.lng,z)-left, py=latToY(userLocation.lat,z)-top;
-    if(px>-40&&py>-40&&px<MAP.w+40&&py<MAP.h+40){
-      pins+=`<div class="map-pin me" style="left:${px}px;top:${py}px" aria-label="Ma position">${PIN_ME}</div>`;
-    }
-  }
-  MAP.pins.innerHTML=pins;
-}
-
-function bindMapEvents(){
-  const el=MAP.el;
-  if(!el||el.dataset.bound)return;
-  el.dataset.bound='1';
-
-  const pt=e=>e.touches?e.touches[0]:e;
-  const start=e=>{
-    if(e.touches&&e.touches.length>1){MAP.pinch=pinchDist(e);return;}
-    const p=pt(e);
-    MAP.drag={x:p.clientX,y:p.clientY};
-    MAP.moved=false;
-    el.classList.add('dragging');
-  };
-  const move=e=>{
-    if(e.touches&&e.touches.length>1&&MAP.pinch){
-      const d=pinchDist(e);
-      if(Math.abs(d-MAP.pinch)>60){mapZoom(d>MAP.pinch?1:-1);MAP.pinch=d;}
-      e.preventDefault();return;
-    }
-    if(!MAP.drag)return;
-    const p=pt(e);
-    const dx=p.clientX-MAP.drag.x, dy=p.clientY-MAP.drag.y;
-    if(Math.abs(dx)+Math.abs(dy)>3)MAP.moved=true;
-    MAP.drag={x:p.clientX,y:p.clientY};
-    const z=MAP.z;
-    MAP.cx=xToLng(lngToX(MAP.cx,z)-dx,z);
-    MAP.cy=yToLat(latToY(MAP.cy,z)-dy,z);
-    MAP.cy=Math.max(-85,Math.min(85,MAP.cy));
-    drawMap();
-    e.preventDefault();
-  };
-  const end=()=>{MAP.drag=null;MAP.pinch=null;el.classList.remove('dragging');};
-
-  el.addEventListener('mousedown',start);
-  window.addEventListener('mousemove',move);
-  window.addEventListener('mouseup',end);
-  el.addEventListener('touchstart',start,{passive:true});
-  el.addEventListener('touchmove',move,{passive:false});
-  el.addEventListener('touchend',end);
-  el.addEventListener('wheel',e=>{e.preventDefault();mapZoom(e.deltaY<0?1:-1);},{passive:false});
-  el.addEventListener('click',e=>{if(MAP.moved)e.stopPropagation();},true);
-
-  // Rotation d'écran / redimensionnement : on remesure et on redessine.
-  window.addEventListener('resize',()=>{
-    if(!MAP_VIEW||!MAP.el)return;
-    const r=MAP.el.getBoundingClientRect();
-    if(r.width>10){MAP.w=r.width;MAP.h=r.height;drawMap();}
+  const icone=L.divIcon({
+    className:'pin-shul', html:PIN_SHUL,
+    iconSize:[34,44], iconAnchor:[17,44]
   });
+  for(const s of MAP.pts){
+    L.marker([s.lat,s.lng],{icon:icone,title:s.name,keyboard:true,alt:s.name})
+      .addTo(MAP.pins)
+      .on('click',e=>{ L.DomEvent.stopPropagation(e); openMapSheet(s.id); });
+  }
+
+  // Marqueur utilisateur + cercle de précision, gérés par Leaflet :
+  // ils ne peuvent plus dériver puisqu'ils sont ancrés à des coordonnées.
+  if(MAP.moi){MAP.carte.removeLayer(MAP.moi);MAP.moi=null;}
+  if(MAP.cercle){MAP.carte.removeLayer(MAP.cercle);MAP.cercle=null;}
+  if(userLocation){
+    if(userLocation.acc>40){
+      MAP.cercle=L.circle([userLocation.lat,userLocation.lng],{
+        radius:userLocation.acc,
+        color:'#EF4444',weight:1,opacity:.45,fillColor:'#EF4444',fillOpacity:.12,interactive:false
+      }).addTo(MAP.carte);
+    }
+    MAP.moi=L.marker([userLocation.lat,userLocation.lng],{
+      icon:L.divIcon({className:'pin-me',html:PIN_ME,iconSize:[26,26],iconAnchor:[13,13]}),
+      interactive:false,
+      title:userLocation.acc?fmtAccuracy(userLocation.acc):''
+    }).addTo(MAP.carte);
+  }
 }
-function pinchDist(e){
-  const [a,b]=[e.touches[0],e.touches[1]];
-  return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+
+function cadrer(){
+  const L=window.L;
+  if(!MAP.carte||!L)return;
+  const coords=MAP.pts.map(s=>[s.lat,s.lng]);
+  if(userLocation)coords.push([userLocation.lat,userLocation.lng]);
+  if(!coords.length)return;
+  MAP.carte.fitBounds(L.latLngBounds(coords),{padding:[40,60],maxZoom:16});
 }
 
 function mapZoom(d){
-  const z=Math.max(MIN_Z,Math.min(MAX_Z,MAP.z+d));
-  if(z===MAP.z)return;
-  MAP.z=z;drawMap();
-}
-function mapRecenter(){
-  if(userLocation){MAP.cx=userLocation.lng;MAP.cy=userLocation.lat;MAP.z=Math.max(MAP.z,14);drawMap();return;}
-  const pts=mapSyns().filter(hasCoords);
-  if(pts.length){fitBounds(pts);drawMap(pts);}
+  if(MAP.carte)MAP.carte.setZoom(MAP.carte.getZoom()+d);
 }
 
-// Clic sur un pin : la carte résultat s'ouvre en feuille basse.
+function mapRecenter(){
+  if(!MAP.carte)return;
+  if(userLocation)MAP.carte.setView([userLocation.lat,userLocation.lng],Math.max(MAP.carte.getZoom(),15));
+  else cadrer();
+}
+
 function openMapSheet(id){
-  if(MAP.moved)return;
   const syn=SYNS.find(s=>s.id===id);
   const sheet=document.getElementById('mapSheet');
   if(!syn||!sheet)return;
-  const now=new Date();
   const groups=currentUser?visibleGroups(syn):[];
   sheet.innerHTML=`<button class="map-sheet-close" onclick="closeMapSheet()" aria-label="${t('cancel')}">✕</button>`
-    + renderMinyanCard(syn,groups,now,!currentUser);
+    + renderMinyanCard(syn,groups,new Date(),!currentUser);
   sheet.classList.add('show');
-  MAP.cx=syn.lng;MAP.cy=syn.lat;drawMap();
+  if(MAP.carte)MAP.carte.panTo([syn.lat,syn.lng],{animate:true,duration:.25});
 }
 function closeMapSheet(){
   const s=document.getElementById('mapSheet');
@@ -4763,6 +4822,7 @@ function openDrawer(){
   const lvl=['Invité (N0)','Compte récent (N1)','Compte confirmé (N2)','Compte vérifié (N3)'][currentNiveau]||'Invité';
   document.getElementById('drawerLvl').textContent=isOwner()?'Administrateur':lvl;
   document.getElementById('drawerAdmin').classList.toggle('hidden',!isOwner());
+  document.getElementById('drawerGeoDiag').classList.toggle('hidden',!isOwner());
   document.getElementById('drawerInvite').classList.toggle('hidden',!(currentUser&&currentNiveau>=3));
   document.getElementById('drawerDon').classList.toggle('hidden',!DON_URL);
   applyTheme();
@@ -4868,7 +4928,7 @@ async function toggleNotif(){
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(pos=>{
         localStorage.setItem('mlNotifPos',JSON.stringify({lat:pos.coords.latitude,lng:pos.coords.longitude}));
-      },()=>{});
+      },()=>{},GEO_OPTS);
     }
   }
   p.on=!p.on;saveNotifPrefs(p);openNotifications();
@@ -4907,6 +4967,176 @@ function openApropos(){
       que par les comptes vérifiés. Aucune donnée n'est revendue.
     </div>`);
   updateBearingDisplay();positionJerusalemMarker();
+}
+
+// ============================================================
+// === DIAGNOSTIC GÉOLOCALISATION (admin uniquement) ==========
+// ============================================================
+// Je n'ai ni iPhone ni GPS : impossible de mesurer la précision réelle
+// depuis ici. Cet écran relève les chiffres bruts sur l'appareil, pour
+// diagnostiquer sur des faits plutôt que sur des hypothèses.
+const GEO_DIAG={
+  actif:false, watchId:null, maj:0, debut:0,
+  dernier:null, erreurs:[], meilleur:null, historique:[]
+};
+
+function openGeoDiag(){
+  if(!isOwner()){showToast('Réservé à l\'administrateur',{type:'error'});return;}
+  openInfoSheet('Diagnostic géolocalisation',`
+    <div class="diag-actions">
+      <button class="btn-primary" id="diagStart" onclick="geoDiagToggle()">Démarrer la mesure</button>
+      <button class="btn-outline" onclick="geoDiagCopy()">Copier le rapport</button>
+    </div>
+    <div id="diagBody" class="diag"></div>`);
+  renderGeoDiag();
+}
+
+function geoDiagToggle(){
+  if(GEO_DIAG.actif)return geoDiagStop();
+  GEO_DIAG.actif=true;GEO_DIAG.maj=0;GEO_DIAG.erreurs=[];GEO_DIAG.historique=[];
+  GEO_DIAG.meilleur=null;GEO_DIAG.dernier=null;GEO_DIAG.debut=Date.now();
+  renderGeoDiag();
+  if(!navigator.geolocation){
+    GEO_DIAG.erreurs.push({code:'-',message:'API Geolocation absente de ce navigateur'});
+    GEO_DIAG.actif=false;renderGeoDiag();return;
+  }
+  // Premier point, puis suivi continu : c'est le suivi qui montre si la
+  // position se resserre (GPS) ou reste plate (réseau).
+  navigator.geolocation.getCurrentPosition(
+    p=>{noterPoint(p,'getCurrentPosition');},
+    e=>{noterErreur(e,'getCurrentPosition');},
+    GEO_OPTS);
+  GEO_DIAG.watchId=navigator.geolocation.watchPosition(
+    p=>{noterPoint(p,'watchPosition');},
+    e=>{noterErreur(e,'watchPosition');},
+    GEO_OPTS);
+}
+
+function geoDiagStop(){
+  GEO_DIAG.actif=false;
+  if(GEO_DIAG.watchId!==null){navigator.geolocation.clearWatch(GEO_DIAG.watchId);GEO_DIAG.watchId=null;}
+  renderGeoDiag();
+}
+
+function noterPoint(p,source){
+  GEO_DIAG.maj++;
+  const c=p.coords;
+  const pt={
+    source, t:p.timestamp,
+    lat:c.latitude, lng:c.longitude, acc:c.accuracy,
+    alt:c.altitude, altAcc:c.altitudeAccuracy,
+    vitesse:c.speed, cap:c.heading,
+    depuis:Date.now()-GEO_DIAG.debut
+  };
+  GEO_DIAG.dernier=pt;
+  GEO_DIAG.historique.push(pt);
+  if(GEO_DIAG.historique.length>12)GEO_DIAG.historique.shift();
+  if(!GEO_DIAG.meilleur||c.accuracy<GEO_DIAG.meilleur.acc)GEO_DIAG.meilleur=pt;
+  renderGeoDiag();
+}
+function noterErreur(e,source){
+  GEO_DIAG.erreurs.push({source,code:e.code,message:e.message,t:Date.now()-GEO_DIAG.debut});
+  renderGeoDiag();
+}
+
+// Heuristique de source. Elle n'est pas donnée par l'API : on la déduit de
+// la précision et de la présence d'altitude, que seul le GPS renseigne.
+function devinerSource(pt){
+  if(!pt)return '—';
+  if(pt.alt!=null&&pt.acc<=50)return 'GPS (altitude fournie)';
+  if(pt.acc<=30)return 'GPS probable';
+  if(pt.acc<=100)return 'GPS dégradé ou wifi précis';
+  if(pt.acc<=1000)return 'réseau wifi';
+  return 'réseau cellulaire';
+}
+
+function renderGeoDiag(){
+  const el=document.getElementById('diagBody');
+  if(!el)return;
+  const b=document.getElementById('diagStart');
+  if(b)b.textContent=GEO_DIAG.actif?'Arrêter la mesure':'Démarrer la mesure';
+
+  const d=GEO_DIAG.dernier, m=GEO_DIAG.meilleur;
+  const ligne=(k,v,alerte)=>`<div class="diag-row${alerte?' alert':''}"><span>${k}</span><b>${v}</b></div>`;
+  const nb=x=>x==null?'—':x;
+
+  let html='';
+  html+=`<div class="diag-sec">Options réellement passées à l'API</div>`;
+  html+=ligne('enableHighAccuracy',String(GEO_OPTS.enableHighAccuracy),GEO_OPTS.enableHighAccuracy!==true);
+  html+=ligne('timeout',GEO_OPTS.timeout+' ms');
+  html+=ligne('maximumAge',GEO_OPTS.maximumAge+' ms',GEO_OPTS.maximumAge!==0);
+
+  html+=`<div class="diag-sec">Dernière position</div>`;
+  if(!d){
+    html+=`<div class="diag-empty">${GEO_DIAG.actif?'En attente du premier point…':'Appuyez sur « Démarrer la mesure ».'}</div>`;
+  }else{
+    html+=ligne('latitude',d.lat.toFixed(6));
+    html+=ligne('longitude',d.lng.toFixed(6));
+    html+=ligne('accuracy',Math.round(d.acc)+' m',d.acc>100);
+    html+=ligne('source estimée',devinerSource(d),d.acc>100);
+    html+=ligne('altitude',nb(d.alt!=null?Math.round(d.alt)+' m':null));
+    html+=ligne('vitesse',nb(d.vitesse!=null?d.vitesse.toFixed(1)+' m/s':null));
+    html+=ligne('horodatage',new Date(d.t).toLocaleTimeString('fr-FR'));
+    html+=ligne('âge du point',Math.max(0,Math.round((Date.now()-d.t)/1000))+' s',(Date.now()-d.t)>10000);
+    html+=ligne('provenance',d.source);
+    html+=ligne('reçu après',Math.round(d.depuis/1000)+' s');
+  }
+
+  html+=`<div class="diag-sec">Suivi</div>`;
+  html+=ligne('mises à jour reçues',String(GEO_DIAG.maj));
+  html+=ligne('meilleure précision',m?Math.round(m.acc)+' m':'—',m&&m.acc>100);
+  html+=ligne('durée de mesure',GEO_DIAG.debut?Math.round((Date.now()-GEO_DIAG.debut)/1000)+' s':'—');
+
+  if(GEO_DIAG.historique.length>1){
+    html+=`<div class="diag-sec">Évolution de la précision</div>`;
+    html+=`<div class="diag-hist">`+GEO_DIAG.historique.map(p=>
+      `<span class="${p.acc<=30?'ok':p.acc<=100?'moy':'bad'}">${Math.round(p.acc)}</span>`).join('')+`</div>`;
+    html+=`<div class="diag-note">En mètres, du plus ancien au plus récent. Une suite qui descend = le GPS se verrouille. Une suite plate au-dessus de 100 = position réseau, le GPS ne répond pas.</div>`;
+  }
+
+  if(GEO_DIAG.erreurs.length){
+    html+=`<div class="diag-sec">Erreurs</div>`;
+    for(const e of GEO_DIAG.erreurs){
+      html+=ligne(`${e.source} · code ${e.code}`,escapeHtml(e.message||'—'),true);
+    }
+  }
+
+  html+=`<div class="diag-sec">Contexte</div>`;
+  html+=ligne('protocole',location.protocol,location.protocol!=='https:');
+  html+=ligne('permission',GEO_DIAG.perm||'—');
+  html+=ligne('navigateur',(navigator.userAgent.match(/(iPhone|iPad|Android|Macintosh|Windows)/)||['—'])[0]);
+  html+=ligne('userLocation en cours',userLocation?`${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)} (±${Math.round(userLocation.acc||0)} m)`:'aucune');
+
+  el.innerHTML=html;
+}
+
+// État de la permission, quand le navigateur l'expose.
+if(navigator.permissions&&navigator.permissions.query){
+  navigator.permissions.query({name:'geolocation'})
+    .then(s=>{GEO_DIAG.perm=s.state;s.onchange=()=>{GEO_DIAG.perm=s.state;renderGeoDiag();};})
+    .catch(()=>{});
+}
+
+// Rapport texte, à copier-coller ou à envoyer en capture.
+function geoDiagCopy(){
+  const d=GEO_DIAG.dernier,m=GEO_DIAG.meilleur;
+  const txt=[
+    'DIAGNOSTIC GÉOLOCALISATION — Minyan Lyon',
+    'options: '+JSON.stringify(GEO_OPTS),
+    'permission: '+(GEO_DIAG.perm||'?')+' · protocole: '+location.protocol,
+    'appareil: '+navigator.userAgent,
+    'mises à jour: '+GEO_DIAG.maj,
+    d?`dernier: ${d.lat.toFixed(6)}, ${d.lng.toFixed(6)} ±${Math.round(d.acc)} m · alt=${d.alt} · source=${devinerSource(d)} · âge=${Math.round((Date.now()-d.t)/1000)}s`:'dernier: aucun',
+    m?`meilleur: ±${Math.round(m.acc)} m après ${Math.round(m.depuis/1000)}s`:'meilleur: aucun',
+    'historique acc: '+GEO_DIAG.historique.map(p=>Math.round(p.acc)).join(', '),
+    'erreurs: '+(GEO_DIAG.erreurs.map(e=>`${e.source}#${e.code} ${e.message}`).join(' | ')||'aucune')
+  ].join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>showToast('Rapport copié',{type:'success'}))
+      .catch(()=>showToast('Copie impossible',{type:'error'}));
+  }else{
+    showToast('Copie non disponible sur ce navigateur',{type:'error'});
+  }
 }
 
 function openCGU(){
@@ -5273,7 +5503,7 @@ function useMyPosition(){
     FORM_STATE.coords={lat:pos.coords.latitude,lng:pos.coords.longitude};
     if(!FORM_STATE.lieu)FORM_STATE.lieu=`${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
     FORM_STATE._rerender();
-  },()=>showToast('Localisation impossible',{type:'error'}));
+  },()=>showToast('Localisation impossible',{type:'error'}),GEO_OPTS);
 }
 
 async function createTempMinyan(){

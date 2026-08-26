@@ -5,7 +5,7 @@
 // ⚠️ INCRÉMENTER À CHAQUE MISE EN LIGNE.
 // Le nom du cache est la seule chose qui purge les anciens contenus :
 // `activate` supprime tout cache dont la clé diffère de celle-ci.
-const CACHE = 'ml-v5-2026-08-design';
+const CACHE = 'ml-v7-2026-08-leaflet';
 // Les images sont désormais des fichiers séparés (elles pesaient 167 Ko de
 // base64 dans index.html). Le logo de connexion est pré-caché ; les deux logos
 // de navigation sont pris au vol, ils ne servent qu'à l'ouverture de la feuille.
@@ -57,6 +57,18 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return r;
       }).catch(() => caches.match(req).then((r) => r || caches.match('./')))
+    );
+    return;
+  }
+
+  // Leaflet (CDN) : cache-first une fois téléchargé, pour que la carte
+  // fonctionne aussi hors ligne et ne recharge pas 42 Ko à chaque ouverture.
+  if (url.host === 'unpkg.com') {
+    event.respondWith(
+      caches.match(req).then((c) => c || fetch(req).then((r) => {
+        if (r.ok) { const copy = r.clone(); caches.open(CACHE).then((k) => k.put(req, copy)).catch(() => {}); }
+        return r;
+      }))
     );
     return;
   }
