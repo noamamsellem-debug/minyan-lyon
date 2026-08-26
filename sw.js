@@ -2,8 +2,25 @@
 // Stratégie: network-first pour la page (pour récupérer les mises à jour de planning),
 // cache-first pour les assets statiques (manifest, icon).
 
-const CACHE = 'ml-v1';
+// ⚠️ INCRÉMENTER À CHAQUE MISE EN LIGNE.
+// Le nom du cache est la seule chose qui purge les anciens contenus :
+// `activate` supprime tout cache dont la clé diffère de celle-ci.
+const CACHE = 'ml-v3-2026-08-refonte';
 const STATIC = ['./manifest.webmanifest', './icon.svg'];
+
+// TODO(push) — §3.7 / §3.8 : alertes « minyan temporaire à proximité ».
+// L'interface et la préférence (interrupteur + rayon 1/2/5/10/30 km) sont déjà
+// en place côté client, stockées dans localStorage.mlNotifPrefs. Il reste à :
+//   1. enregistrer un abonnement Web Push (self.registration.pushManager.subscribe)
+//      avec la clé publique VAPID, et l'envoyer à Supabase ;
+//   2. déclencher l'envoi depuis une Edge Function à la création d'un minyan
+//      temporaire, filtrée sur la distance entre le minyan et les abonnés ;
+//   3. traiter ici les évènements 'push' et 'notificationclick'.
+// Tant que ce n'est pas fait, la notification n'est émise que si l'app est
+// ouverte (voir notifyNearbyUsers dans index.html).
+//
+// self.addEventListener('push', (e) => { ... });
+// self.addEventListener('notificationclick', (e) => { ... });
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(STATIC)).catch(() => {}));
@@ -26,10 +43,13 @@ self.addEventListener('fetch', (event) => {
   // Pas de cache pour Firebase / Supabase / OAuth — toujours réseau
   if (url.host.includes('firebase') || url.host.includes('supabase') || url.host.includes('google')) return;
 
-  // Page HTML — network-first
+  // Page HTML — network-first, en contournant AUSSI le cache HTTP du navigateur.
+  // Sans `cache: 'no-store'`, GitHub Pages renvoie l'index.html avec un
+  // max-age : le SW recevait alors une copie périmée jusqu'à expiration et
+  // l'utilisateur restait sur l'ancienne interface sans comprendre pourquoi.
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
-      fetch(req).then((r) => {
+      fetch(req, { cache: 'no-store' }).then((r) => {
         const copy = r.clone();
         caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return r;
