@@ -1,5 +1,12 @@
 # Import bulletin Kol Villeurbanne — Mode d'emploi
 
+> **Note (bêta 2026-08) —** cette fonction accepte désormais deux modes :
+> `bulletin` (ce document) et `horaires` (import photo/PDF des horaires d’une
+> seule synagogue, ouvert à tout compte connecté). Le fournisseur d’IA est
+> configurable via le secret `AI_PROVIDER` (`anthropic` par défaut, `gemini`
+> pour le palier gratuit). Voir **README-CONTRIBUTIONS.md** pour le détail.
+
+
 Pipeline auto pour transformer le PDF hebdomadaire en lignes de Sheet,
 sans saisie manuelle.
 
