@@ -1460,6 +1460,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .ht td.ht-edit:hover::after{opacity:.5;}
 @media (hover:none){.ht td.ht-edit:hover{background:none;}
   .ht td.ht-edit:hover::after{opacity:0;}}
+.imp-http{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.4px;
+  color:var(--ink-soft);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.imp-detail{margin-top:8px;}
+.imp-detail summary{font-size:12px;color:var(--blue);cursor:pointer;padding:4px 0;}
+.imp-detail pre{margin:6px 0 0;padding:9px 10px;border-radius:8px;
+  background:var(--card-bg);border:1px solid var(--line);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+  line-height:1.45;white-space:pre-wrap;word-break:break-word;
+  max-height:220px;overflow:auto;color:var(--ink-soft);}
+.imp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
 .ht-hint{display:block;margin:8px 0 0;font-size:11px;line-height:1.35;
   color:var(--ink-faint);text-align:center;}
 .ht-hint::before{content:'';display:inline-block;width:11px;height:11px;
@@ -6060,6 +6070,21 @@ function notifyNearbyUsers(m){
 // seule le secret et applique les règles métier côté serveur.
 const PARSE_FN_URL = `${SUPABASE_URL}/functions/v1/parse-bulletin`;
 const IMPORT_MIMES = ['image/jpeg','image/png','image/heic','image/heif','image/webp','application/pdf'];
+// Safari sur iOS ne renseigne pas toujours file.type : un document choisi via
+// l'app Fichiers arrive fréquemment avec un type vide. On refusait alors le
+// fichier et le bouton Analyser restait grisé, sans rien expliquer. On déduit
+// donc le type de l'extension quand le navigateur ne le donne pas.
+const EXT_VERS_MIME = {
+  jpg:'image/jpeg', jpeg:'image/jpeg', jpe:'image/jpeg', jfif:'image/jpeg',
+  png:'image/png', heic:'image/heic', heif:'image/heif', webp:'image/webp',
+  pdf:'application/pdf'
+};
+function mimeDeFichier(f){
+  const t=String(f.type||'').toLowerCase().trim();
+  if(IMPORT_MIMES.includes(t))return t;
+  const m=String(f.name||'').toLowerCase().match(/\.([a-z0-9]+)$/);
+  return (m&&EXT_VERS_MIME[m[1]])||'';
+}
 const IMPORT_MAX_BYTES = 10 * 1024 * 1024;
 
 let IMPORT_STATE = null;
@@ -6075,7 +6100,7 @@ function openPhotoImport(synId){
     body:`
       <div class="fld">
         <span class="fld-lbl">Document</span>
-        <input type="file" id="impFile" class="inp" accept="${IMPORT_MIMES.join(',')}" onchange="onImportFile(this)"/>
+        <input type="file" id="impFile" class="inp" accept="${IMPORT_MIMES.join(',')},.jpg,.jpeg,.png,.heic,.heif,.webp,.pdf" onchange="onImportFile(this)"/>
         <div class="tc-src">Photo d'un panneau d'horaires, feuille affichée, capture d'écran ou PDF du bulletin.
           10 Mo maximum. Les métadonnées de la photo (dont votre position GPS) sont retirées avant l'envoi.</div>
       </div>
@@ -6090,8 +6115,10 @@ function onImportFile(input){
   const go=document.getElementById('impGo');
   const st=document.getElementById('impStatus');
   if(!f){go.disabled=true;st.innerHTML='';return;}
-  if(!IMPORT_MIMES.includes(f.type)){
-    st.innerHTML=`<div class="tc-src" style="color:var(--red);">Type non accepté : ${escapeHtml(f.type||'inconnu')}</div>`;
+  const mime=mimeDeFichier(f);
+  if(!mime){
+    st.innerHTML=`<div class="tc-src" style="color:var(--red);">Type non accepté : ${escapeHtml(f.type||f.name||'inconnu')}.
+      Formats acceptés : JPEG, PNG, HEIC, WEBP, PDF.</div>`;
     go.disabled=true;return;
   }
   if(f.size>IMPORT_MAX_BYTES){
@@ -6099,14 +6126,17 @@ function onImportFile(input){
     go.disabled=true;return;
   }
   IMPORT_STATE.file=f;
-  st.innerHTML=`<div class="tc-src">${escapeHtml(f.name)} · ${(f.size/1024).toFixed(0)} Ko</div>`;
+  IMPORT_STATE.mime=mime;
+  const devine=!IMPORT_MIMES.includes(String(f.type||'').toLowerCase().trim());
+  st.innerHTML=`<div class="tc-src">${escapeHtml(f.name)} · ${(f.size/1024).toFixed(0)} Ko`
+    +(devine?` · type déduit de l'extension (${escapeHtml(mime)})`:'')+`</div>`;
   go.disabled=false;
 }
 
 // Ré-encode l'image dans un canvas : c'est ce qui supprime l'EXIF, et donc la
 // géolocalisation que les photos de téléphone embarquent. Les PDF passent tels quels.
-async function stripExif(file){
-  if(file.type==='application/pdf')return file;
+async function stripExif(file,mime){
+  if((mime||file.type)==='application/pdf')return file;
   try{
     const bitmap=await createImageBitmap(file);
     const scale=Math.min(1,2000/Math.max(bitmap.width,bitmap.height));
@@ -6131,17 +6161,46 @@ function fileToB64(file){
   });
 }
 
+// Le message d'erreur porte le code HTTP et le corps de la réponse : sans eux,
+// « Erreur 500 » n'apprend rien à qui n'ouvre pas la console d'un iPhone.
+function blocErreurImport(titre,status,brut){
+  const corps=brut==null?'':String(brut);
+  IMPORT_STATE.derniereErreur=[titre,status?('HTTP '+status):'',corps].filter(Boolean).join('\n');
+  const court=corps.length>1200?corps.slice(0,1200)+'\n…(tronqué)':corps;
+  return `<div class="tc-src" style="color:var(--red);font-weight:650;">${escapeHtml(titre)}</div>
+    ${status?`<div class="imp-http">HTTP ${status}</div>`:''}
+    ${court?`<details class="imp-detail"><summary>Détail de la réponse</summary><pre>${escapeHtml(court)}</pre></details>`:''}
+    <div class="imp-actions">
+      <button class="chip" onclick="copierErreurImport(this)">Copier le détail</button>
+      <button class="chip on" onclick="closeFormSheet();openEditPicker(${IMPORT_STATE.synId},'','')">Saisir manuellement</button>
+    </div>`;
+}
+
+function copierErreurImport(btn){
+  const txt=(IMPORT_STATE&&IMPORT_STATE.derniereErreur)||'';
+  const fini=()=>{if(btn){const o=btn.textContent;btn.textContent='Copié ✓';setTimeout(()=>{btn.textContent=o;},1800);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(fini,()=>showToast(txt,{duration:8000}));
+  }else showToast(txt,{duration:8000});
+}
+
 async function runPhotoImport(){
   const st=document.getElementById('impStatus');
   const go=document.getElementById('impGo');
   go.disabled=true;
   st.innerHTML=`<div class="tc-src">Nettoyage des métadonnées…</div>`;
 
-  const clean=await stripExif(IMPORT_STATE.file);
+  const mimeSrc=IMPORT_STATE.mime||mimeDeFichier(IMPORT_STATE.file);
+  const clean=await stripExif(IMPORT_STATE.file,mimeSrc);
   if(!clean){
-    st.innerHTML=`<div class="tc-src" style="color:var(--red);">Impossible de retirer les métadonnées de cette image. Envoi annulé.</div>`;
+    st.innerHTML=blocErreurImport(
+      "Impossible de retirer les métadonnées de cette image — envoi annulé.",null,
+      "Le navigateur n'a pas su décoder ce fichier ("+(mimeSrc||'type inconnu')+"). "
+      +"Sur iPhone, réessayez en choisissant la photo depuis la Photothèque plutôt que depuis Fichiers.");
     go.disabled=false;return;
   }
+  // Après ré-encodage l'image est toujours un JPEG ; seul le PDF garde son type.
+  const mimeEnvoi=mimeSrc==='application/pdf'?'application/pdf':(clean.type||'image/jpeg');
 
   st.innerHTML=`<div class="tc-src">Analyse en cours… (5 à 20 s)</div>`;
   let session=null;
@@ -6154,8 +6213,8 @@ async function runPhotoImport(){
   // Justificatif conservé 90 jours dans un bucket privé (§8.4).
   let fichierUrl=null;
   try{
-    const path=`${IMPORT_STATE.synId}/${crypto.randomUUID()}.${clean.type==='application/pdf'?'pdf':'jpg'}`;
-    const up=await supabaseClient.storage.from('justificatifs').upload(path,clean,{contentType:clean.type});
+    const path=`${IMPORT_STATE.synId}/${crypto.randomUUID()}.${mimeEnvoi==='application/pdf'?'pdf':'jpg'}`;
+    const up=await supabaseClient.storage.from('justificatifs').upload(path,clean,{contentType:mimeEnvoi});
     if(!up.error)fichierUrl=path;
   }catch(e){console.warn('upload justificatif',e);}
 
@@ -6166,20 +6225,25 @@ async function runPhotoImport(){
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`},
       body:JSON.stringify({
-        mode:'horaires', file_base64:b64, mime:clean.type,
+        mode:'horaires', file_base64:b64, mime:mimeEnvoi,
         syn_id:IMPORT_STATE.synId, rite:IMPORT_STATE.syn.rite,
         fin_chabbat:(function(){const u=getUpcomingShabbat(new Date());return (getShabbatTimes(u.friday,u.saturday)||{}).sortie||null;})()
       })
     });
-    data=await res.json();
-    if(!res.ok){
-      const msg=data&&data.message?data.message:(data&&data.error)||`Erreur ${res.status}`;
-      st.innerHTML=`<div class="tc-src" style="color:var(--red);">${escapeHtml(msg)}</div>
-        <button class="chip on" style="margin-top:10px;" onclick="closeFormSheet();openEditMinyan(${IMPORT_STATE.synId},'sh','','')">Saisir manuellement</button>`;
+    // On lit le corps en texte AVANT de tenter le JSON : une passerelle en
+    // erreur répond souvent en HTML, et res.json() jetait alors une exception
+    // de parsing qui masquait le vrai code HTTP.
+    const brut=await res.text();
+    try{ data=JSON.parse(brut); }catch(e){ data=null; }
+    if(!res.ok||!data){
+      const msg=(data&&(data.message||data.error))
+        ||(res.ok?"Réponse illisible du serveur d'analyse":"L'analyse a échoué");
+      st.innerHTML=blocErreurImport(msg,res.status,brut);
       go.disabled=false;return;
     }
   }catch(e){
-    st.innerHTML=`<div class="tc-src" style="color:var(--red);">Erreur réseau : ${escapeHtml(e.message)}</div>`;
+    st.innerHTML=blocErreurImport('Erreur réseau — le serveur n\u2019a pas répondu.',null,
+      (e&&e.message)||String(e));
     go.disabled=false;return;
   }
 
