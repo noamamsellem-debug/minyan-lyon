@@ -1432,6 +1432,42 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .leaflet-top.leaflet-right{top:0;}
 .map-recenter{top:112px;}
 
+/* --- Cellule à plusieurs offices : heures empilées --- */
+.ht tbody td{vertical-align:top;padding-top:9px;padding-bottom:9px;}
+.ht-slot{display:block;line-height:1.25;}
+.ht-slot + .ht-slot{margin-top:4px;}
+.ht-lib{display:block;font-size:10px;font-weight:500;color:var(--ink-soft);
+  line-height:1.2;margin-top:1px;}
+.ht-more{display:none;}
+.ht-more.open{display:block;}
+.ht-more .ht-slot:first-child{margin-top:4px;}
+.ht-plus{display:block;margin-top:4px;margin-inline-start:auto;background:none;border:none;
+  padding:2px 0;font-family:inherit;font-size:11px;font-weight:650;color:var(--blue);
+  cursor:pointer;white-space:nowrap;position:relative;}
+.ht-plus::after{content:'';position:absolute;inset:-10px -8px;}
+
+/* --- Les trois choix de modification, en toutes lettres --- */
+.edit-actuel{margin-bottom:18px;}
+.edit-slots{display:flex;flex-wrap:wrap;gap:8px;}
+.edit-slot{background:var(--card-bg);color:var(--ink);border-radius:999px;padding:7px 14px;
+  font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.edit-slot i{font-style:normal;font-size:11px;font-weight:500;color:var(--ink-soft);
+  display:block;text-align:center;margin-top:1px;}
+.choix{display:flex;flex-direction:column;gap:10px;}
+.choix-btn{display:block;width:100%;text-align:start;background:var(--surface);
+  border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;
+  font-family:inherit;cursor:pointer;min-height:56px;}
+.choix-btn:active{background:var(--card-bg);border-color:var(--blue);}
+.choix-btn.danger{border-color:rgba(239,68,68,.4);}
+.choix-btn.danger .choix-t{color:var(--red);}
+.choix-t{display:block;font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+.choix-s{display:block;font-size:13px;color:var(--ink-soft);margin-top:3px;line-height:1.35;}
+/* --- Historique --- */
+.hist-diff{font-variant-numeric:tabular-nums;}
+.hist-undo{margin-top:8px;border-color:var(--red);color:var(--red);}
+.hist-annule{display:inline-block;margin-inline-start:8px;padding:2px 8px;border-radius:999px;
+  background:var(--field);color:var(--ink-soft);font-size:11px;font-weight:600;}
+
 </style>
 </head>
 <body>
@@ -1645,9 +1681,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
     </button>
     <button class="drawer-item" onclick="closeDrawer();openApropos()">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.8" r="0.9" fill="currentColor" stroke="none"/></svg><span id="drawerAboutLbl">À propos</span>
-    </button>
-    <button class="drawer-item hidden" id="drawerAdmin" onclick="closeDrawer();openContributionsPanel()">
-      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg><span id="drawerAdminLbl">Notifications admin</span><span id="drawerAdminBadge"></span>
     </button>
     <button class="drawer-item hidden" id="drawerGeoDiag" onclick="closeDrawer();openGeoDiag()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg><span>Diagnostic géoloc</span>
@@ -2583,6 +2616,52 @@ const DAYS_FR=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'
 function getJewishDate(d){let effDate=d;try{const s=_approxSunset(d);if(s!==null){const nowH=d.getHours()+d.getMinutes()/60;if(nowH>=s)effDate=new Date(d.getTime()+86400000);}}catch(e){}const ref=new Date(2026,4,3);const refH={day:16,month:7,year:5786};const diff=Math.floor((effDate-ref)/86400000);let day=refH.day+diff,month=refH.month,year=refH.year;const ml=[30,29,30,29,30,30,30,29,30,29,30,29];while(day>ml[month]){day-=ml[month];month++;if(month>=12){month=0;year++;}}while(day<1){month--;if(month<0){month=11;year--;}day+=ml[month];}return{day,month,year,monthName:HEB_MONTHS[month]};}
 function getOmer(d){const j=getJewishDate(d);if(j.month===6&&j.day>=16)return j.day-15;if(j.month===7)return 15+j.day;if(j.month===8&&j.day<=5)return 44+j.day;return null;}
 function parseHour(s){if(!s)return null;const m=s.match(/(\d+)h(\d*)/);if(!m)return null;return parseInt(m[1])+(parseInt(m[2]||0))/60;}
+
+// ============================================================
+// === CRÉNEAUX MULTIPLES POUR UNE MÊME PRIÈRE ================
+// ============================================================
+// Une cellule du Sheet peut désormais contenir plusieurs offices, séparés
+// par des virgules, avec un libellé facultatif entre parenthèses :
+//     "6h45,7h30(Vatikin),8h15(Jeunes)"
+// Rétrocompatible : "7h00" reste parfaitement valide, aucune migration
+// du Google Sheet n'est nécessaire.
+const MAX_LIBELLE=20;
+
+// "6h45,7h30(Vatikin)" -> [{time:"6h45",h:6.75,label:""},{time:"7h30",h:7.5,label:"Vatikin"}]
+// Trié de la plus tôt à la plus tard.
+function parseSlots(cell){
+  if(!cell)return [];
+  return String(cell).split(',').map(m=>{
+    const s=m.trim();
+    if(!s)return null;
+    const lib=s.match(/\(([^)]*)\)\s*$/);
+    const label=lib?lib[1].trim().slice(0,MAX_LIBELLE):'';
+    const time=(lib?s.slice(0,lib.index):s).trim();
+    const h=parseHour(time);
+    return time?{time,h,label}:null;
+  }).filter(Boolean).sort((a,b)=>(a.h==null?99:a.h)-(b.h==null?99:b.h));
+}
+
+// L'inverse : reconstruit la valeur de cellule à partir des créneaux.
+function formatSlots(slots){
+  return slots.slice()
+    .sort((a,b)=>(a.h==null?99:a.h)-(b.h==null?99:b.h))
+    .map(s=>s.label?`${s.time}(${s.label})`:s.time)
+    .join(',');
+}
+
+// Première heure d'une cellule — pour les tris et les comparaisons simples.
+function firstHour(cell){
+  const s=parseSlots(cell);
+  return s.length?s[0].h:null;
+}
+
+// Le prochain créneau à venir dans une cellule, aujourd'hui.
+// Tolérance de 30 min pour un office qui vient de commencer.
+function nextSlotIn(cell,nowH){
+  const s=parseSlots(cell).filter(x=>x.h!==null);
+  return s.find(x=>x.h>=nowH-0.5)||null;
+}
 function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,dq=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dq-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m2=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m2+114)/31),da=((h+l-7*m2+114)%31)+1;return new Date(y,mo-1,da);}
 function isFrenchHoliday(d){const y=d.getFullYear(),m=d.getMonth(),da=d.getDate();const fixed=[[0,1],[4,1],[4,8],[6,14],[7,15],[10,1],[10,11],[11,25]];for(const [fm,fd] of fixed){if(m===fm&&da===fd)return true;}const e=easterSunday(y);const day=86400000;const eMonday=new Date(e.getTime()+day);const ascension=new Date(e.getTime()+39*day);const pentMonday=new Date(e.getTime()+50*day);for(const h of [eMonday,ascension,pentMonday]){if(h.getFullYear()===y&&h.getMonth()===m&&h.getDate()===da)return true;}return false;}
 // Renvoie la clé jour pour la lecture des horaires d'une syna.
@@ -2706,11 +2785,13 @@ function nextPrayer(syn,now){
   const todayN=H[dkN];
   const nowH=now.getHours()+now.getMinutes()/60;
   if(todaySh||todayN){
+    // Chaque cellule peut porter plusieurs offices : on retient le prochain
+    // de chacune, pas seulement le premier.
     const prayers=[
-      {type:'sh',name:'Shaharit',time:parseHour(todaySh?todaySh.sh:null)},
-      {type:'mi',name:'Minha',time:parseHour(todayN?todayN.mi:null)},
-      {type:'ar',name:'Arvit',time:parseHour(todayN?todayN.ar:null)}
-    ].filter(p=>p.time);
+      {type:'sh',name:PRAYER_LABELS.sh,slot:nextSlotIn(todaySh?todaySh.sh:null,nowH)},
+      {type:'mi',name:PRAYER_LABELS.mi,slot:nextSlotIn(todayN?todayN.mi:null,nowH)},
+      {type:'ar',name:PRAYER_LABELS.ar,slot:nextSlotIn(todayN?todayN.ar:null,nowH)}
+    ].filter(p=>p.slot).map(p=>({...p,time:p.slot.h,texte:p.slot.time,libelle:p.slot.label}));
     const TOL={sh:2,mi:0.5,ar:0.5};
     const upcoming=prayers.filter(p=>p.time>=nowH-TOL[p.type]);
     if(upcoming.length){const p=upcoming[0];return{...p,when:p.time<nowH?'en cours':"aujourd'hui",live:p.time<=nowH&&p.time>nowH-0.5,daysAhead:0};}
@@ -2724,10 +2805,10 @@ function nextPrayer(syn,now){
     const fdN=H[fdkN];
     if(!fdSh&&!fdN)continue;
     const fp=[
-      {type:'sh',name:'Shaharit',time:parseHour(fdSh?fdSh.sh:null)},
-      {type:'mi',name:'Minha',time:parseHour(fdN?fdN.mi:null)},
-      {type:'ar',name:'Arvit',time:parseHour(fdN?fdN.ar:null)}
-    ].filter(p=>p.time);
+      {type:'sh',name:PRAYER_LABELS.sh,slot:parseSlots(fdSh?fdSh.sh:null)[0]},
+      {type:'mi',name:PRAYER_LABELS.mi,slot:parseSlots(fdN?fdN.mi:null)[0]},
+      {type:'ar',name:PRAYER_LABELS.ar,slot:parseSlots(fdN?fdN.ar:null)[0]}
+    ].filter(p=>p.slot&&p.slot.h!=null).map(p=>({...p,time:p.slot.h,texte:p.slot.time,libelle:p.slot.label}));
     if(fp.length){const dayName=i===1?'demain':dayShort[future.getDay()];return{...fp[0],when:dayName,daysAhead:i};}
   }
   return null;
@@ -2782,17 +2863,16 @@ function getGuestDisplayPrayer(syn, now){
   const pick = (t) => t==='sh' ? (todaySh?todaySh.sh:null) : (todayN?todayN[t]:null);
   const labels = {sh:'Shaharit', mi:'Minha', ar:'Arvit'};
   const nowH = now.getHours() + now.getMinutes()/60;
+  // On déplie toutes les cellules : chaque office compte séparément.
   const slots = [];
   for(const t of ['sh','mi','ar']){
-    const raw = pick(t);
-    if(!raw) continue;
-    slots.push({t, raw, h: parseHour(raw)});
+    for(const c of parseSlots(pick(t))) slots.push({t, raw:c.time, h:c.h, lib:c.label});
   }
   if(!slots.length) return null;
   const timed = slots.filter(s => s.h !== null).sort((a,b) => a.h - b.h);
   const next = timed.find(s => s.h >= nowH - 0.5);
   const chosen = next || timed[0] || slots[0];
-  return {time: chosen.raw, label: labels[chosen.t]};
+  return {time: chosen.raw, label: labels[chosen.t], sousLabel: chosen.lib||''};
 }
 
 // ============================================================
@@ -2887,12 +2967,13 @@ function groupPrayers(syn){
       g.keys.push(`${DAYKEY_SHORT[dk]}_${type}`);
     }
     for(const [time,g] of byTime){
-      out.push({type,label:PRAYER_LABELS[type],days:labelDows(g.dows),time,keys:g.keys,dows:g.dows});
+      out.push({type,label:PRAYER_LABELS[type],days:labelDows(g.dows),
+                time,slots:parseSlots(time),keys:g.keys,dows:g.dows});
     }
   }
   // Ordre : Shaharit, Minha, Arvit ; puis heure croissante.
   const rank={sh:0,mi:1,ar:2};
-  out.sort((a,b)=>rank[a.type]-rank[b.type]||((parseHour(a.time)||0)-(parseHour(b.time)||0)));
+  out.sort((a,b)=>rank[a.type]-rank[b.type]||((firstHour(a.time)||0)-(firstHour(b.time)||0)));
   return out;
 }
 
@@ -2923,7 +3004,8 @@ function shortName(n){
 function pickHighlight(groups,now){
   const dow=now.getDay();
   const nowH=now.getHours()+now.getMinutes()/60;
-  const today=groups.map((g,i)=>({i,h:parseHour(g.time)})).filter(x=>x.h!==null&&groups[x.i].dows.includes(dow));
+  const today=groups.map((g,i)=>({i,h:(nextSlotIn(g.time,nowH)||{}).h ?? firstHour(g.time)}))
+    .filter(x=>x.h!==null&&x.h!==undefined&&groups[x.i].dows.includes(dow));
   if(!today.length)return -1;
   const live=today.filter(x=>x.h<=nowH&&x.h>nowH-0.5).sort((a,b)=>b.h-a.h)[0];
   if(live)return live.i;
@@ -3205,10 +3287,10 @@ function visibleGroups(syn){
   return groupPrayers(syn).filter(g=>{
     if(!FILTERS.types.includes('all')&&!FILTERS.types.includes(g.type))return false;
     if(FILTERS.days.length&&!g.dows.some(d=>FILTERS.days.includes(d)))return false;
-    const h=parseHour(g.time);
-    if(h!==null){
-      const m=Math.round(h*60);
-      if(m<FILTERS.tMin||m>FILTERS.tMax)return false;
+    const hs=parseSlots(g.time).map(x=>x.h).filter(x=>x!==null);
+    if(hs.length){
+      // On garde la cellule dès qu'UN de ses offices tombe dans la plage.
+      if(!hs.some(h=>{const m=Math.round(h*60);return m>=FILTERS.tMin&&m<=FILTERS.tMax;}))return false;
     }
     return true;
   });
@@ -3358,7 +3440,7 @@ function renderPrayerCard(syn,g,isNext){
   return `<div class="pcard${isNext?' next':''}">
     <div class="pcard-head">${escapeHtml(g.label)} <span class="days">(${escapeHtml(g.days)})</span></div>
     <div class="pcard-row">
-      <button class="icon-btn" onclick="openEditMinyan(${syn.id},'${g.type}','${escapeAttr(g.time)}','${keys}')" aria-label="${t('edit')}">
+      <button class="icon-btn" onclick="openEditMinyan(${syn.id},'${g.type}','${escapeAttr(g.time)}','${keys}')" aria-label="${t('editShort')}">
         <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1l1-4z"/></svg>
       </button>
       <span class="pcard-time">${escapeHtml(g.time)}</span>
@@ -3699,22 +3781,26 @@ function libelleJours(dows,replis){
   runs.push([d,p]);
   return runs.map(([a,b])=>a===b?noms[a]:(b===a+1?`${noms[a]} & ${noms[b]}`:`${noms[a]}–${noms[b]}`)).join(' · ');
 }
-
-// La prochaine prière du jour : c'est elle qui porte la pastille pleine.
+// Le prochain office à venir aujourd'hui, identifié précisément :
+// {type:'sh', time:'7h30'} — car une cellule peut contenir trois Shaharit.
 function prochainePriereAujourdhui(syn,now){
   const dow=now.getDay(), nowH=now.getHours()+now.getMinutes()/60;
   const H=syn.h||{};
   const dk=TAB_ROWS.find(r=>r[2].includes(dow));
   if(!dk)return null;
   const h=H[dk[0]]||{};
-  const cand=[['sh',h.sh],['mi',h.mi],['ar',h.ar]]
-    .map(([t2,v])=>({t:t2,v,h:parseHour(v)}))
-    .filter(x=>x.h!==null&&x.h>=nowH-0.25)
-    .sort((a,b)=>a.h-b.h);
-  return cand.length?cand[0].t:null;
+  const cand=[];
+  for(const [type,cell] of [['sh',h.sh],['mi',h.mi],['ar',h.ar]]){
+    for(const c of parseSlots(cell)){
+      if(c.h!==null&&c.h>=nowH-0.25)cand.push({type,time:c.time,h:c.h});
+    }
+  }
+  cand.sort((a,b)=>a.h-b.h);
+  return cand.length?cand[0]:null;
 }
 
-// Rendu du tableau. compact=true réduit les en-têtes pour le déplié de la liste.
+let CELL_SEQ=0;   // identifiants des cellules dépliables
+
 function renderHoraireTable(syn,opts){
   opts=opts||{};
   const now=new Date();
@@ -3727,11 +3813,31 @@ function renderHoraireTable(syn,opts){
   const th=opts.compact
     ? [t('tab.day'),t('prayer.shShort'),t('prayer.miShort'),t('prayer.arShort')]
     : [t('tab.day'),t('prayer.sh'),t('prayer.mi'),t('prayer.ar')];
+
+  // Une cellule empile ses offices, du plus tôt au plus tard. Aucun n'est
+  // typographiquement plus important qu'un autre : seul le prochain à venir
+  // porte la pastille bleue.
   const cell=(val,type,estAujourdhui)=>{
-    if(!val)return `<td class="ht-empty">—</td>`;
-    const pastille=estAujourdhui&&type===prochaine;
-    return `<td>${pastille?`<span class="ht-now">${escapeHtml(val)}</span>`:escapeHtml(val)}</td>`;
+    const slots=parseSlots(val);
+    if(!slots.length)return `<td class="ht-empty">—</td>`;
+    const visibles=slots.length>3?slots.slice(0,3):slots;
+    const caches=slots.length>3?slots.slice(3):[];
+    const un=c=>{
+      const actif=estAujourdhui&&prochaine&&prochaine.type===type&&prochaine.time===c.time;
+      const heure=actif?`<span class="ht-now">${escapeHtml(c.time)}</span>`:escapeHtml(c.time);
+      const lib=c.label?`<span class="ht-lib">${escapeHtml(c.label)}</span>`:'';
+      return `<span class="ht-slot">${heure}${lib}</span>`;
+    };
+    let html=visibles.map(un).join('');
+    if(caches.length){
+      const id='c'+(++CELL_SEQ);
+      html+=`<span class="ht-more" id="${id}-h">${caches.map(un).join('')}</span>`
+        +`<button class="ht-plus" onclick="deplierCellule('${id}',event)">`
+        +`${t('tab.more').replace('{n}',caches.length)}</button>`;
+    }
+    return `<td>${html}</td>`;
   };
+
   const rows=lignes.map(l=>{
     const auj=l.dows.includes(dow);
     return `<tr class="${auj?'ht-today':''}">
@@ -3742,6 +3848,15 @@ function renderHoraireTable(syn,opts){
   return `<table class="ht"><thead><tr>
       <th scope="col">${th[0]}</th><th scope="col">${th[1]}</th><th scope="col">${th[2]}</th><th scope="col">${th[3]}</th>
     </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function deplierCellule(id,ev){
+  if(ev)ev.stopPropagation();
+  const bloc=document.getElementById(id+'-h');
+  const btn=ev&&ev.currentTarget;
+  if(!bloc)return;
+  bloc.classList.add('open');
+  if(btn)btn.remove();
 }
 
 // ============================================================
@@ -4590,7 +4705,7 @@ const I18N={
     tabs:{minyan:'Minyan',torah:'Torah',mikve:'Mikvé',shuls:'Shuls'},
     search:{minyan:'Rechercher une synagogue…',mikve:'Rechercher un mikvé…',addr:'Rechercher par adresse…',name:'Rechercher par nom…'},
     prayer:{sh:'Shaharit',mi:'Minha',ar:'Arvit',sel:'Sélichot',shShort:'SHAH.',miShort:'MIN.',arShort:'ARV.'},
-    tab:{day:"Jour"},
+    tab:{day:"Jour",more:"+{n} autres"},
     detail:{week:"Horaires de la semaine",addrHidden:"Adresse masquée",
       addrHiddenSub:"L'adresse précise n'est visible que par les comptes vérifiés.",
       roshHodesh:"Rosh Hodesh {m} — horaires spéciaux possibles",
@@ -4598,6 +4713,25 @@ const I18N={
       confirm:"Confirmer",propose:"Corriger",photo:"Photo / PDF",history:"Historique",
       report:"Signaler une erreur"},
     login:{signin:"Se connecter"},
+    back:'Retour', loading:'Chargement…',
+    edit:{title:"Modifier l'horaire", needLogin:'Connectez-vous pour modifier un horaire',
+      current:'Horaires actuels',
+      opt1t:"L'horaire a changé", opt1s:'Remplace une heure existante par la nouvelle',
+      opt2t:"C'est un office EN PLUS", opt2s:"Ajoute un horaire, les autres restent",
+      opt3t:"Cet office n'existe plus", opt3s:'Supprime uniquement cette heure',
+      whichChange:'Quel horaire a changé ?', whichDelete:"Quel office n'existe plus ?",
+      newTime:'Heure du nouvel office', changeTime:'Nouvelle heure',
+      labelOpt:'Libellé court (facultatif)', labelPh:'Vatikin, Jeunes, Rapide…',
+      labelHelp:'20 caractères maximum, affiché en petit sous l\u0027heure.',
+      deleteWarn:'Cet office sera retiré immédiatement, pour tout le monde.',
+      deleteGo:"Supprimer cet office", needTime:'Indiquez une heure',
+      duplicate:'Cette heure existe déjà pour cette prière',
+      implausible:'{p} à cette heure est improbable ({lo}–{hi}). Vérifiez, ou contactez-nous si c\u0027est exact.',
+      liveNote:'Votre modification est visible par tous immédiatement. Elle est tracée et réversible.',
+      sendError:"Erreur d'envoi. Réessayez plus tard.", doneChange:'Horaire modifié ✓', doneAdd:'Office ajouté ✓', doneDelete:'Office supprimé ✓'},
+    hist:{empty:'Aucun changement enregistré pour {s}.', anon:'un utilisateur',
+      undo:'Annuler ce changement', undone:'Annulé', notFound:'Introuvable'},
+
 
     rite:{sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'},
     days:['Dim','Lun','Mar','Mer','Jeu','Ven','Chabbat'],
@@ -4612,7 +4746,7 @@ const I18N={
     itineraire:'Itinéraire', openWith:"Ouvrir l'itinéraire avec", range:'Plage horaire',
     filter:'Recherche avancée', apply:'Filtrer', reset:'Réinitialiser',
     confirm:'Confirmer', cancel:'Annuler', save:'Enregistrer',
-    edit:'Modifier', fav:'Favori', confirmHour:'Confirmer cet horaire',
+    editShort:'Modifier', fav:'Favori', confirmHour:'Confirmer cet horaire',
     results:'Affichage de {n} {noun} dans la zone',
     noun:{minyan:'résultats',mikve:'mikvaot',shuls:'shuls'},
     empty:{minyan:'Aucun minyan ne correspond à cette recherche.',
@@ -4631,7 +4765,7 @@ const I18N={
     tabs:{minyan:'Minyan',torah:'Torah',mikve:'Mikveh',shuls:'Shuls'},
     search:{minyan:'Search a synagogue…',mikve:'Search a mikveh…',addr:'Search by address…',name:'Search by name…'},
     prayer:{sh:'Shacharit',mi:'Mincha',ar:'Arvit',sel:'Selichot',shShort:'SHACH.',miShort:'MIN.',arShort:'ARV.'},
-    tab:{day:"Day"},
+    tab:{day:"Day",more:"+{n} more"},
     detail:{week:"This week",addrHidden:"Address hidden",
       addrHiddenSub:"The exact address is only visible to verified accounts.",
       roshHodesh:"Rosh Chodesh {m} — times may differ",
@@ -4639,6 +4773,25 @@ const I18N={
       confirm:"Confirm",propose:"Suggest a fix",photo:"Photo / PDF",history:"History",
       report:"Report an error"},
     login:{signin:"Sign in"},
+    back:'Back', loading:'Loading…',
+    edit:{title:'Edit time', needLogin:'Sign in to edit a time',
+      current:'Current times',
+      opt1t:'The time has changed', opt1s:'Replaces an existing time with the new one',
+      opt2t:'This is an ADDITIONAL service', opt2s:'Adds a time, the others remain',
+      opt3t:'This service no longer exists', opt3s:'Removes only this time',
+      whichChange:'Which time changed?', whichDelete:'Which service no longer exists?',
+      newTime:'Time of the new service', changeTime:'New time',
+      labelOpt:'Short label (optional)', labelPh:'Vatikin, Youth, Quick…',
+      labelHelp:'20 characters max, shown small under the time.',
+      deleteWarn:'This service will be removed immediately, for everyone.',
+      deleteGo:'Remove this service', needTime:'Enter a time',
+      duplicate:'This time already exists for this prayer',
+      implausible:'{p} at that hour is unlikely ({lo}–{hi}). Please check, or contact us if it is correct.',
+      liveNote:'Your change is visible to everyone immediately. It is logged and reversible.',
+      sendError:'Sending failed. Please try again later.', doneChange:'Time updated ✓', doneAdd:'Service added ✓', doneDelete:'Service removed ✓'},
+    hist:{empty:'No change recorded for {s}.', anon:'a user',
+      undo:'Undo this change', undone:'Undone', notFound:'Not found'},
+
 
     rite:{sefarde:'Sephardi',ashkenaze:'Ashkenazi',habad:'Chabad',mixte:'Mixed'},
     days:['Sun','Mon','Tue','Wed','Thu','Fri','Shabbat'],
@@ -4653,7 +4806,7 @@ const I18N={
     itineraire:'Directions', openWith:'Open directions with', range:'Time range',
     filter:'Advanced search', apply:'Filter', reset:'Reset',
     confirm:'Confirm', cancel:'Cancel', save:'Save',
-    edit:'Edit', fav:'Favourite', confirmHour:'Confirm this time',
+    editShort:'Edit', fav:'Favourite', confirmHour:'Confirm this time',
     results:'Showing {n} {noun} in this area',
     noun:{minyan:'results',mikve:'mikvaot',shuls:'shuls'},
     empty:{minyan:'No minyan matches this search.',
@@ -4672,7 +4825,7 @@ const I18N={
     tabs:{minyan:'מניין',torah:'תורה',mikve:'מקווה',shuls:'בתי כנסת'},
     search:{minyan:'חיפוש בית כנסת…',mikve:'חיפוש מקווה…',addr:'חיפוש לפי כתובת…',name:'חיפוש לפי שם…'},
     prayer:{sh:'שחרית',mi:'מנחה',ar:'ערבית',sel:'סליחות',shShort:'שחרית',miShort:'מנחה',arShort:'ערבית'},
-    tab:{day:"יום"},
+    tab:{day:"יום",more:"+{n} נוספים"},
     detail:{week:"זמני השבוע",addrHidden:"הכתובת מוסתרת",
       addrHiddenSub:"הכתובת המדויקת גלויה רק לחשבונות מאומתים.",
       roshHodesh:"ראש חודש {m} — ייתכנו זמנים מיוחדים",
@@ -4680,6 +4833,25 @@ const I18N={
       confirm:"אישור",propose:"הצעת תיקון",photo:"תמונה / PDF",history:"היסטוריה",
       report:"דיווח על טעות"},
     login:{signin:"התחברות"},
+    back:'חזרה', loading:'טוען…',
+    edit:{title:'עריכת זמן', needLogin:'התחברו כדי לערוך זמן',
+      current:'הזמנים הנוכחיים',
+      opt1t:'הזמן השתנה', opt1s:'מחליף זמן קיים בזמן החדש',
+      opt2t:'זהו מניין נוסף', opt2s:'מוסיף זמן, האחרים נשארים',
+      opt3t:'המניין הזה בוטל', opt3s:'מוחק רק את הזמן הזה',
+      whichChange:'איזה זמן השתנה?', whichDelete:'איזה מניין בוטל?',
+      newTime:'זמן המניין החדש', changeTime:'זמן חדש',
+      labelOpt:'תווית קצרה (רשות)', labelPh:'ותיקין, צעירים, מהיר…',
+      labelHelp:'עד 20 תווים, מוצג בקטן מתחת לשעה.',
+      deleteWarn:'המניין יוסר מיד, עבור כולם.',
+      deleteGo:'מחיקת המניין', needTime:'הזינו שעה',
+      duplicate:'השעה הזו כבר קיימת לתפילה זו',
+      implausible:'{p} בשעה זו אינה סבירה ({lo}–{hi}). בדקו, או צרו קשר אם זה נכון.',
+      liveNote:'השינוי גלוי לכולם מיד. הוא מתועד וניתן לביטול.',
+      sendError:'השליחה נכשלה. נסו שוב מאוחר יותר.', doneChange:'הזמן עודכן ✓', doneAdd:'מניין נוסף ✓', doneDelete:'המניין הוסר ✓'},
+    hist:{empty:'לא נרשמו שינויים עבור {s}.', anon:'משתמש',
+      undo:'ביטול השינוי', undone:'בוטל', notFound:'לא נמצא'},
+
 
     rite:{sefarde:'ספרדי',ashkenaze:'אשכנזי',habad:'חב״ד',mixte:'מעורב'},
     days:['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'],
@@ -4694,7 +4866,7 @@ const I18N={
     itineraire:'ניווט', openWith:'פתח ניווט באמצעות', range:'טווח שעות',
     filter:'חיפוש מתקדם', apply:'סנן', reset:'איפוס',
     confirm:'אישור', cancel:'ביטול', save:'שמירה',
-    edit:'עריכה', fav:'מועדף', confirmHour:'אישור השעה',
+    editShort:'עריכה', fav:'מועדף', confirmHour:'אישור השעה',
     results:'מוצגות {n} {noun} באזור',
     noun:{minyan:'תוצאות',mikve:'מקוואות',shuls:'בתי כנסת'},
     empty:{minyan:'לא נמצא מניין התואם לחיפוש.',
@@ -4769,7 +4941,7 @@ function applyLang(){
   // Menu latéral
   const M=[['drawerContactLbl','menu.contact'],['drawerDonLbl','menu.don'],['drawerShareLbl','menu.share'],
            ['drawerNotifLbl','menu.notif'],['drawerLangLbl','menu.lang'],['drawerAboutLbl','menu.about'],
-           ['drawerAdminLbl','menu.admin'],['drawerInviteLbl','menu.invite'],['themeLbl','menu.theme']];
+           ['drawerInviteLbl','menu.invite'],['themeLbl','menu.theme']];
   M.forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=t(key);});
   const TH=[['themeLight','menu.light'],['themeAuto','menu.auto'],['themeDark','menu.dark']];
   TH.forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=t(key);});
@@ -4821,7 +4993,6 @@ function openDrawer(){
   document.getElementById('drawerName').textContent=name;
   const lvl=['Invité (N0)','Compte récent (N1)','Compte confirmé (N2)','Compte vérifié (N3)'][currentNiveau]||'Invité';
   document.getElementById('drawerLvl').textContent=isOwner()?'Administrateur':lvl;
-  document.getElementById('drawerAdmin').classList.toggle('hidden',!isOwner());
   document.getElementById('drawerGeoDiag').classList.toggle('hidden',!isOwner());
   document.getElementById('drawerInvite').classList.toggle('hidden',!(currentUser&&currentNiveau>=3));
   document.getElementById('drawerDon').classList.toggle('hidden',!DON_URL);
@@ -5233,21 +5404,146 @@ function openAddMinyan(){
   });
 }
 
+// ============================================================
+// === MODIFIER UN HORAIRE — la question posée en toutes lettres
+// ============================================================
+// C'est l'écran où l'on se trompe : « j'ajoute un office » et « l'horaire a
+// changé » produisent des résultats opposés. Trois boutons pleine largeur
+// avec le libellé écrit, aucun menu déroulant, aucune icône seule.
 function openEditMinyan(synId,type,time,keysCsv){
   if(!currentUser){
-    showToast('Connectez-vous pour proposer une correction',{type:'error'});
+    showToast(t('edit.needLogin'),{type:'error'});
     return;
   }
   const syn=SYNS.find(s=>s.id===synId);
   if(!syn)return;
-  FORM_STATE={synId,type,time:hhmmInput(time),days:[],saison:'annee',note:'',keys:keysCsv,old:time,shulName:syn.name};
-  FORM_STATE._rerender=()=>{document.getElementById('formBody').innerHTML=minyanFormBody({shulPicker:false})+dangerZoneHtml(synId);};
+  const slots=parseSlots(time);
+  EDIT_CTX={synId,type,keys:(keysCsv||'').split(',').filter(Boolean),cellule:time||'',slots,syn};
+
+  // Aucune heure encore enregistrée : la question ne se pose pas.
+  if(!slots.length)return ouvrirFormulaireHoraire('remplace',null);
+
+  const jours=libelleJoursDepuisCles(EDIT_CTX.keys);
   openFormSheet({
-    title:'Modifier le Minyan', sub:syn.name,
-    body:minyanFormBody({shulPicker:false})+dangerZoneHtml(synId),
-    foot:`<button class="btn-primary" onclick="submitMinyanForm('edit')">Enregistrer</button>
-          <button class="btn-outline" onclick="closeFormSheet()">Annuler</button>`
+    title:t('edit.title'),
+    sub:`${syn.name} · ${PRAYER_LABELS[type]||type}${jours?' · '+jours:''}`,
+    body:`
+      <div class="edit-actuel">
+        <div class="fld-lbl">${t('edit.current')}</div>
+        <div class="edit-slots">${slots.map(s=>
+          `<span class="edit-slot">${escapeHtml(s.time)}${s.label?`<i>${escapeHtml(s.label)}</i>`:''}</span>`).join('')}</div>
+      </div>
+      <div class="choix">
+        <button class="choix-btn" onclick="choisirAction('remplace')">
+          <span class="choix-t">${t('edit.opt1t')}</span>
+          <span class="choix-s">${t('edit.opt1s')}</span>
+        </button>
+        <button class="choix-btn" onclick="choisirAction('ajoute')">
+          <span class="choix-t">${t('edit.opt2t')}</span>
+          <span class="choix-s">${t('edit.opt2s')}</span>
+        </button>
+        <button class="choix-btn danger" onclick="choisirAction('supprime')">
+          <span class="choix-t">${t('edit.opt3t')}</span>
+          <span class="choix-s">${t('edit.opt3s')}</span>
+        </button>
+      </div>`,
+    foot:`<button class="btn-outline" onclick="closeFormSheet()">${t('cancel')}</button>`
   });
+}
+
+let EDIT_CTX=null;
+
+// Quel créneau vise-t-on ? Avec un seul office la question ne se pose pas ;
+// avec plusieurs, on demande lequel avant de remplacer ou de supprimer.
+function choisirAction(action){
+  const s=EDIT_CTX.slots;
+  if(action==='ajoute')return ouvrirFormulaireHoraire('ajoute',null);
+  if(s.length===1)return ouvrirFormulaireHoraire(action,s[0]);
+  openFormSheet({
+    title:t('edit.title'),
+    sub:EDIT_CTX.syn.name,
+    body:`<div class="fld-lbl">${action==='supprime'?t('edit.whichDelete'):t('edit.whichChange')}</div>
+      <div class="choix">${s.map((c,i)=>
+        `<button class="choix-btn" onclick="ouvrirFormulaireHoraire('${action}',EDIT_CTX.slots[${i}])">
+           <span class="choix-t">${escapeHtml(c.time)}${c.label?' · '+escapeHtml(c.label):''}</span>
+         </button>`).join('')}</div>`,
+    foot:`<button class="btn-outline" onclick="openEditMinyan(EDIT_CTX.synId,EDIT_CTX.type,EDIT_CTX.cellule,EDIT_CTX.keys.join(','))">${t('back')}</button>`
+  });
+}
+
+function ouvrirFormulaireHoraire(action,cible){
+  EDIT_CTX.action=action;EDIT_CTX.cible=cible;
+  const syn=EDIT_CTX.syn;
+
+  if(action==='supprime'){
+    return openFormSheet({
+      title:t('edit.title'), sub:syn.name,
+      body:`<div class="confirm-recap" style="margin-top:8px;">
+              <span class="big">${escapeHtml(cible.time)}${cible.label?' · '+escapeHtml(cible.label):''}</span>
+              <span>${t('edit.deleteWarn')}</span>
+            </div>`,
+      foot:`<button class="btn-primary" style="background:var(--red)" onclick="appliquerEdition()">${t('edit.deleteGo')}</button>
+            <button class="btn-outline" onclick="closeFormSheet()">${t('cancel')}</button>`
+    });
+  }
+
+  const valeur=cible?hhmmInput(cible.time):'07:00';
+  const lib=cible?cible.label:'';
+  openFormSheet({
+    title:t('edit.title'),
+    sub:`${syn.name} · ${PRAYER_LABELS[EDIT_CTX.type]||EDIT_CTX.type}`,
+    body:`
+      <div class="fld">
+        <span class="fld-lbl">${action==='ajoute'?t('edit.newTime'):t('edit.changeTime')}</span>
+        <input class="inp" type="time" id="edTime" value="${valeur}"/>
+      </div>
+      ${action==='ajoute'?`
+      <div class="fld">
+        <span class="fld-lbl">${t('edit.labelOpt')}</span>
+        <input class="inp" id="edLib" maxlength="${MAX_LIBELLE}" placeholder="${t('edit.labelPh')}" value="${escapeAttr(lib)}"/>
+        <div class="tc-src">${t('edit.labelHelp')}</div>
+      </div>`:''}
+      <div class="tc-src">${t('edit.liveNote')}</div>`,
+    foot:`<button class="btn-primary" onclick="appliquerEdition()">${t('save')}</button>
+          <button class="btn-outline" onclick="closeFormSheet()">${t('cancel')}</button>`
+  });
+}
+
+// Fourchettes plausibles — le seul refus automatique conservé.
+const PLAUSIBLE={sh:[5,10.5], mi:[11.5,21], ar:[16,23.5]};
+
+async function appliquerEdition(){
+  const {action,cible,type,synId,keys,slots}=EDIT_CTX;
+  let nouveaux=slots.slice();
+
+  if(action==='supprime'){
+    nouveaux=nouveaux.filter(c=>c.time!==cible.time);
+  }else{
+    const v=document.getElementById('edTime').value;
+    if(!v){showToast(t('edit.needTime'),{type:'error'});return;}
+    // Convention du Sheet : pas de zéro initial (7h45, pas 07h45).
+    const heure=v.replace(':','h').replace(/^0/,'');
+    const h=parseHour(heure);
+    const [lo,hi]=PLAUSIBLE[type]||[0,24];
+    if(h===null||h<lo||h>hi){
+      showToast(t('edit.implausible')
+        .replace('{p}',PRAYER_LABELS[type]||type)
+        .replace('{lo}',fmt(lo)).replace('{hi}',fmt(hi)),{type:'error',duration:6000});
+      return;
+    }
+    if(nouveaux.some(c=>c.time===heure&&(!cible||c.time!==cible.time))){
+      showToast(t('edit.duplicate'),{type:'error'});return;
+    }
+    const libEl=document.getElementById('edLib');
+    const label=libEl?libEl.value.trim().slice(0,MAX_LIBELLE):(cible?cible.label:'');
+    if(action==='ajoute') nouveaux.push({time:heure,h,label});
+    else nouveaux=nouveaux.map(c=>c.time===cible.time?{time:heure,h,label}:c);
+  }
+
+  const avant=EDIT_CTX.cellule;
+  const apres=formatSlots(nouveaux);
+  closeFormSheet();
+  await appliquerHoraire({synId,keys,type,avant,apres,action});
 }
 // La « Zone dangereuse » n'est visible que pour l'admin (§3.6).
 function dangerZoneHtml(synId){
@@ -5305,13 +5601,11 @@ async function submitMinyanForm(mode){
 }
 
 // ============================================================
-// === §8 CONTRIBUTIONS — écriture d'abord, partage ensuite ===
+// === CONTRIBUTIONS — écriture directe, sans modération ======
 // ============================================================
-// Correction du bug §3.6 : avant, shareSignal() n'ouvrait qu'un lien WhatsApp,
-// et le signalement était perdu si l'utilisateur n'envoyait pas le message.
-// Désormais : Firebase + Formspree d'abord, WhatsApp seulement en option.
+// Plus de statut, plus de palier : toute personne connectée écrit, et c'est
+// appliqué. On conserve la ligne d'historique et l'e-mail d'information.
 async function submitContribution(c){
-  const palier=isOwner()?'admin':`N${currentNiveau}`;
   const contrib={
     id:_newContribId(),
     type:c.kind||'edit',
@@ -5320,47 +5614,60 @@ async function submitContribution(c){
     champ:c.champ||'',
     ancienneValeur:c.ancienne||'',
     nouvelleValeur:c.nouvelle||'',
-    data:{day:c.champ||'',prayer:'',time:c.nouvelle||'',note:c.note||''},
+    note:c.note||'',
     source:c.source||'manuel',
     fichierUrl:c.fichierUrl||null,
     confiance:c.confiance??null,
     auteurNom:localStorage.getItem('mlUserName')||'',
-    auteurPalier:palier,
-    submittedBy:currentUser?currentUser.email:'invité',
-    submittedAt:Date.now(),
-    status:'pending'
+    auteurEmail:currentUser?currentUser.email:'invité',
+    at:Date.now(), annule:false
   };
-  if(!c.silent)showToast('Envoi…',{duration:1200});
+  if(!c.silent)showToast(t('loading'),{duration:1000});
   const ok=await fbWriteContribution(contrib);
-  // Double filet : Formspree, pour que l'admin reçoive un e-mail même si Firebase échoue.
+
+  // Si la contribution vise un champ d'horaire identifiable, on l'applique.
+  const cleValide=/^(ven|shab|dim|lj|mm)_(sh|mi|ar)$/.test(contrib.champ);
+  if(ok&&cleValide&&contrib.synId!=null){
+    const syn=SYNS.find(s=>s.id===contrib.synId);
+    if(syn){
+      const dk=CLE_VERS_JOUR[contrib.champ.slice(0,contrib.champ.lastIndexOf('_'))];
+      const type=contrib.champ.slice(-2);
+      if(dk&&syn.h[dk])syn.h[dk][type]=contrib.nouvelleValeur||null;
+      try{localStorage.setItem('mlSyns',JSON.stringify(SYNS));}catch(e){}
+      await fbWriteSynOverride(contrib.synId,{
+        updatedAt:contrib.at,
+        updatedByName:contrib.auteurNom||contrib.auteurEmail,
+        updatedByEmail:contrib.auteurEmail,
+        valeur:contrib.nouvelleValeur||'', champ:contrib.champ, source:contrib.source
+      });
+      noteSynStamps([syn]);
+    }
+  }
+
+  // E-mail d'information — jamais une demande d'autorisation.
   try{
     await fetch(CONTRIBUTE_ENDPOINT,{
       method:'POST',
       headers:{'Content-Type':'application/json',Accept:'application/json'},
       body:JSON.stringify({
-        _subject:`Minyan Lyon — contribution ${contrib.type}`,
+        _subject:`Minyan Lyon — modification appliquée (${contrib.synName})`,
         synagogue:contrib.synName, champ:contrib.champ,
         avant:contrib.ancienneValeur, apres:contrib.nouvelleValeur,
-        note:c.note||'', auteur:contrib.submittedBy, palier:palier,
-        source:contrib.source, justificatif:contrib.fichierUrl||'—'
+        note:contrib.note, auteur:contrib.auteurEmail,
+        source:contrib.source, justificatif:contrib.fichierUrl||'—',
+        info:'Information seulement — la modification est déjà en ligne.'
       })
     });
   }catch(e){console.warn('Formspree',e);}
 
   if(ok){
-    // N3 / admin : application immédiate côté affichage, avec traçabilité.
-    if(isOwner()||currentNiveau>=3){
-      await applyContributionLocally(contrib);
-      if(!c.silent)showToast('Modification appliquée ✓',{type:'success',duration:3500});
-    }else if(!c.silent){
-      showToast('Merci ! Proposition envoyée en modération ✓',{type:'success',duration:4000});
+    refreshCurrentTab();
+    if(!c.silent){
+      showToast(t('edit.doneChange'),{type:'success',duration:3500});
+      offerWhatsAppShare(contrib);
     }
-    refreshAdminContribBadge();
-    // Import photo/PDF : une contribution par champ, on ne propose le partage
-    // qu'une fois à la fin, pas quinze fois de suite.
-    if(!c.silent)offerWhatsAppShare(contrib);
   }else{
-    showToast("Erreur d'envoi. Réessayez plus tard.",{type:'error'});
+    showToast(t('edit.sendError'),{type:'error'});
   }
   return ok;
 }
@@ -5812,37 +6119,148 @@ async function applyDiff(){
 // ============================================================================
 // === §8.5 HISTORIQUE DES CHANGEMENTS ========================================
 // ============================================================================
+// ============================================================
+// === APPLICATION IMMÉDIATE ==================================
+// ============================================================
+// Plus de file de modération, plus de statuts, plus de consensus, plus de
+// distinction N1/N2/N3 pour l'écriture. Connecté = peut modifier, et c'est
+// visible par tous tout de suite.
+//
+// Le filet reste, mais côté relecture et non côté autorisation :
+//   · chaque écriture laisse une ligne d'historique complète ;
+//   · l'historique est ouvert à tous sur chaque synagogue ;
+//   · l'admin seul peut annuler une ligne et restaurer l'ancienne valeur ;
+//   · un récapitulatif quotidien part par e-mail, pour information.
+
+// Les 15 colonnes du Sheet, dépliées vers la structure interne.
+const CLE_VERS_JOUR={ven:'vendredi',shab:'shabbat',dim:'dimanche',lj:'lundi_jeudi',mm:'mardi_mercredi'};
+
+async function appliquerHoraire({synId,keys,type,avant,apres,action}){
+  const syn=SYNS.find(s=>s.id===synId);
+  if(!syn)return;
+  const auteur=localStorage.getItem('mlUserName')||'';
+  const maintenant=Date.now();
+
+  // 1. Application locale immédiate : l'utilisateur voit son changement.
+  for(const k of keys){
+    const dk=CLE_VERS_JOUR[k.slice(0,k.lastIndexOf('_'))];
+    if(!dk||!syn.h[dk])continue;
+    syn.h[dk][type]=apres||null;
+  }
+  try{localStorage.setItem('mlSyns',JSON.stringify(SYNS));}catch(e){}
+
+  // 2. Ligne d'historique : qui, quand, avant, après. Sans statut.
+  const entree={
+    id:_newContribId(),
+    synId, synName:syn.name,
+    champ:keys.join(','), type, action,
+    ancienneValeur:avant||'', nouvelleValeur:apres||'',
+    auteurNom:auteur, auteurEmail:currentUser?currentUser.email:'',
+    at:maintenant, annule:false
+  };
+  await fbWriteContribution(entree);
+
+  // 3. Diffusion : la valeur devient celle que tout le monde voit.
+  await fbWriteSynOverride(synId,{
+    updatedAt:maintenant,
+    updatedByName:auteur||(currentUser?currentUser.email:''),
+    updatedByEmail:currentUser?currentUser.email:'',
+    champs:Object.fromEntries(keys.map(k=>[k,apres||''])),
+    valeur:apres||'', champ:keys.join(','), source:'manuel'
+  });
+  if(typeof SYN_OVERRIDES!=='undefined')SYN_OVERRIDES[synId]=SYN_OVERRIDES[synId]||{};
+
+  noteSynStamps([syn]);
+  refreshCurrentTab();
+  renderShabbatBand();
+  showToast(t(action==='supprime'?'edit.doneDelete':action==='ajoute'?'edit.doneAdd':'edit.doneChange'),
+            {type:'success',duration:3500});
+}
+
+// --- Historique : ouvert à tous, annulation réservée à l'admin ---
 async function openHistorique(synId){
   const syn=SYNS.find(s=>s.id===synId);
-  openInfoSheet('Historique',`<div class="empty">Chargement…</div>`);
+  openInfoSheet(t('detail.history'),`<div class="empty">${t('loading')}</div>`);
   let all=[];
   try{ all=await fbReadContributions(); }catch(e){}
-  const mine=(all||[]).filter(c=>c&&String(c.synId)===String(synId))
-    .sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
-  if(!mine.length){
-    document.getElementById('infoBody').innerHTML=
-      `<div class="empty"><span class="em-ic">${ICON.clock}</span>Aucun changement enregistré pour ${escapeHtml(syn?syn.name:'cette synagogue')}.</div>`;
+  const lignes=(all||[])
+    .filter(c=>c&&String(c.synId)===String(synId))
+    .sort((a,b)=>(b.at||b.submittedAt||0)-(a.at||a.submittedAt||0));
+  const body=document.getElementById('infoBody');
+  if(!body)return;
+  if(!lignes.length){
+    body.innerHTML=`<div class="empty"><span class="em-ic">${ICON.clock}</span>${t('hist.empty').replace('{s}',escapeHtml(syn?syn.name:''))}</div>`;
     return;
   }
-  const STATUS={pending:'en attente',propose:'en attente',valide:'appliqué',valid:'appliqué',rejete:'rejeté',annule:'annulé'};
-  document.getElementById('infoBody').innerHTML=mine.map(c=>{
-    const who=shortName(c.auteurNom||c.submittedBy||'');
-    const badge=STATUS[c.status]||c.status||'—';
-    const revert=isOwner()&&(c.status==='valide'||c.status==='valid')
-      ? `<div style="margin-top:8px;"><button class="chip" style="border-color:var(--red);color:var(--red);" onclick="revertContrib('${escapeAttr(c.id)}')">Annuler ce changement</button></div>`
-      : '';
-    const clip=c.fichierUrl&&(currentNiveau>=2||isOwner())
-      ? `<button class="chip" style="margin-top:8px;" onclick="openJustificatif('${escapeAttr(c.fichierUrl)}')">${ICON.clip} Justificatif</button>`
-      : '';
-    return `<div class="tc-card"><div class="tc-ic">${c.source==='photo'?ICON.camera:c.source==='pdf'?'${ICON.file}':'✏️'}</div>
+  body.innerHTML=lignes.map(c=>{
+    const qui=shortName(c.auteurNom||c.auteurEmail||c.submittedBy||'');
+    const quand=c.at||c.submittedAt;
+    const equipe=isAdminLabel(c.auteurNom||'')||isOwnerEmail(c.auteurEmail||c.submittedBy||'');
+    const par=equipe?t('trace.team'):(qui||t('hist.anon'));
+    const annuler=(isOwner()&&!c.annule)
+      ? `<button class="chip hist-undo" onclick="annulerChangement('${escapeAttr(c.id)}')">${t('hist.undo')}</button>` : '';
+    const badge=c.annule?`<span class="hist-annule">${t('hist.undone')}</span>`:'';
+    return `<div class="tc-card"><div class="tc-ic">${ICON.pencil}</div>
       <div class="tc-body">
-        <div class="tc-t">${escapeHtml(c.champ||c.type||'modification')}</div>
-        <div class="tc-s" style="font-variant-numeric:tabular-nums;">
-          ${escapeHtml(c.ancienneValeur||'—')} → <b>${escapeHtml(c.nouvelleValeur||'—')}</b></div>
-        <div class="tc-src">${who?escapeHtml(who)+' · ':''}${fmtRelativeLong(c.submittedAt)} · ${escapeHtml(badge)}</div>
-        ${clip}${revert}
+        <div class="tc-t">${escapeHtml(libelleChamp(c))}${badge}</div>
+        <div class="tc-s hist-diff">${escapeHtml(c.ancienneValeur||'—')} → <b>${escapeHtml(c.nouvelleValeur||'—')}</b></div>
+        <div class="tc-src">${t('trace.by')} ${escapeHtml(par)} · ${fmtDayMonth(quand)} ${new Date(quand).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+        ${annuler}
       </div></div>`;
   }).join('');
+}
+
+function libelleChamp(c){
+  const type=c.type||(c.champ||'').slice(-2);
+  const jours=libelleJoursDepuisCles((c.champ||'').split(',').filter(Boolean));
+  return `${PRAYER_LABELS[type]||type}${jours?' · '+jours:''}`;
+}
+
+// "lj_sh,mm_sh" -> "Lun–Jeu · Mar & Mer"
+function libelleJoursDepuisCles(keys){
+  const dows=[];
+  for(const k of keys||[]){
+    const court=k.slice(0,k.lastIndexOf('_'));
+    const dk=CLE_VERS_JOUR[court];
+    if(dk&&DAYKEY_TO_DOWS[dk])dows.push(...DAYKEY_TO_DOWS[dk]);
+  }
+  return dows.length?labelDows(dows):'';
+}
+
+// Annulation admin : restaure l'ancienne valeur et marque la ligne.
+async function annulerChangement(id){
+  if(!isOwner())return;
+  const all=await fbReadContributions();
+  const c=(all||[]).find(x=>x&&x.id===id);
+  if(!c){showToast(t('hist.notFound'),{type:'error'});return;}
+  const syn=SYNS.find(s=>s.id===c.synId);
+  const keys=(c.champ||'').split(',').filter(Boolean);
+  if(syn){
+    for(const k of keys){
+      const dk=CLE_VERS_JOUR[k.slice(0,k.lastIndexOf('_'))];
+      if(dk&&syn.h[dk])syn.h[dk][c.type||k.slice(-2)]=c.ancienneValeur||null;
+    }
+    try{localStorage.setItem('mlSyns',JSON.stringify(SYNS));}catch(e){}
+  }
+  await fbUpdateContributionStatus(id,'annule',{annule:true,annuleAt:Date.now()});
+  await fbWriteSynOverride(c.synId,{
+    updatedAt:Date.now(),
+    updatedByName:t('trace.team'),
+    updatedByEmail:currentUser?currentUser.email:'',
+    valeur:c.ancienneValeur||'', champ:c.champ, source:'manuel'
+  });
+  // Trace de l'annulation elle-même, pour que rien ne disparaisse.
+  await fbWriteContribution({
+    id:_newContribId(), synId:c.synId, synName:c.synName,
+    champ:c.champ, type:c.type, action:'annulation',
+    ancienneValeur:c.nouvelleValeur||'', nouvelleValeur:c.ancienneValeur||'',
+    auteurNom:t('trace.team'), auteurEmail:currentUser?currentUser.email:'',
+    at:Date.now(), annule:false
+  });
+  if(syn)noteSynStamps([syn]);
+  refreshCurrentTab();
+  showToast(t('hist.undone'),{type:'success'});
+  openHistorique(c.synId);
 }
 
 async function revertContrib(id){
@@ -6707,128 +7125,12 @@ function _contribFmtDate(ts){
   return `${d.getDate()}/${d.getMonth()+1} ${hh}h${mm}`;
 }
 
-async function refreshAdminContribBadge(){
-  // Le raccourci admin vit désormais dans le menu latéral (§3.8).
-  const item = document.getElementById('drawerAdmin');
-  const badge = document.getElementById('drawerAdminBadge');
-  if(!item) return;
-  item.classList.toggle('hidden', !isOwner());
-  if(!isOwner()) return;
-  const all = await fbReadContributions();
-  const pending = all.filter(c => c && c.status === 'pending');
-  if(badge){
-    badge.textContent = pending.length ? ` · ${pending.length}` : '';
-    badge.style.color = 'var(--orange)';
-    badge.style.fontWeight = '700';
-  }
-}
-
-async function openContributionsPanel(){
-  if(!isOwner()){ showToast('Réservé au propriétaire', {type:'error'}); return; }
-  openDetail('Notifications admin', `<h2>Demandes <span class="em">à modérer</span></h2><div id="contribList">${impSkeletonHtml(3)}</div>`);
-  await renderContribList();
-}
-
-async function renderContribList(){
-  const host = document.getElementById('contribList');
-  if(!host) return;
-  const all = await fbReadContributions();
-  const pending = all
-    .filter(c => c && c.status === 'pending')
-    .sort((a,b) => (b.submittedAt||0) - (a.submittedAt||0));
-  if(pending.length === 0){
-    host.innerHTML = `<div class="contrib-empty">Aucune demande en attente.<br>Tu seras notifié quand quelqu'un proposera des horaires.</div>`;
-    return;
-  }
-  let html = '';
-  for(const c of pending){
-    const typeLabel = _contribTypeLabel(c.type);
-    const synName = escapeHtml(c.synName || '(syna inconnue)');
-    const by = escapeHtml(c.submittedBy || '?');
-    const when = _contribFmtDate(c.submittedAt);
-    let bodyHtml = '';
-    if(c.type === 'edit'){
-      const dayLabels = {vendredi:'Vendredi',shabbat:'Shabbat',dimanche:'Dimanche+fériés',lundi_jeudi:'Lundi & Jeudi',mardi_mercredi:'Mardi & Mercredi'};
-      const prayerLabels = {sh:'Shaharit',mi:'Minha',ar:'Arvit'};
-      bodyHtml = `
-        <span class="lbl">Jour</span>${escapeHtml(dayLabels[c.data.day] || c.data.day)}
-        <span class="lbl">Prière</span>${escapeHtml(prayerLabels[c.data.prayer] || c.data.prayer)}
-        <span class="lbl">Nouvel horaire</span><b>${escapeHtml(c.data.time)}</b>
-        ${c.data.note ? `<span class="lbl">Commentaire</span>${escapeHtml(c.data.note)}` : ''}
-      `;
-    }else if(c.type === 'text'){
-      bodyHtml = `
-        ${c.data.addr ? `<span class="lbl">Adresse</span>${escapeHtml(c.data.addr)}` : ''}
-        <span class="lbl">Description</span>${escapeHtml(c.data.description).replace(/\n/g,'<br>')}
-      `;
-    }else if(c.type === 'photo'){
-      const img = c.data.mimeType && c.data.mimeType.startsWith('image/')
-        ? `<img src="${c.data.dataUrl}" style="max-width:100%;border-radius:8px;margin-top:8px;" alt="">`
-        : `<a href="${c.data.dataUrl}" download="${escapeHtml(c.data.fileName)}" style="color:var(--ink);font-weight:600;">📎 Télécharger ${escapeHtml(c.data.fileName)}</a>`;
-      bodyHtml = `
-        <span class="lbl">Fichier</span>${escapeHtml(c.data.fileName)} (${Math.round(c.data.fileSize/1024)} Ko)
-        ${c.data.note ? `<span class="lbl">Commentaire</span>${escapeHtml(c.data.note)}` : ''}
-        ${img}
-      `;
-    }
-    const canApply = (c.type === 'edit' && c.synId != null);
-    html += `<div class="contrib-item" id="contrib-${c.id}">
-      <div class="contrib-item-head">
-        <div>
-          <div class="contrib-item-name">${synName}</div>
-          <div class="contrib-item-meta">${by} · ${when}</div>
-        </div>
-        <span class="contrib-type-pill ${c.type}">${typeLabel}</span>
-      </div>
-      <div class="contrib-item-body">${bodyHtml}</div>
-      <div class="contrib-item-actions">
-        ${canApply ? `<button class="contrib-act-btn approve" onclick="approveContrib('${c.id}')">✓ Valider & appliquer</button>` : `<button class="contrib-act-btn approve" onclick="markContribHandled('${c.id}')">✓ Marquer traitée</button>`}
-        <button class="contrib-act-btn reject" onclick="rejectContrib('${c.id}')">✗ Rejeter</button>
-      </div>
-    </div>`;
-  }
-  host.innerHTML = html;
-}
-
-async function approveContrib(id){
-  const all = await fbReadContributions();
-  const c = all.find(x => x && x.id === id);
-  if(!c){ showToast('Demande introuvable', {type:'error'}); return; }
-  if(c.type !== 'edit' || c.synId == null){ markContribHandled(id); return; }
-  const syn = (SYNS||[]).find(s => String(s.id) === String(c.synId));
-  if(!syn){ showToast('Syna introuvable', {type:'error'}); return; }
-  // Repartir des overrides existants si présents, sinon de syn.h
-  await refreshSynOverrides();
-  const ov = SYN_OVERRIDES[String(c.synId)];
-  const baseH = (ov && ov.h) ? JSON.parse(JSON.stringify(ov.h)) : JSON.parse(JSON.stringify(syn.h || {}));
-  if(!baseH[c.data.day]) baseH[c.data.day] = {sh:null, mi:null, ar:null};
-  baseH[c.data.day][c.data.prayer] = c.data.time;
-  const ok = await fbWriteSynOverride(c.synId, {h: baseH, updatedAt: Date.now(), updatedByName: 'Admin (validation contribution)'});
-  if(!ok){ showToast('Erreur d\'application', {type:'error'}); return; }
-  await fbUpdateContributionStatus(id, 'approved');
-  showToast('Horaire mis à jour ✓', {type:'success'});
-  await refreshSynOverrides();
-  if(typeof buildMinyanList === 'function') buildMinyanList();
-  renderContribList();
-  refreshAdminContribBadge();
-}
-
-async function markContribHandled(id){
-  const ok = await fbUpdateContributionStatus(id, 'handled');
-  if(!ok){ showToast('Erreur', {type:'error'}); return; }
-  showToast('Marquée comme traitée ✓', {type:'success'});
-  renderContribList();
-  refreshAdminContribBadge();
-}
-
-async function rejectContrib(id){
-  if(!confirm('Rejeter cette demande ?')) return;
-  const ok = await fbUpdateContributionStatus(id, 'rejected');
-  if(!ok){ showToast('Erreur', {type:'error'}); return; }
-  showToast('Demande rejetée', {duration:2000});
-  renderContribList();
-  refreshAdminContribBadge();
-}
+// La file de modération a été supprimée : toute personne connectée modifie
+// un horaire et c'est appliqué en direct. Le contrôle se fait après coup,
+// par l'historique de chaque synagogue et le bouton d'annulation admin.
+// refreshAdminContribBadge subsiste en fonction vide : plusieurs points du
+// code l'appellent encore après une écriture.
+function refreshAdminContribBadge(){}
 
 // Si on revient sur l'app avec ?contrib=ok, afficher un toast de succès.
 function handleContribReturn(){
