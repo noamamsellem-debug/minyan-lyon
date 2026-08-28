@@ -854,7 +854,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 /* --- 3.9 Vue carte --- */
 .mapwrap{margin:0 14px 12px;border-radius:var(--r-lg);overflow:hidden;position:relative;height:62vh;min-height:340px;
   background:var(--bg-soft);}
-.mapwrap iframe{width:100%;height:100%;border:0;display:block;}
 .map-empty{display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;
   color:var(--ink-soft);font-size:14px;}
 
@@ -998,7 +997,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .all-slots .pcard{margin-top:8px;}
 
 /* L'étoile favori passe en coin, elle ne prend plus de ligne */
-  display:flex;align-items:center;justify-content:center;}
 
 /* --- §2 Feuille d'action Itinéraire : vraies icônes 62 px --- */
 .nav-apps{display:flex;justify-content:center;gap:22px;margin:6px 0 4px;}
@@ -1009,8 +1007,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .nav-app:active{transform:scale(.95);}
 
 /* --- §6 Carte interactive --- */
-.mapwrap{touch-action:none;}
-  filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));}
+/* touch-action retiré : c'était pour le moteur de tuiles maison, qui gérait
+   lui-même les gestes. Leaflet pose sa propre règle sur .leaflet-container ;
+   la nôtre ne servait plus à rien (touch-action ne s'hérite pas, les
+   marqueurs restent en « auto », ce qui est ce qui permet le tap). */
 .map-sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;transform:translateY(110%);
   transition:transform .24s cubic-bezier(.3,.8,.4,1);padding:10px;}
 .map-sheet.show{transform:translateY(0);}
@@ -1389,6 +1389,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 
 /* Feuille basse au clic sur un pin — au-dessus des couches Leaflet */
 .map-sheet{z-index:1001;}
+.map-debug{position:absolute;left:8px;right:8px;top:8px;z-index:1002;
+  background:rgba(17,24,39,.93);color:#E5E7EB;border-radius:10px;padding:8px 10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;line-height:1.45;}
+.map-debug-t{display:flex;align-items:center;gap:8px;font-weight:700;
+  font-size:10px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.map-debug-t button{margin-inline-start:auto;background:#374151;color:#E5E7EB;
+  border:none;border-radius:6px;padding:3px 8px;font:inherit;cursor:pointer;}
+.map-debug-t button + button{margin-inline-start:6px;}
+.map-debug pre{margin:0;white-space:pre-wrap;word-break:break-word;
+  max-height:150px;overflow:auto;}
 
 /* Mode sombre : Leaflet sert des tuiles claires. On n'inverse QUE la couche
    de tuiles — surtout pas les pins ni les commandes, qui garderaient des
@@ -3854,6 +3864,50 @@ function prochainePriereAujourdhui(syn,now){
   return cand.length?cand[0]:null;
 }
 
+// --- Mode debug de la carte -----------------------------------------------
+// Activation : ?mapdebug=1 dans l'URL, ou localStorage.mlMapDebug = '1'.
+// Il n'affiche rien tant qu'il n'est pas demandé, et ne coûte rien.
+function mapDebugActif(){
+  try{
+    if(new URLSearchParams(location.search).get('mapdebug')==='1'){
+      localStorage.setItem('mlMapDebug','1');
+    }
+    return localStorage.getItem('mlMapDebug')==='1';
+  }catch(e){ return false; }
+}
+function journalCarte(msg){
+  if(typeof MAP==='undefined'||!MAP)return;
+  MAP.journal=MAP.journal||[];
+  const t=new Date();
+  MAP.journal.push(`${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}.${String(t.getMilliseconds()).padStart(3,'0')}  ${msg}`);
+  if(MAP.journal.length>60)MAP.journal.shift();
+  const bloc=document.getElementById('mapDebugCorps');
+  if(bloc){bloc.textContent=MAP.journal.slice(-14).join('\n');bloc.scrollTop=bloc.scrollHeight;}
+}
+function poserPanneauDebug(host){
+  if(!mapDebugActif()||document.getElementById('mapDebug'))return;
+  const d=document.createElement('div');
+  d.id='mapDebug';d.className='map-debug';
+  d.innerHTML=`<div class="map-debug-t">Journal carte
+      <button onclick="copierJournalCarte(this)">Copier</button>
+      <button onclick="fermerDebugCarte()">Arrêter</button></div>
+    <pre id="mapDebugCorps">en attente d'un appui sur un pin…</pre>`;
+  host.appendChild(d);
+}
+function copierJournalCarte(btn){
+  const t=((MAP&&MAP.journal)||[]).join('\n')
+    +'\n---\n'+navigator.userAgent
+    +'\ntactile='+('ontouchstart' in window)+' points='+navigator.maxTouchPoints
+    +'\nleaflet='+(window.L?L.version:'?');
+  const fini=()=>{const o=btn.textContent;btn.textContent='Copié';setTimeout(()=>{btn.textContent=o;},1500);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(fini,()=>showToast(t,{duration:9000}));
+  else showToast(t,{duration:9000});
+}
+function fermerDebugCarte(){
+  try{localStorage.removeItem('mlMapDebug');}catch(e){}
+  const d=document.getElementById('mapDebug');if(d)d.remove();
+}
+
 let CELL_SEQ=0;   // identifiants des cellules dépliables
 
 function renderHoraireTable(syn,opts){
@@ -4334,11 +4388,11 @@ async function renderMap(){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
       </button>
       <div class="map-sheet" id="mapSheet"></div>`;
+    poserPanneauDebug(host);
 
     MAP.carte=L.map('mapCanvas',{
       zoomControl:false,
       attributionControl:true,
-      tap:false,                 // laisse Safari gérer le tap nativement
       minZoom:MIN_Z, maxZoom:MAX_Z
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
@@ -4352,13 +4406,55 @@ async function renderMap(){
     MAP.carte.setView([LYON_LAT,LYON_LNG],13);
     MAP.pret=true;
     // La feuille basse se referme quand on touche le fond de carte.
-    MAP.carte.on('click',()=>closeMapSheet());
+    // Le click de fond arrive parfois juste après l'ouverture par le filet :
+    // sans ce délai, la feuille se refermerait dans la foulée.
+    MAP.carte.on('click',()=>{
+      journalCarte('click fond');
+      if(Date.now()-(MAP.ouvertA||0)<600)return;
+      closeMapSheet();
+    });
   }
 
   dessinerPins();
   cadrer();
   // Le conteneur peut avoir été mesuré à zéro s'il était encore masqué.
   setTimeout(()=>{ if(MAP.carte)MAP.carte.invalidateSize(); },60);
+}
+
+// Filet tactile. Le clic sur un marqueur repose sur l'événement DOM « click »,
+// que le navigateur synthétise après un tap. Si ce click ne vient pas — c'est
+// ce que décrit le bug iPhone, que je n'ai pas su reproduire — le marqueur
+// reste muet. On écoute donc aussi touchend, et on n'ouvre soi-même que si
+// aucun click n'a suivi. Un doigt qui glisse ne compte pas : c'est un
+// déplacement de carte, pas un tap.
+const TAP_GLISSE_MAX=12;     // px
+const TAP_DUREE_MAX=700;     // ms
+const TAP_ATTENTE_CLICK=350; // ms
+
+function brancherFiletTactile(marqueur,id){
+  const el=marqueur.getElement&&marqueur.getElement();
+  if(!el||!('ontouchstart' in window))return;
+  let x0=0,y0=0,t0=0,glisse=false;
+  el.addEventListener('touchstart',ev=>{
+    const t=ev.changedTouches[0];
+    x0=t.clientX;y0=t.clientY;t0=Date.now();glisse=false;
+    journalCarte('touchstart '+id);
+  },{passive:true});
+  el.addEventListener('touchmove',ev=>{
+    const t=ev.changedTouches[0];
+    if(Math.hypot(t.clientX-x0,t.clientY-y0)>TAP_GLISSE_MAX)glisse=true;
+  },{passive:true});
+  el.addEventListener('touchend',()=>{
+    const fin=Date.now();
+    journalCarte('touchend '+id+(glisse?' · glissé, ignoré':''));
+    if(glisse||fin-t0>TAP_DUREE_MAX)return;
+    setTimeout(()=>{
+      // Un click est arrivé après ce touchend : le chemin normal a marché.
+      if(MAP.dernierClic&&MAP.dernierClic>=fin){journalCarte('click reçu, filet inutile');return;}
+      journalCarte('AUCUN click — ouverture par le filet '+id);
+      openMapSheet(id);
+    },TAP_ATTENTE_CLICK);
+  },{passive:true});
 }
 
 function dessinerPins(){
@@ -4371,9 +4467,15 @@ function dessinerPins(){
     iconSize:[34,44], iconAnchor:[17,44]
   });
   for(const s of MAP.pts){
-    L.marker([s.lat,s.lng],{icon:icone,title:s.name,keyboard:true,alt:s.name})
-      .addTo(MAP.pins)
-      .on('click',e=>{ L.DomEvent.stopPropagation(e); openMapSheet(s.id); });
+    const m=L.marker([s.lat,s.lng],{icon:icone,title:s.name,keyboard:true,alt:s.name})
+      .addTo(MAP.pins);
+    m.on('click',e=>{
+      L.DomEvent.stopPropagation(e);
+      MAP.dernierClic=Date.now();
+      journalCarte('click '+s.id);
+      openMapSheet(s.id);
+    });
+    brancherFiletTactile(m,s.id);
   }
 
   // Marqueur utilisateur + cercle de précision, gérés par Leaflet :
@@ -4422,6 +4524,8 @@ function openMapSheet(id){
   sheet.innerHTML=`<button class="map-sheet-close" onclick="closeMapSheet()" aria-label="${t('cancel')}">✕</button>`
     + renderMinyanCard(syn,groups,new Date(),!currentUser);
   sheet.classList.add('show');
+  MAP.ouvertA=Date.now();
+  journalCarte('feuille ouverte · '+syn.name);
   if(MAP.carte)MAP.carte.panTo([syn.lat,syn.lng],{animate:true,duration:.25});
 }
 function closeMapSheet(){
