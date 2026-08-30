@@ -2487,15 +2487,53 @@ function isHiddenSyn(name){return SYNS_HIDDEN_NAMES.some(re=>re.test(String(name
 // comme dates/heures). On valide donc lat/lng dans une plage plausible pour
 // l'agglomération lyonnaise, avec repli sur SYNS_DEFAULT puis sur le centre.
 const LAT_RANGE=[45.0,46.2], LNG_RANGE=[4.0,5.5];
+// Registre des coordonnées écartées au chargement. Consultable à tout moment
+// dans la console : COORD_REFUSEES.
+const COORD_REFUSEES=[];
+// Nombre de décimales réellement écrites dans la source. Deux décimales de
+// latitude, c'est une grille de 1,1 km : on ne peut pas y placer un bâtiment.
+// Quatre décimales valent ~11 m, cinq ~1 m.
+const MIN_DECIMALES_COORD=4;
+function nbDecimales(raw){
+  const t=String(raw).replace(',','.').trim();
+  if(!/^-?\d+(\.\d+)?$/.test(t))return 0;
+  const p=t.indexOf('.');
+  return p<0?0:t.length-p-1;
+}
+
 function safeCoord(raw, kind, syn){
   const [lo,hi]=kind==='lat'?LAT_RANGE:LNG_RANGE;
   const v=parseFloat(String(raw).replace(',','.'));
-  if(Number.isFinite(v)&&v>=lo&&v<=hi)return v;
+  if(Number.isFinite(v)&&v>=lo&&v<=hi){
+    // Une coordonnée trop arrondie est REFUSÉE, pas rabotée : mieux vaut
+    // aucun pin qu'un pin confiant à 500 m de la porte. La synagogue reste
+    // dans la liste, l'itinéraire retombe sur l'adresse en toutes lettres.
+    const d=nbDecimales(raw);
+    if(d<MIN_DECIMALES_COORD){
+      console.warn(`[Minyan Lyon] ${kind} trop imprécise pour « ${syn.name} » (id ${syn.id}) : `
+        +`${JSON.stringify(raw)} — ${d} décimale${d>1?'s':''}, il en faut au moins ${MIN_DECIMALES_COORD}. `
+        +`Coordonnée refusée : ni pin sur la carte, ni itinéraire GPS. Corrigez le Sheet.`);
+      COORD_REFUSEES.push({id:syn.id,name:syn.name,kind,raw,decimales:d});
+      return null;
+    }
+    return v;
+  }
+  // Hors plage, illisible ou absente. On REFUSE, exactement comme pour une
+  // coordonnée trop imprécise : retomber sur le centre de Lyon plantait un
+  // pin affirmatif au mauvais endroit, c'est-à-dire le défaut même qu'on
+  // vient de corriger. Le repli sur SYNS_DEFAULT n'a plus cours en pratique,
+  // la liste embarquée ne portant ni adresse ni coordonnées ; on le garde au
+  // cas où, mais soumis à la même exigence de précision.
   const dflt=SYNS_DEFAULT.find(s=>s.id===syn.id);
   const fb=dflt?dflt[kind]:null;
-  console.warn(`[Minyan Lyon] ${kind} invalide pour « ${syn.name} » (id ${syn.id}) : ${JSON.stringify(raw)} → repli sur ${fb!=null?'SYNS_DEFAULT':'centre de Lyon'}`);
-  if(Number.isFinite(fb)&&fb>=lo&&fb<=hi)return fb;
-  return kind==='lat'?LYON_LAT:LYON_LNG;
+  if(Number.isFinite(fb)&&fb>=lo&&fb<=hi&&nbDecimales(fb)>=MIN_DECIMALES_COORD)return fb;
+  const cause=(raw==null||String(raw).trim()==='')?'absente'
+            :(Number.isFinite(v)?`hors plage (attendu ${lo}–${hi})`:'illisible');
+  console.warn(`[Minyan Lyon] ${kind} ${cause} pour « ${syn.name} » (id ${syn.id}) : ${JSON.stringify(raw)}. `
+    +`Coordonnée refusée : ni pin sur la carte, ni itinéraire GPS. `
+    +`La synagogue reste dans la liste, l'itinéraire passe par l'adresse. Corrigez le Sheet.`);
+  COORD_REFUSEES.push({id:syn.id,name:syn.name,kind,raw,cause});
+  return null;
 }
 
 function parseSynsRows(rows){
@@ -3110,8 +3148,14 @@ const NAV_ICONS={
 // n'ont pas de lat/lng dans le Sheet, et ouvraient donc Google Maps en direct
 // sans laisser le choix. Ce n'est plus le cas.
 function openItineraire(lat,lng,label,addr){
-  const hasLL=Number.isFinite(Number(lat))&&Number.isFinite(Number(lng));
-  const dest=hasLL?`${lat},${lng}`:'';
+  // Number(null) vaut 0, et Number.isFinite(0) est vrai : le garde d'origine
+  // laissait donc passer des coordonnées absentes et fabriquait
+  // « daddr=null,null ». On écarte explicitement null, undefined et la chaîne
+  // vide avant toute conversion.
+  const nombre=v=>(v===null||v===undefined||String(v).trim()==='')?NaN:Number(v);
+  const nLat=nombre(lat), nLng=nombre(lng);
+  const hasLL=Number.isFinite(nLat)&&Number.isFinite(nLng);
+  const dest=hasLL?`${nLat},${nLng}`:'';
   const a=encodeURIComponent(addr||label||'');
   const q=encodeURIComponent(label||'');
   const opts=hasLL?[
@@ -4497,13 +4541,43 @@ function dessinerPins(){
   }
 }
 
+// Échelle de la rue : on distingue les numéros et les traversées.
+const ZOOM_RUE=16;
+// Au cadrage, on ne retient que les plus proches. Sur les 35, l'écart entre
+// Écully et Meyzieu impose le zoom 10 — toute l'agglomération, où plus aucun
+// pin n'est distinguable d'un autre.
+const CADRAGE_PROCHES=6;
+
+// Pose une vue en s'assurant qu'elle est réellement appliquée. L'animation de
+// Leaflet repose sur requestAnimationFrame et sur transitionend : quand l'onglet
+// est masqué ou l'application reprise d'arrière-plan, rien ne s'exécute et la
+// carte reste où elle était, sans erreur. Le minuteur de secours pose alors la
+// vue sèchement.
+function vueCarte(centre,zoom,animer){
+  const m=MAP.carte;
+  if(!m)return;
+  if(!animer||REDUCED){ m.setView(centre,zoom,{animate:false}); return; }
+  m.flyTo(centre,zoom,{duration:.6});
+  clearTimeout(MAP.tVue);
+  MAP.tVue=setTimeout(()=>{
+    if(!MAP.carte)return;
+    if(Math.abs(MAP.carte.getZoom()-zoom)>.05)MAP.carte.setView(centre,zoom,{animate:false});
+  },900);
+}
+
 function cadrer(){
   const L=window.L;
   if(!MAP.carte||!L)return;
-  const coords=MAP.pts.map(s=>[s.lat,s.lng]);
+  let pts=MAP.pts;
+  if(userLocation&&pts.length>CADRAGE_PROCHES){
+    pts=[...pts].sort((a,b)=>distTo(a)-distTo(b)).slice(0,CADRAGE_PROCHES);
+  }
+  const coords=pts.map(s=>[s.lat,s.lng]);
   if(userLocation)coords.push([userLocation.lat,userLocation.lng]);
   if(!coords.length)return;
-  MAP.carte.fitBounds(L.latLngBounds(coords),{padding:[40,60],maxZoom:16});
+  // Sans animation : c'est le premier rendu de la carte, il n'y a rien à
+  // faire glisser, et cela évite la dépendance à requestAnimationFrame.
+  MAP.carte.fitBounds(L.latLngBounds(coords),{padding:[40,60],maxZoom:ZOOM_RUE,animate:false});
 }
 
 function mapZoom(d){
@@ -4512,8 +4586,11 @@ function mapZoom(d){
 
 function mapRecenter(){
   if(!MAP.carte)return;
-  if(userLocation)MAP.carte.setView([userLocation.lat,userLocation.lng],Math.max(MAP.carte.getZoom(),15));
-  else cadrer();
+  if(!userLocation){cadrer();return;}
+  // Toujours ramener à l'échelle de la rue. Conserver le zoom courant, comme
+  // le faisait Math.max(zoom,15), revenait à recentrer sans rien montrer de
+  // plus quand on était déjà dézoomé sur l'agglomération.
+  vueCarte([userLocation.lat,userLocation.lng],ZOOM_RUE,true);
 }
 
 function openMapSheet(id){
