@@ -4044,19 +4044,26 @@ async function fbReadDedicaces(){
 async function fbWriteDedicace(id,obj){
   if(!FB_ENABLED()){
     try{const all=JSON.parse(localStorage.getItem('mlDedicaces')||'[]').filter(x=>x.id!==id);
-      all.push(Object.assign({id},obj));localStorage.setItem('mlDedicaces',JSON.stringify(all));return true;}catch(e){return false;}
+      all.push(Object.assign({id},obj));localStorage.setItem('mlDedicaces',JSON.stringify(all));return {ok:true};}catch(e){return {ok:false,corps:String(e)};}
   }
   const url=`${FIREBASE_CONFIG.databaseURL}/dedicaces/${id}.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  try{const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});return r.ok;}
-  catch(e){return false;}
+  try{
+    const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+    const corps=await r.text();
+    return {ok:r.ok,status:r.status,corps,envoye:JSON.stringify(obj)};
+  }catch(e){return {ok:false,corps:'Réseau : '+(e&&e.message||e)};}
 }
 async function fbDeleteDedicace(id){
   if(!FB_ENABLED()){
     try{const all=JSON.parse(localStorage.getItem('mlDedicaces')||'[]').filter(x=>x.id!==id);
-      localStorage.setItem('mlDedicaces',JSON.stringify(all));return true;}catch(e){return false;}
+      localStorage.setItem('mlDedicaces',JSON.stringify(all));return {ok:true};}catch(e){return {ok:false,corps:String(e)};}
   }
   const url=`${FIREBASE_CONFIG.databaseURL}/dedicaces/${id}.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  try{const r=await fetch(url,{method:'DELETE'});return r.ok;}catch(e){return false;}
+  try{
+    const r=await fetch(url,{method:'DELETE'});
+    const corps=await r.text();
+    return {ok:r.ok,status:r.status,corps};
+  }catch(e){return {ok:false,corps:'Réseau : '+(e&&e.message||e)};}
 }
 
 function texteDedicace(d){
@@ -4128,6 +4135,26 @@ async function chargerDedicaces(){
 
 // --- Écran d'administration (propriétaire uniquement) ---
 let DED_FORM={type:'refoua',nom:'',jusquA:''};
+let DED_DERNIERE_ERREUR='';
+
+function echecDedicace(titre,r){
+  DED_DERNIERE_ERREUR=[titre,r.status?('HTTP '+r.status):'',r.corps||'',r.envoye?('envoyé : '+r.envoye):'']
+    .filter(Boolean).join('\n');
+  const zone=document.getElementById('dedErreur');
+  const html=`<div class="tc-src" style="color:var(--red);font-weight:650;">${escapeHtml(titre)}</div>
+    ${r.status?`<div class="imp-http">HTTP ${r.status}</div>`:''}
+    ${r.corps?`<details class="imp-detail" open><summary>${escapeHtml(t('dedicace.reponse'))}</summary><pre>${escapeHtml(String(r.corps).slice(0,600))}</pre></details>`:''}
+    ${r.envoye?`<details class="imp-detail"><summary>${escapeHtml(t('dedicace.envoye'))}</summary><pre>${escapeHtml(r.envoye)}</pre></details>`:''}
+    <div class="imp-actions"><button class="chip" onclick="copierErreurDedicace(this)">${t('dedicace.copier')}</button></div>`;
+  if(zone)zone.innerHTML=html;
+  else showToast(titre+(r.status?' · HTTP '+r.status:''),{type:'error',duration:7000});
+}
+function copierErreurDedicace(btn){
+  const fini=()=>{const o=btn.textContent;btn.textContent='✓';setTimeout(()=>{btn.textContent=o;},1600);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(DED_DERNIERE_ERREUR).then(fini,()=>showToast(DED_DERNIERE_ERREUR,{duration:9000}));
+  else showToast(DED_DERNIERE_ERREUR,{duration:9000});
+}
 
 async function openDedicaces(){
   if(!isOwner()){showToast(t('dedicace.reserve'),{type:'error'});return;}
@@ -4163,6 +4190,7 @@ async function openDedicaces(){
       <div class="tc-src">${t('dedicace.finAide')}</div>
     </div>
     <button class="btn-primary" style="width:100%;margin-top:4px;" onclick="ajouterDedicace()">${t('dedicace.ajouter')}</button>
+    <div id="dedErreur"></div>
     ${liste?`<div class="pick-grp" style="margin-top:20px;">
       <span class="fld-lbl">${t('dedicace.enCours')}</span>${liste}</div>`:''}`;
 }
@@ -4176,15 +4204,15 @@ async function ajouterDedicace(){
   if(!nom){showToast(t('dedicace.nomRequis'),{type:'error'});return;}
   if(/[<>]/.test(nom)){showToast(t('dedicace.nomInterdit'),{type:'error'});return;}
   const id='d'+Date.now()+Math.random().toString(36).slice(2,6);
-  const ok=await fbWriteDedicace(id,{type:DED_FORM.type,nom,jusquA:fin||'',at:Date.now()});
-  if(!ok){showToast(t('edit.sendError'),{type:'error'});return;}
+  const r=await fbWriteDedicace(id,{type:DED_FORM.type,nom,jusquA:fin||'',at:Date.now()});
+  if(!r.ok){echecDedicace(t('dedicace.echecAjout'),r);return;}
   showToast(t('dedicace.ajoutee'),{type:'success'});
   await chargerDedicaces();
   openDedicaces();
 }
 async function retirerDedicace(id){
-  const ok=await fbDeleteDedicace(id);
-  if(!ok){showToast(t('edit.sendError'),{type:'error'});return;}
+  const r=await fbDeleteDedicace(id);
+  if(!r.ok){echecDedicace(t('dedicace.echecRetrait'),r);return;}
   showToast(t('dedicace.retiree'),{type:'success'});
   await chargerDedicaces();
   openDedicaces();
@@ -5239,7 +5267,9 @@ const I18N={
       ajouter:'Afficher cette dédicace', ajoutee:'Dédicace affichée ✓',
       retirer:'Retirer', retiree:'Dédicace retirée ✓',
       enCours:'Dédicaces enregistrées', expiree:'Expirée',
-      jusqua:'Jusqu\u0027au', sansFin:'Sans date de fin'},
+      jusqua:'Jusqu\u0027au', sansFin:'Sans date de fin',
+      reponse:'Réponse du serveur', envoye:'Données envoyées', copier:'Copier le détail',
+      echecAjout:"L\u0027enregistrement a échoué", echecRetrait:'Le retrait a échoué'},
 
 
     rite:{sefarde:'Séfarade',ashkenaze:'Ashkénaze',habad:'Loubavitch',mixte:'Mixte'},
@@ -5319,7 +5349,9 @@ const I18N={
       ajouter:'Show this dedication', ajoutee:'Dedication shown ✓',
       retirer:'Remove', retiree:'Dedication removed ✓',
       enCours:'Saved dedications', expiree:'Expired',
-      jusqua:'Until', sansFin:'No end date'},
+      jusqua:'Until', sansFin:'No end date',
+      reponse:'Server response', envoye:'Data sent', copier:'Copy details',
+      echecAjout:'Saving failed', echecRetrait:'Removal failed'},
 
 
     rite:{sefarde:'Sephardi',ashkenaze:'Ashkenazi',habad:'Chabad',mixte:'Mixed'},
@@ -5399,7 +5431,9 @@ const I18N={
       ajouter:'להציג הקדשה זו', ajoutee:'ההקדשה מוצגת ✓',
       retirer:'הסרה', retiree:'ההקדשה הוסרה ✓',
       enCours:'הקדשות שמורות', expiree:'פג תוקף',
-      jusqua:'עד', sansFin:'ללא תאריך סיום'},
+      jusqua:'עד', sansFin:'ללא תאריך סיום',
+      reponse:'תגובת השרת', envoye:'הנתונים שנשלחו', copier:'העתקת הפרטים',
+      echecAjout:'השמירה נכשלה', echecRetrait:'ההסרה נכשלה'},
 
 
     rite:{sefarde:'ספרדי',ashkenaze:'אשכנזי',habad:'חב״ד',mixte:'מעורב'},
@@ -6875,7 +6909,7 @@ async function diffuserPatch(syn,cases,auteur,at){
     patch, source:'manuel'};
   if(typeof SYN_OVERRIDES!=='undefined'&&SYN_OVERRIDES)SYN_OVERRIDES[cle]=rec;
   const ok=await fbWriteSynOverride(syn.id,rec);
-  if(!ok)showToast(t('edit.sendError'),{type:'error',duration:6000});
+  if(!ok)showToast(messageRefusFb(t('edit.sendError')),{type:'error',duration:9000});
   return ok;
 }
 
@@ -7456,6 +7490,14 @@ document.getElementById('obName').addEventListener('keypress',e=>{if(e.key==='En
 const OWNER_EMAILS=['noamamsellem@gmail.com'];
 const SYN_OVERRIDE_FRESH_MS=8*24*60*60*1000; // 8 jours
 let SYN_OVERRIDES={};
+// Détail du dernier refus Firebase, pour l'afficher au lieu d'un texte vague.
+let DERNIER_REFUS_FB=null;
+function messageRefusFb(base){
+  const d=DERNIER_REFUS_FB;
+  if(!d)return base;
+  const corps=String(d.corps||'').replace(/\s+/g,' ').trim().slice(0,140);
+  return base+(d.status?' · HTTP '+d.status:'')+(corps?' · '+corps:'');
+}
 
 function isOwner(){return !!(currentUser&&currentUser.email&&OWNER_EMAILS.includes(currentUser.email.toLowerCase()));}
 
@@ -7485,7 +7527,16 @@ async function fbReadSynOverrides(){
 async function fbWriteSynOverride(synId,obj){
   if(!FB_ENABLED()){const all=await fbReadSynOverrides();all[synId]=obj;localStorage.setItem('mlSynOverrides',JSON.stringify(all));return true;}
   const url=`${FIREBASE_CONFIG.databaseURL}/syn_overrides/${synId}.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  try{const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});return r.ok;}catch{return false;}
+  try{
+    const r=await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
+    // On garde le détail : « Permission denied » dit tout, « réessayez plus
+    // tard » n'apprend rien à personne, ni à l'utilisateur ni à nous.
+    DERNIER_REFUS_FB=r.ok?null:{status:r.status,corps:(await r.text()).slice(0,400),envoye:JSON.stringify(obj).slice(0,400)};
+    return r.ok;
+  }catch(e){
+    DERNIER_REFUS_FB={status:0,corps:'Réseau : '+(e&&e.message||e),envoye:JSON.stringify(obj).slice(0,400)};
+    return false;
+  }
 }
 
 // Applique les overrides Firebase (frais < 8 jours) sur SYNS, en place
