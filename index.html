@@ -1022,7 +1022,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
   letter-spacing:-.01em;white-space:nowrap;}
 
 /* --- §4 Ligne de traçabilité : une seule, 11 px, grise --- */
-.trace{margin-top:6px;font-size:11px;line-height:1.4;color:var(--ink-faint);}
+/* Cette ligne dit qui a vérifié l'horaire et quand : c'est ce qui inspire
+   confiance, elle ne doit pas se lire à la loupe. */
+.trace{margin-top:6px;font-size:12px;line-height:1.4;color:var(--ink-soft);}
+/* Moins de sept jours : en relatif, en bleu, avec une pastille. */
+.trace.recente{color:var(--blue-ink);font-weight:600;}
+.trace.recente::before{content:'';display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:var(--blue-fill);margin-inline-end:6px;
+  vertical-align:1px;}
 .stale-dot{display:inline-block;margin-inline-start:6px;padding:1px 7px;border-radius:var(--r-pill);
   background:var(--orange-bg);color:var(--orange);font-weight:700;font-size:10.5px;}
 
@@ -1121,7 +1128,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .mcard-name{font-size:15px;}
 .mcard-sub{font-size:12px;}
 .mcard-foot{min-height:20px;margin-top:3px;}
-.trace{font-size:10.5px;}
+.trace{font-size:12px;}
 
 /* Étoile favori : dans la ligne du bas, plus en position absolue */
 .mcard-foot{gap:6px;}
@@ -1173,7 +1180,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .mcard-fav,.more-link{position:relative;}
 
 /* La traçabilité peut se réduire, jamais les commandes */
-.mcard-foot .trace{flex:1;min-width:0;font-size:11.5px;}
+/* Même traitement que partout ailleurs : la ligne doit se lire pareil sur
+   la carte repliée, dans le déplié et dans la fiche. */
+.mcard-foot .trace{flex:1;min-width:0;}
 
 
 /* ============================================================
@@ -1260,7 +1269,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .locked-box .btn-primary{width:auto;padding:11px 22px;}
 
 /* La mention de mise à jour, une seule fois, sous le tableau */
-.detail-body .trace{margin-top:10px;font-size:11px;font-style:italic;color:var(--ink-faint);}
+.detail-body .trace{margin-top:10px;}
 
 /* ============================================================
    §4 — COHÉRENCE : on repeint les écrans hérités
@@ -3337,6 +3346,30 @@ function noteSynStamps(list){
   if(modifie){ try{ localStorage.setItem('mlSynStamps',JSON.stringify(SYN_STAMPS)); }catch(e){} }
 }
 
+// Dernière modification RÉELLE de chaque synagogue, construite depuis
+// l'historique Firebase. C'est la seule source qui porte à la fois la date
+// et l'auteur ; l'empreinte du Sheet ne dit que « le contenu a changé un
+// jour », et la même pour les 35.
+let SYN_MAJ={};
+
+async function chargerDatesMaj(){
+  let liste=[];
+  try{ liste=await fbReadContributions(); }catch(e){ return; }
+  const out={};
+  for(const c of liste||[]){
+    if(!c||c.synId==null)continue;
+    const at=c.at||c.submittedAt||0;
+    if(!at)continue;
+    const k=String(c.synId);
+    if(!out[k]||at>out[k].at)
+      out[k]={at,nom:String(c.auteurNom||'').trim(),email:String(c.auteurEmail||c.submittedBy||'').trim()};
+  }
+  SYN_MAJ=out;
+  // Ces dates arrivent APRÈS la première peinture : sans ce rendu, la liste
+  // resterait sur l'empreinte du Sheet. C'est exactement ce qui se passait.
+  refreshCurrentTab();
+}
+
 function synStamp(id){
   const r=SYN_STAMPS[id];
   return r&&r.since?r.since:null;
@@ -3352,25 +3385,59 @@ function fmtDayMonth(ts){
 const SIX_MONTHS_MS = 182*86400000;
 const ADMIN_LABELS = new Set(['noamamsellem@gmail.com','admin','équipe','equipe']);
 
-// Une seule ligne grise sous l'horaire. Jamais d'e-mail.
-function traceLine(syn){
+const SEPT_JOURS_MS = 7*86400000;
+
+// Qui a modifié cette synagogue, et quand. Ordre de vérité :
+//   1. l'historique Firebase — la seule source datée ET signée ;
+//   2. l'override, pour ce qui a été modifié avant que l'historique existe ;
+//   3. l'empreinte du Sheet, en dernier recours : elle ne distingue pas les
+//      synagogues entre elles et donnait la même date aux 35.
+function infoMaj(syn){
+  const c=SYN_MAJ[String(syn.id)];
+  if(c&&c.at)return {at:c.at,nom:c.nom,email:c.email,sur:"historique"};
   const ov=(typeof SYN_OVERRIDES!=='undefined'&&SYN_OVERRIDES)?SYN_OVERRIDES[syn.id]:null;
-  // Priorité : contribution tracée (avec auteur) > date de changement constatée
-  // des horaires de CETTE synagogue.
-  const at = (ov&&ov.updatedAt) ? ov.updatedAt : synStamp(syn.id);
-  if(!at)return '';
-  const stale = (Date.now()-at) > SIX_MONTHS_MS;
-  const badge = stale ? ` <span class="stale-dot">${t('trace.toCheck')}</span>` : '';
+  if(ov&&ov.updatedAt)return {at:ov.updatedAt,nom:String(ov.updatedByName||'').trim(),email:String(ov.updatedByEmail||'').trim(),sur:"override"};
+  const st=synStamp(syn.id);
+  // Empreinte du Sheet : elle dit « le contenu a changé un jour », pas qui
+  // ni vraiment quand — sur une première visite elle vaut aujourd'hui.
+  return st?{at:st,nom:'',email:'',sur:"empreinte"}:null;
+}
+
+// « il y a 2 jours » tant que c'est frais, une date ensuite.
+// En jours CALENDAIRES, pas en tranches de 24 h : deux modifications faites
+// le même jour, l'une le matin l'autre le soir, doivent se lire pareil.
+function joursDepuis(at){
+  const q=x=>Date.UTC(x.getFullYear(),x.getMonth(),x.getDate());
+  return Math.round((q(new Date())-q(new Date(at)))/86400000);
+}
+function fmtMajRelatif(at){
+  const j=joursDepuis(at);
+  if(j<=0)return t('trace.today');
+  if(j===1)return t('trace.yesterday');
+  return t('trace.daysAgo').replace('{n}',j);
+}
+
+// Une seule ligne sous l'horaire, la même sur la carte repliée, dans le
+// déplié et dans la fiche. Jamais d'e-mail.
+function traceLine(syn){
+  const info=infoMaj(syn);
+  if(!info||!info.at)return '';
+  const age=Date.now()-info.at;
+  // Une empreinte ne peut pas prétendre à la fraîcheur : on ne l'affiche
+  // qu'en date absolue, en gris, sans pastille.
+  const recent=info.sur!=="empreinte"&&joursDepuis(info.at)<7;
+  const stale=age>SIX_MONTHS_MS;
   let who='';
-  if(ov&&ov.updatedAt){
-    const raw=String(ov.updatedByName||'').trim();
-    if(raw){
-      who = (isAdminLabel(raw) || (ov.updatedByEmail&&isOwnerEmail(ov.updatedByEmail)))
-        ? ` ${t('trace.by')} ${t('trace.team')}`
-        : ` ${t('trace.by')} ${escapeHtml(shortName(raw))}`;
-    }
+  if(info.nom){
+    who=(isAdminLabel(info.nom)||(info.email&&isOwnerEmail(info.email)))
+      ? ' '+t('trace.by')+' '+t('trace.team')
+      : ' '+t('trace.by')+' '+escapeHtml(shortName(info.nom));
   }
-  return `<div class="trace">${t('trace.updated')} ${fmtDayMonth(at)}${who}${badge}</div>`;
+  const quand=recent
+    ? t('trace.updatedRel')+' '+fmtMajRelatif(info.at)
+    : t('trace.updated')+' '+fmtDayMonth(info.at);
+  const badge=stale?' <span class="stale-dot">'+t('trace.toCheck')+'</span>':'';
+  return '<div class="trace'+(recent?' recente':'')+'">'+quand+who+badge+'</div>';
 }
 function isAdminLabel(n){return ADMIN_LABELS.has(String(n).toLowerCase().trim());}
 function isOwnerEmail(e){return typeof OWNER_EMAILS!=='undefined'&&OWNER_EMAILS.includes(String(e).toLowerCase());}
@@ -5280,7 +5347,8 @@ const I18N={
     card:{showAll:'Tous les horaires',hideAll:'Masquer les horaires',
           noOfficeToday:"Pas d'office aujourd'hui",noHours2:"Horaires non renseignés",noHours:'Horaires indisponibles hors connexion',
           loginForAll:'Connectez-vous pour voir tous les horaires'},
-    trace:{updated:'Mis à jour le',by:'par',team:"l'équipe",toCheck:'À vérifier',
+    trace:{updated:'Mis à jour le',updatedRel:'Mis à jour',by:'par',team:"l'équipe",toCheck:'À vérifier',
+      today:"aujourd'hui",yesterday:'hier',daysAgo:'il y a {n} jours',
            verified1:'Vérifié par {who} le {when}',verifiedN:'Vérifié par {n} personnes · dernière fois le {when}'},
     itineraire:'Itinéraire', openWith:"Ouvrir l'itinéraire avec", range:'Plage horaire',
     filter:'Recherche avancée', apply:'Filtrer', reset:'Réinitialiser',
@@ -5362,7 +5430,8 @@ const I18N={
     card:{showAll:'All times',hideAll:'Hide times',
           noOfficeToday:'No service today',noHours2:'No times recorded',noHours:'Times unavailable offline',
           loginForAll:'Sign in to see all times'},
-    trace:{updated:'Updated on',by:'by',team:'the team',toCheck:'To verify',
+    trace:{updated:'Updated on',updatedRel:'Updated',by:'by',team:'the team',toCheck:'To verify',
+      today:'today',yesterday:'yesterday',daysAgo:'{n} days ago',
            verified1:'Confirmed by {who} on {when}',verifiedN:'Confirmed by {n} people · last on {when}'},
     itineraire:'Directions', openWith:'Open directions with', range:'Time range',
     filter:'Advanced search', apply:'Filter', reset:'Reset',
@@ -5444,7 +5513,8 @@ const I18N={
     card:{showAll:'כל הזמנים',hideAll:'הסתר זמנים',
           noOfficeToday:'אין תפילה היום',noHours2:'לא הוזנו זמנים',noHours:'הזמנים אינם זמינים במצב לא מקוון',
           loginForAll:'התחברו כדי לראות את כל הזמנים'},
-    trace:{updated:'עודכן ב־',by:'על ידי',team:'הצוות',toCheck:'לבדיקה',
+    trace:{updated:'עודכן ב־',updatedRel:'עודכן',by:'על ידי',team:'הצוות',toCheck:'לבדיקה',
+      today:'היום',yesterday:'אתמול',daysAgo:'לפני {n} ימים',
            verified1:'אושר על ידי {who} ב־{when}',verifiedN:'אושר על ידי {n} אנשים · לאחרונה ב־{when}'},
     itineraire:'ניווט', openWith:'פתח ניווט באמצעות', range:'טווח שעות',
     filter:'חיפוש מתקדם', apply:'סנן', reset:'איפוס',
@@ -6975,6 +7045,9 @@ async function appliquerHoraire({synId,keys,type,avant,apres,action}){
     auteur:currentUser?currentUser.email:'invité'
   });
 
+  // On tient l'index à jour tout de suite : sinon la ligne « Mis à jour »
+  // ne bougerait qu'au prochain chargement de l'application.
+  SYN_MAJ[String(synId)]={at:maintenant,nom:auteur,email:currentUser?currentUser.email:''};
   noteSynStamps([syn]);
   refreshCurrentTab();
   renderShabbatBand();
@@ -8155,6 +8228,9 @@ async function init(){
   // pas retarder l'affichage des minyanim.
   // Le bandeau se charge en arrière-plan : il ne doit rien retarder.
   chargerDedicaces().catch(()=>{});
+  // Les dates de mise à jour aussi : elles arrivent après le premier rendu,
+  // et déclenchent elles-mêmes le repaint.
+  chargerDatesMaj().catch(()=>{});
 
   loadMikvaot().then(m=>{
     MIKVAOT=m;
