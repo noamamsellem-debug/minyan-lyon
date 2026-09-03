@@ -5347,6 +5347,7 @@ const I18N={
     card:{showAll:'Tous les horaires',hideAll:'Masquer les horaires',
           noOfficeToday:"Pas d'office aujourd'hui",noHours2:"Horaires non renseignés",noHours:'Horaires indisponibles hors connexion',
           loginForAll:'Connectez-vous pour voir tous les horaires'},
+    season:{year:"Toute l'année",summer:"Heure d'été",winter:"Heure d'hiver"},
     trace:{updated:'Mis à jour le',updatedRel:'Mis à jour',by:'par',team:"l'équipe",toCheck:'À vérifier',
       today:"aujourd'hui",yesterday:'hier',daysAgo:'il y a {n} jours',
            verified1:'Vérifié par {who} le {when}',verifiedN:'Vérifié par {n} personnes · dernière fois le {when}'},
@@ -5430,6 +5431,7 @@ const I18N={
     card:{showAll:'All times',hideAll:'Hide times',
           noOfficeToday:'No service today',noHours2:'No times recorded',noHours:'Times unavailable offline',
           loginForAll:'Sign in to see all times'},
+    season:{year:'All year',summer:'Summer time',winter:'Winter time'},
     trace:{updated:'Updated on',updatedRel:'Updated',by:'by',team:'the team',toCheck:'To verify',
       today:'today',yesterday:'yesterday',daysAgo:'{n} days ago',
            verified1:'Confirmed by {who} on {when}',verifiedN:'Confirmed by {n} people · last on {when}'},
@@ -5513,6 +5515,7 @@ const I18N={
     card:{showAll:'כל הזמנים',hideAll:'הסתר זמנים',
           noOfficeToday:'אין תפילה היום',noHours2:'לא הוזנו זמנים',noHours:'הזמנים אינם זמינים במצב לא מקוון',
           loginForAll:'התחברו כדי לראות את כל הזמנים'},
+    season:{year:'כל השנה',summer:'שעון קיץ',winter:'שעון חורף'},
     trace:{updated:'עודכן ב־',updatedRel:'עודכן',by:'על ידי',team:'הצוות',toCheck:'לבדיקה',
       today:'היום',yesterday:'אתמול',daysAgo:'לפני {n} ימים',
            verified1:'אושר על ידי {who} ב־{when}',verifiedN:'אושר על ידי {n} אנשים · לאחרונה ב־{when}'},
@@ -6002,7 +6005,11 @@ function openPrivacy(){
 // === §3.6 AJOUTER / MODIFIER UN MINYAN ======================
 // ============================================================
 const DAY_CHIPS=[['ouvrables','Jours ouvrables'],['0','Dim'],['1','Lun'],['2','Mar'],['3','Mer'],['4','Jeu'],['5','Ven'],['6','Chabbat']];
-const SAISON_CHIPS=[['annee','כל השנה'],['ete','שעון קיץ'],['hiver','שעון חורף']];
+// Les libellés étaient codés en dur en hébreu : ils s'affichaient tels quels
+// en français et en anglais. Comme DAY_CHIPS, la liste est recalculée au
+// rendu pour suivre la langue active. Les VALEURS ne changent pas : ce sont
+// elles qui partent en base.
+const saisonChips=()=>[['annee',t('season.year')],['ete',t('season.summer')],['hiver',t('season.winter')]];
 let FORM_STATE={};
 
 function formChips(field,options,multi){
@@ -6046,7 +6053,7 @@ function minyanFormBody(opts){
     <div class="fld"><span class="fld-lbl">Jours <span class="req">*</span></span>
       ${formChips('days',DAY_CHIPS,true)}</div>
     <div class="fld"><span class="fld-lbl">Horaire <span class="req">*</span></span>
-      ${formChips('saison',SAISON_CHIPS)}</div>
+      ${formChips('saison',saisonChips())}</div>
     <div class="fld"><span class="fld-lbl">Détails supplémentaires</span>
       <textarea class="txtarea" id="mfNote" placeholder="Notes, changements saisonniers…">${escapeHtml(FORM_STATE.note||'')}</textarea></div>`;
 }
@@ -6599,15 +6606,22 @@ async function createTempMinyan(){
     coords:FORM_STATE.coords||null,
     timestamp
   };
-  const res=await fbAtomicUpdate(list=>{list.push(newMinyan);return 'ok';});
-  if(res==='ok'){
-    closeFormSheet();
-    showToast('Minyan temporaire créé. Partagez-le !',{type:'success',duration:4500});
-    notifyNearbyUsers(newMinyan);
-    setTimeout(()=>{refreshHomeImpromptu();shareMinyan(newMinyan.id,newMinyan);},250);
-  }else{
-    showToast('Erreur. Réessayez.',{type:'error'});
+  // Une seule clé écrite : la création ne dépend plus de la validité des
+  // entrées déjà en base.
+  const r=await fbEcrireMinyan(newMinyan.id,newMinyan);
+  if(!r.ok){
+    noterEchecImp('création',r,r.charge);
+    showToast(texteEchecImp('Création impossible'),{type:'error',duration:12000});
+    return;
   }
+  closeFormSheet();
+  showToast('Minyan temporaire créé. Partagez-le !',{type:'success',duration:4500});
+  notifyNearbyUsers(newMinyan);
+  CACHED_MINYANS=(CACHED_MINYANS||[]).concat([Object.assign({_cle:newMinyan.id},newMinyan)]);
+  refreshHomeImpromptu();
+  // Le partage reste proposé, mais il n'est plus le seul moment possible :
+  // chaque carte porte son propre bouton (cf. refreshHomeImpromptu).
+  shareMinyan(newMinyan.id,newMinyan);
 }
 
 // Notification locale aux abonnés dans le rayon choisi (§3.7 / §3.8).
@@ -7198,49 +7212,134 @@ const IMP_URGENT_WINDOW_MIN=15;
 let CACHED_MINYANS=[];
 let fbStreamSource=null;
 
+// Dernier échec Firebase sur /impromptu : étape, code HTTP, corps, charge
+// envoyée. « Erreur. Réessayez. » ne disait ni laquelle des quatre causes
+// possibles, ni où regarder.
+let DERNIER_ECHEC_IMP = null;
+
+function noterEchecImp(etape, r, charge){
+  DERNIER_ECHEC_IMP = {
+    etape,
+    status: (r && r.status) || 0,
+    corps: (r && r.corps) || '',
+    charge: charge ? String(charge).slice(0, 500) : ''
+  };
+  console.error('[Minyan Lyon] /impromptu — échec à l\'étape « ' + etape + ' »',
+    DERNIER_ECHEC_IMP.status ? 'HTTP ' + DERNIER_ECHEC_IMP.status : '(pas de réponse)',
+    DERNIER_ECHEC_IMP.corps, DERNIER_ECHEC_IMP);
+  return DERNIER_ECHEC_IMP;
+}
+
+// Texte court et parlant : on doit savoir en deux secondes si c'est un refus
+// de règle, une validation, ou du réseau.
+function texteEchecImp(base){
+  const d = DERNIER_ECHEC_IMP;
+  if (!d) return base;
+  const c = String(d.corps || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+  let quoi;
+  if (d.status === 401 || d.status === 403) quoi = 'refus des règles Firebase';
+  else if (d.status === 400) quoi = 'données refusées à la validation';
+  else if (d.status === 412) quoi = 'conflit d\'écriture simultanée';
+  else if (!d.status) quoi = 'réseau injoignable';
+  else quoi = 'réponse inattendue';
+  return base + ' — ' + quoi + (d.status ? ' (HTTP ' + d.status + ', étape ' + d.etape + ')' : ' (étape ' + d.etape + ')') + (c ? ' · ' + c : '');
+}
+
+function urlImp(cle){
+  const base = FIREBASE_CONFIG.databaseURL + '/impromptu';
+  return base + (cle == null ? '' : '/' + encodeURIComponent(cle)) + '.json';
+}
+
+// Lecture. Chaque entrée porte _cle, la clé RTDB réelle : les données
+// anciennes sont un TABLEAU (clés 0, 1, 2…), les nouvelles un objet indexé
+// par id. Les deux formes se lisent, et se modifient, par leur clé.
 function fbReadMinyans(){
-  if(!FB_ENABLED()){try{return Promise.resolve(JSON.parse(localStorage.getItem('mlImpromptu')||'[]'));}catch{return Promise.resolve([]);}}
-  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  return fetch(url,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(data=>{
-    if(!data)return [];
-    return Array.isArray(data)?data.filter(Boolean):Object.values(data);
-  }).catch(()=>[]);
-}
-function fbWriteMinyans(list){
-  if(!FB_ENABLED()){localStorage.setItem('mlImpromptu',JSON.stringify(list));return Promise.resolve(true);}
-  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  return fetch(url,{method:'PUT',body:JSON.stringify(list)}).then(r=>r.ok).catch(()=>false);
-}
-
-// Atomic update via ETag/If-Match. Returns 'ok' | 'full' | 'gone' | 'error'.
-async function fbAtomicUpdate(mutator){
   if(!FB_ENABLED()){
-    let list=[];try{list=JSON.parse(localStorage.getItem('mlImpromptu')||'[]');}catch{}
-    list=cleanExpiredMinyans(list);
-    const res=mutator(list);
-    if(res!=='ok')return res;
-    localStorage.setItem('mlImpromptu',JSON.stringify(list));
-    return 'ok';
+    try{
+      const l = JSON.parse(localStorage.getItem('mlImpromptu')||'[]');
+      return Promise.resolve(l.map((m,i)=>Object.assign({_cle:String(i)},m)));
+    }catch{ return Promise.resolve([]); }
   }
-  const url=`${FIREBASE_CONFIG.databaseURL}/impromptu.json?auth=${FIREBASE_CONFIG.apiKey}`;
-  for(let i=0;i<6;i++){
-    const r=await fetch(url,{cache:'no-cache',headers:{'X-Firebase-ETag':'true'}}).catch(()=>null);
-    if(!r||!r.ok)return 'error';
-    const etag=r.headers.get('ETag')||'';
-    const data=await r.json().catch(()=>null);
-    let list=!data?[]:(Array.isArray(data)?data.filter(Boolean):Object.values(data));
-    list=cleanExpiredMinyans(list);
-    const res=mutator(list);
-    if(res!=='ok')return res;
-    const w=await fetch(url,{method:'PUT',headers:{'If-Match':etag,'Content-Type':'application/json'},body:JSON.stringify(list)}).catch(()=>null);
-    if(!w)return 'error';
-    if(w.ok)return 'ok';
-    if(w.status===412){await new Promise(rs=>setTimeout(rs,80+i*60));continue;}
-    return 'error';
-  }
-  return 'error';
+  return fetch(urlImp(null),{cache:'no-cache'})
+    .then(r=>r.ok?r.json():null)
+    .then(data=>{
+      if(!data)return [];
+      return Object.keys(data).filter(k=>data[k]).map(k=>Object.assign({_cle:k},data[k]));
+    })
+    .catch(()=>[]);
 }
 
+// Écriture d'UNE entrée. On n'envoie plus le tableau entier : une seule
+// entrée mal formée — ou une ancienne restée en base — faisait rejeter
+// l'écriture de tout le monde.
+async function fbEcrireMinyan(cle, obj, etag){
+  if(!FB_ENABLED()){
+    try{
+      const l=JSON.parse(localStorage.getItem('mlImpromptu')||'[]').filter(m=>m&&m.id!==obj.id);
+      l.push(obj); localStorage.setItem('mlImpromptu',JSON.stringify(l)); return {ok:true};
+    }catch(e){ return {ok:false,corps:String(e)}; }
+  }
+  const entetes={'Content-Type':'application/json'};
+  if(etag)entetes['If-Match']=etag;
+  const charge=JSON.stringify(obj);
+  try{
+    const r=await fetch(urlImp(cle),{method:'PUT',headers:entetes,body:charge});
+    if(r.ok)return {ok:true,status:r.status};
+    return {ok:false,status:r.status,corps:(await r.text()).slice(0,400),charge};
+  }catch(e){ return {ok:false,status:0,corps:'Réseau : '+(e&&e.message||e),charge}; }
+}
+
+async function fbSupprimerMinyan(cle){
+  if(!FB_ENABLED()){
+    try{
+      const l=JSON.parse(localStorage.getItem('mlImpromptu')||'[]');
+      l.splice(Number(cle),1); localStorage.setItem('mlImpromptu',JSON.stringify(l)); return {ok:true};
+    }catch(e){ return {ok:false,corps:String(e)}; }
+  }
+  try{
+    const r=await fetch(urlImp(cle),{method:'DELETE'});
+    if(r.ok)return {ok:true,status:r.status};
+    return {ok:false,status:r.status,corps:(await r.text()).slice(0,400)};
+  }catch(e){ return {ok:false,status:0,corps:'Réseau : '+(e&&e.message||e)}; }
+}
+
+// Modification concurrente d'UNE entrée, par ETag. La course qui compte est
+// celle de la dixième place : deux personnes qui s'inscrivent en même temps.
+async function fbMajMinyan(cle, mutateur){
+  if(!FB_ENABLED()){
+    let l=[]; try{ l=JSON.parse(localStorage.getItem('mlImpromptu')||'[]'); }catch{}
+    const m=l[Number(cle)];
+    if(!m)return {ok:false,issue:'gone'};
+    const r=mutateur(m);
+    if(r!=='ok')return {ok:false,issue:r};
+    localStorage.setItem('mlImpromptu',JSON.stringify(l)); return {ok:true};
+  }
+  for(let i=0;i<5;i++){
+    let r;
+    try{ r=await fetch(urlImp(cle),{cache:'no-cache',headers:{'X-Firebase-ETag':'true'}}); }
+    catch(e){ return {ok:false,status:0,corps:'Réseau : '+(e&&e.message||e),etape:'lecture'}; }
+    if(!r.ok)return {ok:false,status:r.status,corps:(await r.text()).slice(0,400),etape:'lecture'};
+    const etag=r.headers.get('ETag')||'';
+    const m=await r.json().catch(()=>null);
+    if(!m)return {ok:false,issue:'gone'};
+    const verdict=mutateur(m);
+    if(verdict!=='ok')return {ok:false,issue:verdict};
+    const w=await fbEcrireMinyan(cle,m,etag);
+    if(w.ok)return {ok:true};
+    if(w.status===412){ await new Promise(rs=>setTimeout(rs,80+i*60)); continue; }
+    return Object.assign({etape:'écriture'},w);
+  }
+  return {ok:false,status:412,corps:'Trop de conflits successifs',etape:'etag-retry'};
+}
+
+// Purge des expirés, clé par clé. L'ancienne version réécrivait le tableau
+// entier, ce qui échouait dès qu'une entrée ancienne ne passait plus les
+// règles — et interdisait de revenir à une liste vide.
+async function purgerExpires(entrees){
+  const morts=(entrees||[]).filter(m=>m&&(!m.timestamp||(m.timestamp+IMP_EXPIRY_MS)<Date.now()));
+  for(const m of morts){ await fbSupprimerMinyan(m._cle); }
+  return morts.length;
+}
 // Server-Sent Events live listener — no Firebase SDK needed.
 // Auto-reconnects on transient errors. A 60s polling tick covers the rare case
 // where the stream is silently dropped (corporate proxies, etc.).
@@ -7295,10 +7394,11 @@ function setImpMode(mode){currentImpMode=mode;const join=document.getElementById
 async function joinMinyan(id){
   const userId=getUserId();
   let outcome=null;
-  const res=await fbAtomicUpdate(list=>{
-    const m=list.find(x=>x&&x.id===id);
+  const cible=(CACHED_MINYANS||[]).find(x=>x&&x.id===id);
+  if(!cible){showToast('Ce minyan n\'existe plus.',{type:'error'});loadImpromptu();return;}
+  const res=await fbMajMinyan(cible._cle,m=>{
     if(!m){outcome='gone';return 'gone';}
-    if(!Array.isArray(m.participants))m.participants=[];
+    if(!Array.isArray(m.participants))m.participants=m.participants?Object.values(m.participants):[];
     if(m.participants.includes(userId)){
       m.participants=m.participants.filter(p=>p!==userId);
       m.confirmes=Math.max((m.confirmes||1)-1,0);
@@ -7311,9 +7411,12 @@ async function joinMinyan(id){
     }
     return 'ok';
   });
-  if(res==='full'){showToast('Complet ! Quelqu\'un vient de prendre la dernière place.',{type:'error'});}
-  else if(res==='gone'){showToast('Ce minyan n\'existe plus.',{type:'error'});}
-  else if(res==='error'){showToast('Erreur réseau. Réessaye.',{type:'error'});}
+  if(res.issue==='full'){showToast('Complet ! Quelqu\'un vient de prendre la dernière place.',{type:'error'});}
+  else if(res.issue==='gone'){showToast('Ce minyan n\'existe plus.',{type:'error'});}
+  else if(!res.ok){
+    noterEchecImp(res.etape||'inscription',res,res.charge);
+    showToast(texteEchecImp('Inscription impossible'),{type:'error',duration:12000});
+  }
   else if(outcome==='joined'){showToast('Inscrit ✓',{type:'success',duration:2000});}
   else if(outcome==='left'){showToast('Désinscrit',{duration:2000});}
   loadImpromptu();
@@ -7321,14 +7424,14 @@ async function joinMinyan(id){
 
 async function deleteMinyan(id){
   if(!confirm('Supprimer ce minyan ?'))return;
-  const res=await fbAtomicUpdate(list=>{
-    const idx=list.findIndex(m=>m&&m.id===id);
-    if(idx<0)return 'gone';
-    list.splice(idx,1);
-    return 'ok';
-  });
-  if(res==='ok')showToast('Minyan supprimé',{duration:2000});
-  else showToast('Erreur',{type:'error'});
+  const cible=(CACHED_MINYANS||[]).find(m=>m&&m.id===id);
+  if(!cible){showToast('Ce minyan n\'existe plus.',{duration:2000});loadImpromptu();return;}
+  const res=await fbSupprimerMinyan(cible._cle);
+  if(res.ok)showToast('Minyan supprimé',{duration:2000});
+  else{
+    noterEchecImp('suppression',res);
+    showToast(texteEchecImp('Suppression impossible'),{type:'error',duration:12000});
+  }
   loadImpromptu();
 }
 
@@ -7347,6 +7450,10 @@ async function loadImpromptu(highlightId){
   if(!list)return;
   if(!CACHED_MINYANS||CACHED_MINYANS.length===0)list.innerHTML=impSkeletonHtml(3);
   let minyans=await fbReadMinyans();
+  // On efface vraiment les expirés, clé par clé, au lieu de les masquer :
+  // l'ancienne purge réécrivait le tableau entier et échouait dès qu'une
+  // entrée ancienne ne passait plus les règles.
+  purgerExpires(minyans).catch(()=>{});
   minyans=cleanExpiredMinyans(minyans);
   CACHED_MINYANS=minyans;
   refreshHomeImpromptu();
@@ -7383,11 +7490,18 @@ function shareMinyan(id, minyanArg){
   if(!m){showToast('Minyan introuvable',{type:'error'});return;}
   const url=buildShareUrl(id);
   const when=fmtImpDateTime(m.timestamp);
-  const text=`✡ Minyan ${m.type} — ${when}\n📍 ${m.lieu}\n${url}`;
+  const text='✡ Minyan '+m.type+' — '+when+'\n📍 '+m.lieu+'\n'+url;
+  const versWhatsApp=()=>window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
   if(navigator.share){
-    navigator.share({title:'Minyan improvisé',text,url}).catch(()=>{});
+    // navigator.share rejette aussi bien sur annulation que sur échec réel,
+    // et l'ancien .catch(()=>{}) ne faisait alors rien du tout. On retombe
+    // sur WhatsApp, sauf si l'utilisateur a explicitement annulé.
+    navigator.share({title:'Minyan improvisé',text,url}).catch(err=>{
+      const annule=err&&(err.name==='AbortError'||/abort|cancel/i.test(String(err.message||'')));
+      if(!annule)versWhatsApp();
+    });
   }else{
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+    versWhatsApp();
   }
 }
 
