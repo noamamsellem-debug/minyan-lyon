@@ -69,6 +69,7 @@
   --ink:#111827;
   --ink-soft:#6B7280;
   --ink-faint:#9CA3AF;
+  --ink-onsoft:#616A78;
   /* Traits */
   --line:#E5E7EB;
   --line-soft:#F0F1F3;
@@ -111,6 +112,7 @@
     --ink:#E8EDF5;
     --ink-soft:#9AA6B8;
     --ink-faint:#6B7688;
+    --ink-onsoft:#9AA6B8;
     --line:#243044;
     --line-soft:#1B2432;
     --dark:#1E4FBF;
@@ -145,6 +147,7 @@
   --ink:#E8EDF5;
   --ink-soft:#9AA6B8;
   --ink-faint:#6B7688;
+  --ink-onsoft:#9AA6B8;
   --line:#243044;
   --line-soft:#1B2432;
   --dark:#1E4FBF;
@@ -799,6 +802,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
   cursor:pointer;font-family:inherit;font-size:15.5px;color:var(--ink);text-align:left;}
 .drawer-item:active{background:var(--bg-soft);}
 .drawer-item svg{width:21px;height:21px;stroke:var(--blue);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+/* Le logo Tsedakif garde ses couleurs d'origine, là où les autres icônes sont
+   en bleu uniforme : c'est ce qui le fait ressortir. Le rognage circulaire
+   supprime le fond blanc du JPEG, qui formerait sinon un carré en thème
+   sombre. Même gabarit de 21 px que les SVG voisins, même alignement. */
+.drawer-logo{width:21px;height:21px;flex-shrink:0;border-radius:50%;
+  object-fit:cover;display:block;}
 .drawer-foot{border-top:1px solid var(--line);padding:16px 20px calc(16px + env(safe-area-inset-bottom));}
 .drawer-foot .lbl{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px;}
 .drawer-foot .lbl svg{width:19px;height:19px;stroke:var(--blue);fill:none;stroke-width:1.9;}
@@ -926,7 +935,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 .tc-body{flex:1;min-width:0;}
 .tc-t{font-size:15px;font-weight:700;color:var(--ink);}
 .tc-s{font-size:13.5px;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
-.tc-src{font-size:11.5px;color:var(--ink-faint);margin-top:8px;font-style:italic;}
+/* Cette note explique POURQUOI un champ est désactivé ou d’où vient une
+   donnée : elle doit se lire. --ink-faint n’y atteignait que 2,54 en clair. */
+.tc-src{font-size:11.5px;color:var(--ink-soft);margin-top:8px;font-style:italic;}
 .tc-badge{flex-shrink:0;font-size:12px;font-weight:650;color:var(--blue);background:var(--card-bg);
   border-radius:var(--r-pill);padding:5px 11px;white-space:nowrap;}
 .tc-card.hot{background:linear-gradient(135deg,#FCE4CC 0%,#F8D5A8 100%);border-color:rgba(232,145,43,.4);}
@@ -1436,6 +1447,132 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
 
 /* Feuille basse au clic sur un pin — au-dessus des couches Leaflet */
 .map-sheet{z-index:1001;}
+
+/* ===== Écrans 2 & 3 — formulaires ================================= */
+/* Un champ non modifiable doit se voir comme tel, pas ressembler à une
+   saisie qui ne réagit pas. */
+.inp.bloque{background:var(--bg-soft);color:var(--ink-onsoft);cursor:not-allowed;
+  display:flex;align-items:center;min-height:44px;}
+.fld-lock{display:inline-flex;vertical-align:-2px;margin-inline-start:5px;}
+.fld-lock svg{width:13px;height:13px;stroke:var(--ink-soft);fill:none;stroke-width:2;}
+.fld-2{display:flex;gap:10px;}
+.fld-2>.fld{flex:1;min-width:0;}
+
+.rel-bloc{margin-top:12px;}
+.rel-ecart{display:flex;align-items:center;gap:10px;}
+.rel-ecart .chips{flex:0 0 auto;}
+.inp.rel-min{width:84px;flex:0 0 auto;}
+.rel-unite{font-size:14px;color:var(--ink-soft);}
+/* L'heure réellement enregistrée, montrée avant de valider : c'est elle qui
+   part en base, pas la règle qui l'a produite. */
+.rel-apercu{margin-top:12px;background:var(--blue-soft);border-radius:12px;padding:11px 13px;}
+.rel-titre{font-size:12px;font-weight:700;color:var(--blue-ink);
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;}
+.rel-ligne{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:14.5px;color:var(--ink);padding:2px 0;}
+.rel-ligne b{font-size:16px;font-weight:700;}
+.rel-alerte{margin-top:8px;font-size:12.5px;color:var(--red);}
+.rel-vide{margin-top:12px;font-size:13px;color:var(--ink-soft);
+  background:var(--bg-soft);border-radius:12px;padding:11px 13px;}
+
+/* ===== Écran 5 — raccourcis de filtre ============================= */
+.raccourcis{display:flex;flex-direction:column;gap:8px;padding:0 16px 10px;}
+.rc-rang{display:flex;gap:8px;}
+.rc-chip{flex:1;border:1px solid var(--line);background:var(--surface);
+  border-radius:var(--r-pill);padding:10px 6px;font-family:inherit;font-size:14px;
+  font-weight:600;color:var(--ink-soft);cursor:pointer;white-space:nowrap;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;}
+.rc-chip.on{background:var(--blue-fill);border-color:var(--blue-fill);color:#fff;}
+/* Sans position, « Le plus proche » ne peut rien trier : grisé plutôt que
+   cliquable et sans effet. */
+.rc-chip.off{opacity:.45;cursor:not-allowed;}
+
+/* ===== Écran 1 — fiche synagogue ================================== */
+.fs-banner{position:relative;height:170px;background:var(--bg-soft);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  margin:-16px -16px 0;}
+.fs-banner-glyph{width:74px;height:52px;opacity:.28;}
+.fs-banner-txt{font-size:14px;color:var(--ink-onsoft);}
+.fs-banner-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.fs-round{position:absolute;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:50%;
+  background:rgba(70,78,92,.62);border:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;color:#fff;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+.fs-round svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.fs-round.gauche{inset-inline-start:16px;} .fs-round.droite{inset-inline-end:16px;}
+
+.fs-carte{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);
+  margin:-42px 4px 0;padding:20px 18px 18px;position:relative;z-index:1;}
+.fs-nom{font-size:23px;font-weight:800;text-align:center;color:var(--ink);
+  letter-spacing:-.3px;margin:0 0 14px;line-height:1.2;}
+.fs-ligne{display:flex;align-items:center;gap:12px;}
+.fs-adr{flex:1;min-width:0;display:flex;gap:7px;align-items:flex-start;
+  background:none;border:none;padding:0;text-align:start;cursor:pointer;font-family:inherit;}
+.fs-adr .pin{width:15px;height:18px;flex-shrink:0;margin-top:1px;}
+.fs-adr-lbl{font-size:12px;color:var(--ink-soft);display:block;}
+.fs-adr-txt{font-size:14px;color:var(--ink);line-height:1.3;}
+.fs-go{background:var(--blue-fill);color:#fff;border:none;border-radius:var(--r-pill);
+  padding:11px 16px;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.fs-go svg{width:15px;height:15px;stroke:#fff;fill:#fff;}
+.fs-km{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;
+  font-size:14px;font-weight:600;color:var(--ink-soft);}
+.fs-km .pin{width:14px;height:17px;}
+
+/* Filtre en pilules, sur rail gris */
+.fs-filtre{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-pill);padding:4px;margin:18px 4px 14px;}
+.fs-filtre button{flex:1;border:none;background:none;border-radius:var(--r-pill);
+  padding:9px 4px;font-family:inherit;font-size:14px;font-weight:600;color:var(--ink-soft);
+  cursor:pointer;white-space:nowrap;transition:background .15s ease,color .15s ease;}
+.fs-filtre button.on{background:var(--blue-fill);color:#fff;}
+
+/* Cartes de minyan */
+.mn-carte{background:var(--blue-soft);border-radius:16px;padding:14px 16px 12px;margin:0 4px 12px;}
+.mn-titre{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.2px;}
+.mn-saison{font-size:14px;font-weight:600;color:var(--ink-soft);}
+.mn-ligne{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:9px;}
+.mn-crayon{background:none;border:none;padding:4px;cursor:pointer;display:flex;flex-shrink:0;}
+.mn-crayon svg{width:18px;height:18px;stroke:var(--blue-fill);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.mn-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 12px;
+  font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;}
+.mn-chip svg{width:14px;height:14px;stroke:var(--ink-soft);fill:none;stroke-width:1.9;}
+.mn-pouce{background:none;border:none;padding:4px;cursor:pointer;display:flex;flex-shrink:0;}
+.mn-pouce svg{width:21px;height:21px;stroke:var(--blue-fill);fill:var(--blue-fill);stroke-width:1.4;}
+.mn-pouce.fait svg{opacity:.45;}
+.mn-verif{margin-top:6px;text-align:end;font-size:12.5px;font-style:italic;color:var(--ink-soft);}
+
+.fs-fab{position:fixed;inset-inline-start:20px;bottom:calc(24px + env(safe-area-inset-bottom));
+  width:58px;height:58px;border-radius:18px;background:var(--blue-fill);color:#fff;border:none;
+  box-shadow:var(--shadow-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  z-index:310;}
+.fs-fab svg{width:26px;height:26px;stroke:#fff;stroke-width:2.4;stroke-linecap:round;}
+.fs-vide{text-align:center;color:var(--ink-faint);font-size:14px;padding:26px 10px;}
+
+/* ===== Écran 4 — feuille de la carte ============================== */
+/* .map-sheet ne peint rien : c'était la carte de minyan qu'elle contenait
+   qui apportait le fond blanc. Ce panneau le reprend à son compte. */
+.ms-panneau{background:var(--surface);border-radius:20px;box-shadow:var(--shadow-lg);
+  padding:12px 16px 16px;}
+.ms-poignee{width:44px;height:5px;border-radius:3px;background:var(--line);
+  margin:0 auto 12px;}
+.ms-tete{position:relative;text-align:center;padding:0 44px 12px;}
+.ms-x{position:absolute;inset-inline-start:0;top:-2px;width:32px;height:32px;border:none;
+  background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.ms-x svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;}
+.ms-nom{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.2px;line-height:1.25;}
+.ms-adr{font-size:14.5px;color:var(--ink-soft);margin-top:3px;}
+.ms-lbl{font-size:15px;font-weight:700;color:var(--ink-soft);margin:4px 0 8px;}
+.ms-rang{display:flex;align-items:center;gap:11px;background:var(--bg-soft);
+  border-radius:12px;padding:11px 13px;margin-bottom:9px;}
+.ms-rang svg{width:19px;height:19px;stroke:var(--ink-soft);fill:none;stroke-width:1.8;flex-shrink:0;}
+.ms-priere{flex:1;min-width:0;font-size:15.5px;font-weight:700;color:var(--ink);}
+.ms-heure{background:var(--blue-soft);color:var(--blue-ink);border:1px solid var(--blue-fill);
+  border-radius:var(--r-pill);padding:5px 13px;font-size:14.5px;font-weight:700;white-space:nowrap;}
+.ms-go{width:100%;margin-top:6px;background:var(--blue-fill);color:#fff;border:none;
+  border-radius:var(--r-pill);padding:15px;font-family:inherit;font-size:16px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;}
+.ms-go svg{width:17px;height:17px;stroke:#fff;fill:#fff;}
 .map-debug{position:absolute;left:8px;right:8px;top:8px;z-index:1002;
   background:rgba(17,24,39,.93);color:#E5E7EB;border-radius:10px;padding:8px 10px;
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;line-height:1.45;}
@@ -1691,6 +1828,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
       </button>
     </div>
 
+    <!-- §Écran 5 : raccourcis de filtre, sous le bouton principal -->
+    <div class="raccourcis hidden" id="raccourcis"></div>
+
     <!-- Slider de plage horaire à deux poignées -->
     <div class="rangebar collapsed" id="rangeBar">
       <div class="rb-row">
@@ -1802,6 +1942,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);}
     </button>
     <button class="drawer-item hidden" id="drawerGeoDiag" onclick="closeDrawer();openGeoDiag()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg><span>Diagnostic géoloc</span>
+    </button>
+    <button class="drawer-item" id="drawerTsedaka" onclick="closeDrawer();ouvrirTsedaka()">
+      <img class="drawer-logo" src="tsedakif.jpg" alt="" width="21" height="21" loading="lazy" decoding="async"/><span id="drawerTsedakaLbl">Tsedaka</span>
     </button>
     <button class="drawer-item hidden" id="drawerInvite" onclick="closeDrawer();openInvite()">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg><span id="drawerInviteLbl">Inviter un ami</span>
@@ -3078,6 +3221,8 @@ const ICON={
   scroll:_sv('<path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 0 2 2H8a2 2 0 0 1-2-2z"/><line x1="9.5" y1="8.5" x2="15.5" y2="8.5"/><line x1="9.5" y1="12" x2="15.5" y2="12"/>'),
   wheel:_sv('<circle cx="11" cy="5" r="1.8"/><path d="M10 9v5h5l2.5 5"/><path d="M14.5 14a5.5 5.5 0 1 1-5-4.9"/>'),
   park:_sv('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9.5 17V8h3.2a2.6 2.6 0 0 1 0 5.2H9.5"/>'),
+  plus:_sv('<path d="M12 5v14M5 12h14"/>'),
+  close:_sv('<path d="M6 6l12 12M18 6L6 18"/>'),
   sparkle:_sv('<path d="M12 3.5l1.8 4.7L18.5 10l-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/>')
 };
 
@@ -3134,19 +3279,32 @@ function groupPrayers(syn){
 }
 
 // « il y a 2 semaines », « il y a 1 mois », « il y a 2 ans »
-function fmtRelativeLong(ts){
-  if(!ts)return '';
-  const d=Math.floor((Date.now()-ts)/86400000);
-  if(d<1)return "aujourd'hui";
-  if(d===1)return 'hier';
-  if(d<7)return `il y a ${d} jours`;
-  const w=Math.floor(d/7);
-  if(d<31)return `il y a ${w} semaine${w>1?'s':''}`;
-  const mo=Math.floor(d/30);
-  if(d<365)return `il y a ${mo} mois`;
-  const y=Math.floor(d/365);
-  return `il y a ${y} an${y>1?'s':''}`;
+// Ancienneté en clair. Elle ne s'affiche que si l'horodatage est croyable :
+// une valeur absente, illisible, antérieure à l'application ou située dans le
+// futur produirait « il y a 56 ans », ce qu'on a déjà vu passer en production.
+const HORODATAGE_PLANCHER = Date.UTC(2015,0,1);
+
+function horodatageValide(ts){
+  const n = typeof ts==='number' ? ts : Number(ts);
+  if(!Number.isFinite(n)) return null;
+  if(n <= HORODATAGE_PLANCHER) return null;
+  if(n > Date.now() + 86400000) return null;   // une journée de tolérance d'horloge
+  return n;
 }
+
+function fmtRelativeLong(ts){
+  const n = horodatageValide(ts);
+  if(n === null) return '';
+  const d = Math.floor((Date.now()-n)/86400000);
+  if(d < 1) return t('trace.today');
+  if(d === 1) return t('trace.yesterday');
+  if(d < 7) return t('trace.daysAgo').replace('{n}', d);
+  if(d < 31){ const w=Math.floor(d/7);  return t(w>1?'trace.weeksAgo':'trace.weekAgo').replace('{n}', w); }
+  if(d < 365){ const mo=Math.floor(d/30); return t(mo>1?'trace.monthsAgo':'trace.monthAgo').replace('{n}', mo); }
+  const y = Math.floor(d/365);
+  return t(y>1?'trace.yearsAgo':'trace.yearAgo').replace('{n}', y);
+}
+
 
 // Prénom + initiale — on n'expose jamais l'e-mail (§8.5).
 function shortName(n){
@@ -3531,7 +3689,12 @@ function buildMinyanList(){
   // l'utilisateur se retrouvait avec une carte unique. On élargit désormais
   // tant qu'on n'a pas au moins 5 résultats, et on annonce la fenêtre retenue.
   GEO_WINDOW = null;
-  if(geolocMode&&userLocation){
+  if(RACCOURCI.tri==='proche'&&userLocation&&!geolocMode){
+    syns.sort((a,b)=>{
+      const da=hasCoords(a)?distTo(a):Infinity, db=hasCoords(b)?distTo(b):Infinity;
+      return da-db;
+    });
+  }else if(geolocMode&&userLocation){
     const nowH=now.getHours()+now.getMinutes()/60;
     const withNext=syns.map(s=>({s,n:nextPrayer(s,now)}));
     const dansFenetre=(h)=>withNext.filter(x=>x.n&&x.n.daysAhead===0&&x.n.time-nowH<=h&&x.n.time-nowH>=-0.25);
@@ -3543,13 +3706,10 @@ function buildMinyanList(){
     syns=near.map(x=>x.s);
     syns.sort((a,b)=>distTo(a)-distTo(b));
   }else{
-    syns.sort((a,b)=>{
-      const na=nextPrayer(a,now),nb=nextPrayer(b,now);
-      if(!na&&!nb)return 0;
-      if(!na)return 1;
-      if(!nb)return -1;
-      return (na.daysAhead*24+na.time)-(nb.daysAhead*24+nb.time);
-    });
+    // « Le plus proche » sans géoloc active n'a pas de sens : on retombe sur
+    // « Le plus tôt », qui classe par prochain office — du type choisi s'il
+    // y en a un, ce qui renvoie en fin de liste les offices déjà passés.
+    syns.sort((a,b)=>rangProchain(a,now)-rangProchain(b,now));
   }
 
   // Chaque synagogue doit garder au moins une sous-carte après filtrage —
@@ -3825,6 +3985,98 @@ function clearSearch(){
   i.value='';searchQuery='';
   document.getElementById('sbClear').classList.add('hidden');
   refreshCurrentTab();
+}
+
+// ============================================================
+// === Raccourcis de filtre (écran 5) =========================
+// ============================================================
+// Deux rangées sous « Trouver un minyan maintenant » : la prière voulue,
+// puis le critère de tri. C'est un raccourci vers FILTERS, pas un second
+// système de filtrage : la rangée du haut écrit dans FILTERS.types, donc la
+// recherche avancée reste cohérente avec ce qui est affiché.
+let RACCOURCI={type:null, tri:'tot', amorce:false};
+
+// Le prochain office D'UN TYPE DONNÉ, aujourd'hui puis les jours suivants.
+// nextPrayer() mélange les trois types : s'en servir ferait remonter en tête
+// une synagogue dont le Shaharit est passé depuis quatre heures.
+function prochainDuType(syn,now,type){
+  const H=syn.h||{};
+  const nowH=now.getHours()+now.getMinutes()/60;
+  const TOL={sh:2,mi:0.5,ar:0.5};
+  const dk=(d)=>type==='sh'?getDayKey(d,'sh'):getDayKey(d);
+  const cell=(d)=>{const c=H[dk(d)];return c?c[type]:null;};
+
+  const slot=nextSlotIn(cell(now),nowH);
+  if(slot&&slot.h!=null&&slot.h>=nowH-TOL[type])
+    return {time:slot.h, daysAhead:0, texte:slot.time};
+
+  for(let i=1;i<=7;i++){
+    const futur=new Date(now.getTime()+i*86400000);
+    const s=parseSlots(cell(futur))[0];
+    if(s&&s.h!=null)return {time:s.h, daysAhead:i, texte:s.time};
+  }
+  return null;
+}
+
+// Rang de tri : un office à venir aujourd'hui passe avant demain, et un
+// office déjà passé aujourd'hui bascule au lendemain via daysAhead.
+function rangProchain(syn,now){
+  const p=RACCOURCI.type ? prochainDuType(syn,now,RACCOURCI.type) : nextPrayer(syn,now);
+  if(!p)return Infinity;
+  return p.daysAhead*24+p.time;
+}
+
+// À la première ouverture, la rangée du haut se cale sur ce que disent les
+// données : la prière réellement proposée ensuite, pas un choix arbitraire.
+function amorcerRaccourci(){
+  if(RACCOURCI.amorce)return;
+  RACCOURCI.amorce=true;
+  const now=new Date();
+  const suivant=SYNS.map(s=>nextPrayer(s,now)).filter(Boolean)
+    .filter(n=>n.daysAhead===0).sort((a,b)=>a.time-b.time)[0];
+  if(suivant&&suivant.type){
+    RACCOURCI.type=suivant.type;
+    FILTERS.types=[suivant.type];
+  }
+}
+
+function choisirPriere(type){
+  // Un second appui retire le filtre : on ne peut pas se retrouver coincé
+  // sur une prière sans bouton pour en sortir.
+  RACCOURCI.type = (RACCOURCI.type===type) ? null : type;
+  FILTERS.types = RACCOURCI.type ? [RACCOURCI.type] : ['all'];
+  renderRaccourcis();
+  refreshCurrentTab();
+}
+
+function choisirTri(mode){
+  if(mode==='proche'&&!userLocation){
+    showToast(t('find.unavailable'),{type:'error'});
+    return;
+  }
+  RACCOURCI.tri=mode;
+  renderRaccourcis();
+  refreshCurrentTab();
+}
+
+function renderRaccourcis(){
+  const zone=document.getElementById('raccourcis');
+  if(!zone)return;
+  zone.classList.toggle('hidden', CURRENT_TAB!=='minyan');
+  if(CURRENT_TAB!=='minyan')return;
+  amorcerRaccourci();
+  const sansGeo=!userLocation;
+  // « Le plus proche » sans position n'est pas une option : on le grise au
+  // lieu de le laisser cliquable et sans effet.
+  if(sansGeo&&RACCOURCI.tri==='proche')RACCOURCI.tri='tot';
+  const p=(type)=>`<button class="rc-chip${RACCOURCI.type===type?' on':''}"
+     aria-pressed="${RACCOURCI.type===type}"
+     onclick="choisirPriere('${type}')">${escapeHtml(PRAYER_LABELS[type])}</button>`;
+  const tri=(mode,libelle,off)=>`<button class="rc-chip${RACCOURCI.tri===mode?' on':''}${off?' off':''}"
+     aria-pressed="${RACCOURCI.tri===mode}"${off?' aria-disabled="true"':''}
+     onclick="choisirTri('${mode}')">${escapeHtml(libelle)}</button>`;
+  zone.innerHTML=`<div class="rc-rang">${p('sh')}${p('mi')}${p('ar')}</div>
+    <div class="rc-rang">${tri('tot',t('shortcut.earliest'),false)}${tri('proche',t('shortcut.nearest'),sansGeo)}</div>`;
 }
 
 // Libellé du bouton « Trouver un minyan maintenant ».
@@ -4364,28 +4616,122 @@ function deplierCellule(id,ev){
 // ============================================================
 // === §2 FICHE SYNAGOGUE =====================================
 // ============================================================
+// ============================================================
+// === Fiche synagogue (écran 1) ==============================
+// ============================================================
+// Le filtre par prière est LOCAL à la fiche : il ne touche pas aux filtres
+// globaux de la liste, sinon fermer la fiche laisserait l'onglet Minyan
+// filtré sans que personne ait rien demandé.
+let FICHE_FILTRE = 'all';
+
+// « Vérifié par X il y a Y » sous une carte de minyan. Rien du tout si
+// personne n'a confirmé, ou si l'horodatage ne tient pas debout.
+function ligneVerif(synId, keys){
+  let meilleur = null;
+  for(const k of keys){
+    const v = getVerif(synId, k);
+    if(!v) continue;
+    if(horodatageValide(v.last) === null) continue;
+    if(!meilleur || v.last > meilleur.last) meilleur = v;
+  }
+  if(!meilleur) return '';
+  const quand = fmtRelativeLong(meilleur.last);
+  if(!quand) return '';
+  const qui = String(meilleur.lastBy||'').trim();
+  const txt = qui
+    ? t('trace.verifByRel').replace('{who}', escapeHtml(shortName(qui))).replace('{when}', quand)
+    : t('trace.verifRel').replace('{when}', quand);
+  return '<div class="mn-verif">'+txt+'</div>';
+}
+
+// Une carte par créneau. groupPrayers() donne déjà exactement le découpage
+// des maquettes : une entrée par (prière, horaire), avec les jours groupés.
+function carteMinyan(syn, g){
+  const cles = g.keys.join(',');
+  const dejaVu = g.keys.every(k=>localStorage.getItem(myVerifKey(syn.id,k)));
+  return `<div class="mn-carte">
+    <div class="mn-titre">${escapeHtml(PRAYER_LABELS[g.type]||g.type)}</div>
+    <div class="mn-ligne">
+      <button class="mn-crayon" onclick="closeDetail();openEditPicker(${syn.id},'${g.type}','${cles}')"
+              aria-label="${t('detail.propose')}">${ICON.pencil}</button>
+      <span class="mn-chip">${ICON.calendar}${escapeHtml(g.days)}</span>
+      <span class="mn-chip">${ICON.clock}${escapeHtml(g.time)}</span>
+      <button class="mn-pouce${dejaVu?' fait':''}" onclick="confirmPrayer(${syn.id},'${cles}',event)"
+              aria-label="${t('detail.confirm')}">${ICON.thumb}</button>
+    </div>
+    ${ligneVerif(syn.id, g.keys)}
+  </div>`;
+}
+
+function listeMinyans(syn){
+  const tous = groupPrayers(syn);
+  const vus = FICHE_FILTRE==='all' ? tous : tous.filter(g=>g.type===FICHE_FILTRE);
+  if(!vus.length) return `<div class="fs-vide">${t('detail.noMinyan')}</div>`;
+  return vus.map(g=>carteMinyan(syn,g)).join('');
+}
+
+// Le filtre ne repeint que la liste : repeindre toute la fiche ferait sauter
+// le défilement au premier appui sur une pilule.
+function filtrerFiche(type, btn){
+  FICHE_FILTRE = type;
+  const barre = btn && btn.parentElement;
+  if(barre) barre.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b===btn));
+  const zone = document.getElementById('ficheMinyans');
+  if(zone && LAST_DETAIL_SYN) zone.innerHTML = listeMinyans(LAST_DETAIL_SYN);
+}
+
+function partagerSyn(id){
+  const syn = SYNS.find(s=>s.id===id);
+  if(!syn) return;
+  const url = window.location.origin + window.location.pathname + '#syn' + syn.id;
+  const txt = '🕍 ' + syn.name + (syn.addr ? ' — ' + syn.addr : '');
+  if(navigator.share){
+    navigator.share({title:syn.name, text:txt, url}).catch(()=>{});
+  }else{
+    window.open('https://wa.me/?text='+encodeURIComponent(txt+'\n'+url), '_blank', 'noopener');
+  }
+}
+
 function openSynDetail(syn){
   LAST_DETAIL_SYN = syn;
-  const rite=t('rite.'+syn.rite)||syn.rite;
-  const zone=ZONE_LABELS[syn.zone]||syn.zone;
-  const dist=(userLocation&&hasCoords(syn))
-    ? `<span class="fs-dist">${ICON.pin}${fmtDist(distTo(syn))}</span>` : '';
+  FICHE_FILTRE = 'all';
 
-  // Adresse cliquable -> ouvre la feuille d'itinéraire (§2)
+  // Aucune photo n'existe encore dans les données : le bandeau tient la place
+  // pour le jour où il y en aura, plutôt que d'afficher une image cassée.
+  const banniere = `<div class="fs-banner">
+    ${ICON.home ? `<span class="fs-banner-glyph">${ICON.home}</span>` : ''}
+    <span class="fs-banner-txt">${t('detail.noPhoto')}</span>
+    <button class="fs-round gauche" onclick="partagerSyn(${syn.id})"
+            aria-label="${t('menu.share')}">${ICON.share}</button>
+    <button class="fs-round droite" onclick="closeDetail();openShulForm(${syn.id})"
+            aria-label="${t('shul.editTitle')}">${ICON.pencil}</button>
+  </div>`;
+
+  const km = (userLocation && hasCoords(syn))
+    ? `<span class="fs-km">${ICON.pin}${fmtDist(distTo(syn))}</span>` : '';
+
+  const itin = (hasCoords(syn)||syn.addr)
+    ? `<button class="fs-go" onclick="openItineraireSyn(${syn.id})">
+         ${ICON.nav}<span>${t('itineraire')}</span></button>` : '';
+
+  // L'adresse reste derrière le palier de vérification : la maquette la montre
+  // en clair, mais la règle « pas d'adresse aux comptes non vérifiés » n'a pas
+  // été levée. Signalé.
   const adresse = syn.addr
-    ? `<button class="fs-addr" onclick="openItineraireSyn(${syn.id})">
-         ${escapeHtml(syn.addr)}</button>${dist}`
+    ? `<div class="fs-ligne">
+         <button class="fs-adr" onclick="openItineraireSyn(${syn.id})">
+           <span class="pin">${ICON.pin}</span>
+           <span><span class="fs-adr-lbl">${t('detail.address')}</span>
+             <span class="fs-adr-txt">${escapeHtml(syn.addr)}</span></span>
+         </button>
+         ${itin}${km}
+       </div>`
     : `<div class="locked-box">
          <span class="locked-ic">${ICON.lock}</span>
          <div class="locked-t">${t('detail.addrHidden')}</div>
          <p>${t('detail.addrHiddenSub')}</p>
          <button class="btn-primary" onclick="${currentUser?'openProfile()':'showLoginScreen()'}">${currentUser?t('menu.profile'):t('login.signin')}</button>
        </div>`;
-
-  const itin = (hasCoords(syn)||syn.addr)
-    ? `<button class="btn-primary fs-itin" onclick="openItineraireSyn(${syn.id})">
-         ${ICON.nav}<span>${t('itineraire')}</span></button>`
-    : '';
 
   const tel = syn.tel ? (function(){
     const p=formatPhoneFR(syn.tel);
@@ -4396,30 +4742,35 @@ function openSynDetail(syn){
   const badges = (rh?`<div class="note-band">${ICON.moon}<span>${t('detail.roshHodesh').replace('{m}',escapeHtml(rh.month))}</span></div>`:'')
     + (isShaharitHolidayRemap(new Date())?`<div class="note-band">${ICON.info}<span>${t('detail.holiday')}</span></div>`:'');
 
-  const trace = traceLine(syn);
+  const pilule = (cle,libelle)=>
+    `<button class="${cle===FICHE_FILTRE?'on':''}" onclick="filtrerFiche('${cle}',this)">${escapeHtml(libelle)}</button>`;
 
   openDetail(syn.name,`
-    <h1 class="fs-title">${escapeHtml(syn.name)}</h1>
-    <div class="fs-meta">
-      <span class="pill-rite">${escapeHtml(rite)}</span>
-      <span class="pill-zone">${escapeHtml(zone)}</span>
+    ${banniere}
+    <div class="fs-carte">
+      <h1 class="fs-nom">${escapeHtml(syn.name)}</h1>
+      ${adresse}
     </div>
-    ${adresse}
     ${badges}
-    ${itin}
+    <div class="fs-filtre">
+      ${pilule('all', t('detail.all'))}
+      ${pilule('sh', PRAYER_LABELS.sh)}
+      ${pilule('mi', PRAYER_LABELS.mi)}
+      ${pilule('ar', PRAYER_LABELS.ar)}
+    </div>
+    <div id="ficheMinyans">${listeMinyans(syn)}</div>
+    ${traceLine(syn)}
     ${tel}
-    <h2 class="fs-h2">${t('detail.week')}</h2>
-    ${renderHoraireTable(syn)}
-    ${trace}
     <div class="fs-actions">
-      <button class="btn-outline" onclick="confirmAllPrayers(${syn.id})">${ICON.thumb}<span>${t('detail.confirm')}</span></button>
-      <button class="btn-outline" onclick="closeDetail();openEditFromDetail(${syn.id})">${ICON.pencil}<span>${t('detail.propose')}</span></button>
       <button class="btn-outline" onclick="closeDetail();openPhotoImport(${syn.id})">${ICON.camera}<span>${t('detail.photo')}</span></button>
       <button class="btn-outline" onclick="closeDetail();openHistorique(${syn.id})">${ICON.clock}<span>${t('detail.history')}</span></button>
     </div>
     <button class="link-quiet" onclick="openSynContribute(LAST_DETAIL_SYN)">${t('detail.report')}</button>
+    <button class="fs-fab" onclick="closeDetail();openEditFromDetail(${syn.id})"
+            aria-label="${t('detail.addMinyan')}">${ICON.plus}</button>
   `);
 }
+
 
 // Depuis la fiche : on ne devine pas ce que l'utilisateur veut corriger,
 // on lui laisse choisir la priere et les jours.
@@ -4470,6 +4821,9 @@ function showTab(name){
 
 // Reconstruit le contenu de l'onglet actif (appelé par les filtres, la recherche, la géoloc).
 function refreshCurrentTab(){
+  // Les raccourcis suivent l'état : c'est aussi ce qui dégrise
+  // « Le plus proche » dès que la position arrive.
+  renderRaccourcis();
   if(CURRENT_TAB==='minyan'){ MAP_VIEW?renderMap():buildMinyanList(); }
   else if(CURRENT_TAB==='torah'){ buildTorahCalendar(); }
   else if(CURRENT_TAB==='mikve'){ buildMikvaot(); }
@@ -4930,14 +5284,48 @@ function openMapSheet(id){
   const syn=SYNS.find(s=>s.id===id);
   const sheet=document.getElementById('mapSheet');
   if(!syn||!sheet)return;
-  const groups=currentUser?visibleGroups(syn):[];
-  sheet.innerHTML=`<button class="map-sheet-close" onclick="closeMapSheet()" aria-label="${t('cancel')}">✕</button>`
-    + renderMinyanCard(syn,groups,new Date(),!currentUser);
+
+  // Même palier que le reste de l'application : un visiteur non connecté voit
+  // le lieu, pas les horaires.
+  const tous = currentUser ? groupPrayers(syn) : [];
+  const dow = new Date().getDay();
+  // Ce qui a lieu aujourd'hui d'abord ; si rien aujourd'hui, on montre tout
+  // plutôt qu'une feuille vide.
+  const dujour = tous.filter(g=>g.dows.includes(dow));
+  const vus = dujour.length ? dujour : tous;
+
+  const rangs = vus.map(g=>`<div class="ms-rang">
+      ${ICON.clock}
+      <span class="ms-priere">${escapeHtml(PRAYER_LABELS[g.type]||g.type)}</span>
+      <span class="ms-heure">${escapeHtml(g.time)}</span>
+    </div>`).join('');
+
+  const bloc = vus.length
+    ? `<div class="ms-lbl">${t('detail.minyan')}</div>${rangs}`
+    : (currentUser ? '' : `<div class="fs-vide">${t('detail.signinTimes')}</div>`);
+
+  const itin = (hasCoords(syn)||syn.addr)
+    ? `<button class="ms-go" onclick="openItineraireSyn(${syn.id})">
+         ${ICON.nav}<span>${t('itineraire')}</span></button>` : '';
+
+  sheet.innerHTML = `<div class="ms-panneau">
+    <div class="ms-poignee"></div>
+    <div class="ms-tete">
+      <button class="ms-x" onclick="closeMapSheet()" aria-label="${t('cancel')}">${ICON.close}</button>
+      <div class="ms-nom">${escapeHtml(syn.name)}</div>
+      ${syn.addr?`<div class="ms-adr">${escapeHtml(syn.addr)}</div>`:''}
+    </div>
+    ${bloc}
+    ${itin}
+  </div>`;
+
   sheet.classList.add('show');
   MAP.ouvertA=Date.now();
   journalCarte('feuille ouverte · '+syn.name);
   if(MAP.carte)MAP.carte.panTo([syn.lat,syn.lng],{animate:true,duration:.25});
 }
+
+
 function closeMapSheet(){
   const s=document.getElementById('mapSheet');
   if(s)s.classList.remove('show');
@@ -5295,7 +5683,10 @@ const I18N={
       roshHodesh:"Rosh Hodesh {m} — horaires spéciaux possibles",
       holiday:"Jour férié — Shaharit du dimanche",
       confirm:"Confirmer",propose:"Corriger",photo:"Photo / PDF",history:"Historique",
-      report:"Signaler une erreur"},
+      report:"Signaler une erreur",
+      noPhoto:"Pas de photo",address:"Adresse",all:"Tout",
+      minyan:"Minyan",noMinyan:"Aucun horaire pour cette prière",
+      addMinyan:"Ajouter un minyan",signinTimes:"Connectez-vous pour voir les horaires"},
     login:{signin:"Se connecter"},
     back:'Retour', loading:'Chargement…',
     edit:{title:"Modifier l'horaire", needLogin:'Connectez-vous pour modifier un horaire',
@@ -5344,12 +5735,42 @@ const I18N={
     find:{title:'Trouver un minyan maintenant',sub:'Trier par distance',within:'dans les {h} h',
           on:'Tri par distance actif · toucher pour annuler',locating:'Localisation en cours…',
           failed:'Localisation impossible',unavailable:'Géolocalisation non disponible'},
+    shortcut:{earliest:'Le plus tôt',nearest:'Le plus proche'},
+    dayKey:{dimanche:"Dimanche",lundi_jeudi:"Lundi · Jeudi",mardi_mercredi:"Mardi · Mercredi",
+            vendredi:"Vendredi",shabbat:"Chabbat"},
+    mf:{shul:"Shul",shulPh:"Rechercher une shul…",prayerType:"Type de prière",
+        time:"Heure de prière",fixed:"Heure fixe",relative:"Heure relative",
+        refPrayer:"Par rapport à",offset:"Décalage",before:"Avant",after:"Après",min:"min",
+        willSave:"Heure qui sera enregistrée",
+        pickShul:"Choisissez une shul pour voir l’heure calculée.",
+        pickDays:"Choisissez les jours pour voir l’heure calculée.",
+        noRef:"Aucun horaire de {p} n’est renseigné pour ce jour : l’heure ne peut pas être calculée.",
+        relativeNote:"L’heure est calculée maintenant et enregistrée telle quelle. Une correction ultérieure de la prière de référence ne la déplacera pas.",
+        days:"Jours",season:"Horaire",details:"Détails supplémentaires",
+        detailsPh:"Notes, changements saisonniers…"},
+        noneComputed:"Aucune heure n’a pu être calculée : la prière de référence n’est renseignée pour aucun des jours choisis.",
+        someSkipped:"Jours ignorés faute d’heure de référence : {j}",
+    shul:{editTitle:"Modifier la shul",newTitle:"Ajouter une shul",
+        name:"Nom",address:"Adresse",rite:"Rite",zone:"Quartier",phone:"Téléphone",
+        email:"E-mail",site:"Site web",whatsapp:"Groupe WhatsApp",
+        photos:"Photos",addPhoto:"Ajouter une photo",features:"Caractéristiques",
+        featuresNote:"Liste fermée : seules ces valeurs sont acceptées.",
+        fromSheet:"Maintenu dans la feuille Google, pas modifiable ici.",
+        pendingIdentity:"Désactivé tant que l’identité Supabase n’est pas branchée.",
+        photosNote:"Désactivé : en attente de Supabase Storage.",
+        saved:"Caractéristiques enregistrées",
+        createSoon:"La création d’une shul n’est pas encore disponible.",
+        rulesNeeded:"Refusé par Firebase : les règles des caractéristiques ne sont pas encore déployées."},
     card:{showAll:'Tous les horaires',hideAll:'Masquer les horaires',
           noOfficeToday:"Pas d'office aujourd'hui",noHours2:"Horaires non renseignés",noHours:'Horaires indisponibles hors connexion',
           loginForAll:'Connectez-vous pour voir tous les horaires'},
     season:{year:"Toute l'année",summer:"Heure d'été",winter:"Heure d'hiver"},
     trace:{updated:'Mis à jour le',updatedRel:'Mis à jour',by:'par',team:"l'équipe",toCheck:'À vérifier',
       today:"aujourd'hui",yesterday:'hier',daysAgo:'il y a {n} jours',
+      weekAgo:'il y a une semaine',weeksAgo:'il y a {n} semaines',
+      monthAgo:'il y a un mois',monthsAgo:'il y a {n} mois',
+      yearAgo:'il y a un an',yearsAgo:'il y a {n} ans',
+      verifByRel:'Vérifié par {who} {when}',verifRel:'Vérifié {when}',
            verified1:'Vérifié par {who} le {when}',verifiedN:'Vérifié par {n} personnes · dernière fois le {when}'},
     itineraire:'Itinéraire', openWith:"Ouvrir l'itinéraire avec", range:'Plage horaire',
     filter:'Recherche avancée', apply:'Filtrer', reset:'Réinitialiser',
@@ -5360,7 +5781,7 @@ const I18N={
     empty:{minyan:'Aucun minyan ne correspond à cette recherche.',
            mikve:'Aucun mikvé ne correspond à cette recherche.',
            shuls:'Aucune shul ne correspond à cette recherche.'},
-    menu:{profile:'Profil utilisateur',contact:'Contact',don:'Faire un don',share:'Partager',
+    menu:{profile:'Profil utilisateur',contact:'Contact',don:'Faire un don',tsedaka:'Tsedaka',share:'Partager',
           notif:'Notifications',lang:'Langue',about:'À propos',theme:"Mode d'affichage",
           light:'Clair',auto:'Auto',dark:'Sombre',admin:'Notifications admin',invite:'Inviter un ami'},
     tempMinyan:'Minyan temporaire',
@@ -5379,7 +5800,10 @@ const I18N={
       roshHodesh:"Rosh Chodesh {m} — times may differ",
       holiday:"Public holiday — Sunday Shacharit",
       confirm:"Confirm",propose:"Suggest a fix",photo:"Photo / PDF",history:"History",
-      report:"Report an error"},
+      report:"Report an error",
+      noPhoto:"No photo",address:"Address",all:"All",
+      minyan:"Minyan",noMinyan:"No times for this prayer",
+      addMinyan:"Add a minyan",signinTimes:"Sign in to see the times"},
     login:{signin:"Sign in"},
     back:'Back', loading:'Loading…',
     edit:{title:'Edit time', needLogin:'Sign in to edit a time',
@@ -5428,12 +5852,42 @@ const I18N={
     find:{title:'Find a minyan now',sub:'Sort by distance',within:'within {h} h',
           on:'Sorted by distance · tap to cancel',locating:'Locating…',
           failed:'Location unavailable',unavailable:'Geolocation not available'},
+    shortcut:{earliest:'Earliest',nearest:'Nearest'},
+    dayKey:{dimanche:"Sunday",lundi_jeudi:"Monday · Thursday",mardi_mercredi:"Tuesday · Wednesday",
+            vendredi:"Friday",shabbat:"Shabbat"},
+    mf:{shul:"Shul",shulPh:"Search for a shul…",prayerType:"Prayer",
+        time:"Prayer time",fixed:"Fixed time",relative:"Relative time",
+        refPrayer:"Relative to",offset:"Offset",before:"Before",after:"After",min:"min",
+        willSave:"Time that will be saved",
+        pickShul:"Pick a shul to see the computed time.",
+        pickDays:"Pick the days to see the computed time.",
+        noRef:"No {p} time is recorded for that day, so the time cannot be computed.",
+        relativeNote:"The time is computed now and saved as a fixed value. Later corrections to the reference prayer will not move it.",
+        days:"Days",season:"Schedule",details:"Additional details",
+        detailsPh:"Notes, seasonal changes…"},
+        noneComputed:"No time could be computed: the reference prayer is missing for every selected day.",
+        someSkipped:"Days skipped, no reference time: {j}",
+    shul:{editTitle:"Edit shul",newTitle:"Add a shul",
+        name:"Name",address:"Address",rite:"Rite",zone:"Area",phone:"Phone",
+        email:"Email",site:"Website",whatsapp:"WhatsApp group",
+        photos:"Photos",addPhoto:"Add a photo",features:"Features",
+        featuresNote:"Closed list: only these values are accepted.",
+        fromSheet:"Maintained in the Google Sheet, not editable here.",
+        pendingIdentity:"Disabled until Supabase identity is wired in.",
+        photosNote:"Disabled: waiting on Supabase Storage.",
+        saved:"Features saved",
+        createSoon:"Creating a shul is not available yet.",
+        rulesNeeded:"Rejected by Firebase: the feature rules are not deployed yet."},
     card:{showAll:'All times',hideAll:'Hide times',
           noOfficeToday:'No service today',noHours2:'No times recorded',noHours:'Times unavailable offline',
           loginForAll:'Sign in to see all times'},
     season:{year:'All year',summer:'Summer time',winter:'Winter time'},
     trace:{updated:'Updated on',updatedRel:'Updated',by:'by',team:'the team',toCheck:'To verify',
       today:'today',yesterday:'yesterday',daysAgo:'{n} days ago',
+      weekAgo:'a week ago',weeksAgo:'{n} weeks ago',
+      monthAgo:'a month ago',monthsAgo:'{n} months ago',
+      yearAgo:'a year ago',yearsAgo:'{n} years ago',
+      verifByRel:'Confirmed by {who} {when}',verifRel:'Confirmed {when}',
            verified1:'Confirmed by {who} on {when}',verifiedN:'Confirmed by {n} people · last on {when}'},
     itineraire:'Directions', openWith:'Open directions with', range:'Time range',
     filter:'Advanced search', apply:'Filter', reset:'Reset',
@@ -5444,7 +5898,7 @@ const I18N={
     empty:{minyan:'No minyan matches this search.',
            mikve:'No mikveh matches this search.',
            shuls:'No shul matches this search.'},
-    menu:{profile:'User profile',contact:'Contact',don:'Donate',share:'Share',
+    menu:{profile:'User profile',contact:'Contact',don:'Donate',tsedaka:'Tsedaka',share:'Share',
           notif:'Notifications',lang:'Language',about:'About',theme:'Appearance',
           light:'Light',auto:'Auto',dark:'Dark',admin:'Admin notifications',invite:'Invite a friend'},
     tempMinyan:'Pop-up minyan',
@@ -5463,7 +5917,10 @@ const I18N={
       roshHodesh:"ראש חודש {m} — ייתכנו זמנים מיוחדים",
       holiday:"יום חג — שחרית של יום ראשון",
       confirm:"אישור",propose:"הצעת תיקון",photo:"תמונה / PDF",history:"היסטוריה",
-      report:"דיווח על טעות"},
+      report:"דיווח על טעות",
+      noPhoto:"אין תמונה",address:"כתובת",all:"הכול",
+      minyan:"מניין",noMinyan:"אין זמנים לתפילה זו",
+      addMinyan:"הוספת מניין",signinTimes:"התחברו כדי לראות את הזמנים"},
     login:{signin:"התחברות"},
     back:'חזרה', loading:'טוען…',
     edit:{title:'עריכת זמן', needLogin:'התחברו כדי לערוך זמן',
@@ -5512,12 +5969,42 @@ const I18N={
     find:{title:'מצא מניין עכשיו',sub:'מיון לפי מרחק',within:'בתוך {h} שעות',
           on:'ממוין לפי מרחק · הקש לביטול',locating:'מאתר מיקום…',
           failed:'לא ניתן לאתר מיקום',unavailable:'איתור מיקום אינו זמין'},
+    shortcut:{earliest:'המוקדם ביותר',nearest:'הקרוב ביותר'},
+    dayKey:{dimanche:"יום ראשון",lundi_jeudi:"שני · חמישי",mardi_mercredi:"שלישי · רביעי",
+            vendredi:"יום שישי",shabbat:"שבת"},
+    mf:{shul:"בית כנסת",shulPh:"חיפוש בית כנסת…",prayerType:"תפילה",
+        time:"שעת התפילה",fixed:"שעה קבועה",relative:"שעה יחסית",
+        refPrayer:"ביחס ל",offset:"הפרש",before:"לפני",after:"אחרי",min:"דק׳",
+        willSave:"השעה שתישמר",
+        pickShul:"בחרו בית כנסת כדי לראות את השעה.",
+        pickDays:"בחרו ימים כדי לראות את השעה.",
+        noRef:"אין זמן {p} ליום זה, לכן לא ניתן לחשב את השעה.",
+        relativeNote:"השעה מחושבת עכשיו ונשמרת כערך קבוע. תיקון עתידי של תפילת הייחוס לא יזיז אותה.",
+        days:"ימים",season:"לוח זמנים",details:"פרטים נוספים",
+        detailsPh:"הערות, שינויים עונתיים…"},
+        noneComputed:"לא ניתן היה לחשב שעה: תפילת הייחוס חסרה בכל הימים שנבחרו.",
+        someSkipped:"ימים שדולגו, אין שעת ייחוס: {j}",
+    shul:{editTitle:"עריכת בית הכנסת",newTitle:"הוספת בית כנסת",
+        name:"שם",address:"כתובת",rite:"נוסח",zone:"אזור",phone:"טלפון",
+        email:"אימייל",site:"אתר",whatsapp:"קבוצת וואטסאפ",
+        photos:"תמונות",addPhoto:"הוספת תמונה",features:"מאפיינים",
+        featuresNote:"רשימה סגורה: רק ערכים אלה מתקבלים.",
+        fromSheet:"מנוהל בגיליון גוגל, לא ניתן לעריכה כאן.",
+        pendingIdentity:"מושבת עד לחיבור זהות Supabase.",
+        photosNote:"מושבת: ממתין ל-Supabase Storage.",
+        saved:"המאפיינים נשמרו",
+        createSoon:"הוספת בית כנסת אינה זמינה עדיין.",
+        rulesNeeded:"נדחה על ידי Firebase: הכללים טרם פורסמו."},
     card:{showAll:'כל הזמנים',hideAll:'הסתר זמנים',
           noOfficeToday:'אין תפילה היום',noHours2:'לא הוזנו זמנים',noHours:'הזמנים אינם זמינים במצב לא מקוון',
           loginForAll:'התחברו כדי לראות את כל הזמנים'},
     season:{year:'כל השנה',summer:'שעון קיץ',winter:'שעון חורף'},
     trace:{updated:'עודכן ב־',updatedRel:'עודכן',by:'על ידי',team:'הצוות',toCheck:'לבדיקה',
       today:'היום',yesterday:'אתמול',daysAgo:'לפני {n} ימים',
+      weekAgo:'לפני שבוע',weeksAgo:'לפני {n} שבועות',
+      monthAgo:'לפני חודש',monthsAgo:'לפני {n} חודשים',
+      yearAgo:'לפני שנה',yearsAgo:'לפני {n} שנים',
+      verifByRel:'אושר על ידי {who} {when}',verifRel:'אושר {when}',
            verified1:'אושר על ידי {who} ב־{when}',verifiedN:'אושר על ידי {n} אנשים · לאחרונה ב־{when}'},
     itineraire:'ניווט', openWith:'פתח ניווט באמצעות', range:'טווח שעות',
     filter:'חיפוש מתקדם', apply:'סנן', reset:'איפוס',
@@ -5528,7 +6015,7 @@ const I18N={
     empty:{minyan:'לא נמצא מניין התואם לחיפוש.',
            mikve:'לא נמצא מקווה התואם לחיפוש.',
            shuls:'לא נמצא בית כנסת התואם לחיפוש.'},
-    menu:{profile:'פרופיל משתמש',contact:'צור קשר',don:'תרומה',share:'שיתוף',
+    menu:{profile:'פרופיל משתמש',contact:'צור קשר',don:'תרומה',tsedaka:'צדקה',share:'שיתוף',
           notif:'התראות',lang:'שפה',about:'אודות',theme:'מצב תצוגה',
           light:'בהיר',auto:'אוטומטי',dark:'כהה',admin:'התראות מנהל',invite:'הזמן חבר'},
     tempMinyan:'מניין זמני',
@@ -5595,7 +6082,7 @@ function applyLang(){
   const tempLbl=document.getElementById('fabTempLabel');
   if(tempLbl)tempLbl.textContent=t('tempMinyan');
   // Menu latéral
-  const M=[['drawerContactLbl','menu.contact'],['drawerDonLbl','menu.don'],['drawerShareLbl','menu.share'],
+  const M=[['drawerContactLbl','menu.contact'],['drawerDonLbl','menu.don'],['drawerTsedakaLbl','menu.tsedaka'],['drawerShareLbl','menu.share'],
            ['drawerNotifLbl','menu.notif'],['drawerLangLbl','menu.lang'],['drawerAboutLbl','menu.about'],
            ['drawerInviteLbl','menu.invite'],['themeLbl','menu.theme'],
            ['drawerDedicaceLbl','dedicace.titre']];
@@ -5715,6 +6202,13 @@ function openContact(){
       <div style="font-size:22px;">${ICON.users}</div>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-top:8px;">Vous connaissez Minyan Lyon et avez des idées d'amélioration ?<br/>Écrivez-nous, on lit tout.</p>
     </div>`);
+}
+
+// Tsedakif : lien sortant direct, comme « Inviter un ami ». Pas de popup de
+// confirmation, pas d'écran intermédiaire — c'est une action, pas un réglage.
+const TSEDAKA_URL='https://apps.apple.com/fr/app/tsedakif/id6741826286';
+function ouvrirTsedaka(){
+  window.open(TSEDAKA_URL,'_blank','noopener');
 }
 
 function openDon(){
@@ -6033,34 +6527,238 @@ function formPick(field,val,multi){
   if(FORM_STATE._rerender)FORM_STATE._rerender();
 }
 
+// ============================================================
+// === Heure relative (écran 3) ===============================
+// ============================================================
+// Résolue À L'ÉCRITURE, comme « Suivi » l'est déjà à l'import : ce qui part
+// en base est une heure ferme. Aucune dépendance n'est enregistrée, donc
+// corriger plus tard la prière de référence ne déplacera PAS cette heure-ci.
+// (Évolution possible : résoudre à l'affichage, ce qui ferait propager les
+// corrections en cascade. Volontairement non implémenté.)
+const REF_PRIERES=['sh','mi','ar'];
+
+function dowVersCle(dow){
+  const d=Number(dow);
+  if(d===0)return'dimanche';
+  if(d===5)return'vendredi';
+  if(d===6)return'shabbat';
+  if(d===1||d===4)return'lundi_jeudi';
+  return'mardi_mercredi';
+}
+
+function resoudreRelatif(syn,cleJour,typeRef,ecartMin){
+  const cellule=((syn&&syn.h)?syn.h[cleJour]:null)||{};
+  const base=parseSlots(cellule[typeRef])[0];
+  if(!base||base.h==null)return null;
+  const mins=Math.round(base.h*60)+ecartMin;
+  if(mins<0||mins>=1440)return null;
+  return Math.floor(mins/60)+'h'+String(mins%60).padStart(2,'0');
+}
+
+// La shul et les jours visés, quel que soit le chemin d'entrée : en création
+// ils viennent du formulaire, en modification du contexte d'édition.
+function cibleRelative(){
+  if(EDIT_CTX&&EDIT_CTX.syn){
+    const cles=[...new Set((EDIT_CTX.keys||[])
+      .map(k=>CLE_VERS_JOUR[k.slice(0,k.lastIndexOf('_'))]).filter(Boolean))];
+    return {syn:EDIT_CTX.syn, cles};
+  }
+  const syn=SYNS.find(s=>s.name===FORM_STATE.shulName)||null;
+  const cles=[...new Set((FORM_STATE.days||[]).map(dowVersCle))];
+  return {syn, cles};
+}
+
+function ecartSigne(){
+  const n=Math.abs(parseInt(FORM_STATE.ecart,10)||0);
+  return FORM_STATE.sens==='avant' ? -n : n;
+}
+
+// L'utilisateur doit voir l'heure qui sera réellement enregistrée avant de
+// valider : c'est elle qui part en base, pas la règle qui l'a produite.
+function apercuRelatif(){
+  const {syn,cles}=cibleRelative();
+  if(!syn)return `<div class="rel-vide">${t('mf.pickShul')}</div>`;
+  if(!cles.length)return `<div class="rel-vide">${t('mf.pickDays')}</div>`;
+  const ref=FORM_STATE.ref, ec=ecartSigne();
+  const lignes=cles.map(c=>{
+    const v=resoudreRelatif(syn,c,ref,ec);
+    return `<div class="rel-ligne"><span>${escapeHtml(t('dayKey.'+c))}</span>
+      <b>${v?escapeHtml(v):'—'}</b></div>`;
+  }).join('');
+  const manquants=cles.filter(c=>!resoudreRelatif(syn,c,ref,ec));
+  const alerte=manquants.length
+    ? `<div class="rel-alerte">${t('mf.noRef').replace('{p}',escapeHtml(PRAYER_LABELS[ref]||ref))}</div>` : '';
+  return `<div class="rel-apercu"><div class="rel-titre">${t('mf.willSave')}</div>${lignes}${alerte}</div>`;
+}
+
+function blocHeure(){
+  const relatif=FORM_STATE.mode==='relatif';
+  const seg=`<div class="seg">
+      <button class="${relatif?'':'on'}" onclick="formPick('mode','fixe',false)">${t('mf.fixed')}</button>
+      <button class="${relatif?'on':''}" onclick="formPick('mode','relatif',false)">${t('mf.relative')}</button>
+    </div>`;
+  if(!relatif)
+    return `${seg}<input class="inp" style="margin-top:10px;" type="time" id="mfTime"
+              value="${escapeAttr(FORM_STATE.time||'07:00')}"/>`;
+  const refs=REF_PRIERES.filter(x=>x!==FORM_STATE.type).map(x=>[x,PRAYER_LABELS[x]]);
+  return `${seg}
+    <div class="rel-bloc">
+      <span class="fld-lbl">${t('mf.refPrayer')}</span>
+      ${formChips('ref',refs)}
+      <span class="fld-lbl">${t('mf.offset')}</span>
+      <div class="rel-ecart">
+        ${formChips('sens',[['avant',t('mf.before')],['apres',t('mf.after')]])}
+        <input class="inp rel-min" type="number" min="0" max="180" step="5"
+               value="${escapeAttr(String(FORM_STATE.ecart==null?20:FORM_STATE.ecart))}"
+               oninput="FORM_STATE.ecart=this.value;majApercuRelatif()"/>
+        <span class="rel-unite">${t('mf.min')}</span>
+      </div>
+      <div id="relApercu">${apercuRelatif()}</div>
+      <div class="tc-src">${t('mf.relativeNote')}</div>
+    </div>`;
+}
+
+// Le champ minutes ne doit pas provoquer un rerender complet : il perdrait
+// le focus à chaque frappe.
+function majApercuRelatif(){
+  const z=document.getElementById('relApercu');
+  if(z)z.innerHTML=apercuRelatif();
+}
+
+// ============================================================
+// === Fiche shul — créer / modifier (écran 2) ================
+// ============================================================
+// Un seul corps de formulaire pour la création et la modification : c'est la
+// contrainte de cohérence. Seul le titre et le bouton changent.
+//
+// Ce qui est modifiable ici, et pourquoi le reste ne l'est pas :
+//  · Caractéristiques — liste FERMÉE (sefer/access/parking). Aucune injection
+//    possible, les règles Firebase n'acceptent que ces trois valeurs.
+//  · E-mail, site web, groupe WhatsApp — désactivés. /syn_overrides accepte
+//    l'écriture anonyme : un lien y serait affiché sous le nom d'une
+//    synagogue. Ils s'activeront quand l'identité Supabase sera branchée.
+//  · Photos — désactivées, en attente de Supabase Storage.
+//  · Nom, adresse, rite, quartier, téléphone — la feuille Google en est la
+//    source. Les rendre modifiables ici créerait une seconde vérité, et
+//    l'écriture anonyme y poserait le MÊME problème que les URL, l'adresse
+//    étant le champ le plus sensible de tous.
+let SHUL_FORM=null;
+
+function champBloque(libelle,valeur,raison){
+  return `<div class="fld">
+    <span class="fld-lbl">${escapeHtml(libelle)}
+      <span class="fld-lock">${ICON.lock}</span></span>
+    <div class="inp bloque">${valeur?escapeHtml(valeur):'—'}</div>
+    <div class="tc-src">${escapeHtml(raison)}</div>
+  </div>`;
+}
+
+function shulFormBody(){
+  const s=SHUL_FORM.syn;
+  const rite=s?(t('rite.'+s.rite)||s.rite):'';
+  const zone=s?(ZONE_LABELS[s.zone]||s.zone):'';
+  const source=t('shul.fromSheet');
+  const attente=t('shul.pendingIdentity');
+  return `
+    ${champBloque(t('shul.name'), s?s.name:'', source)}
+    ${champBloque(t('shul.address'), s?(s.addr||t('detail.addrHidden')):'', source)}
+    <div class="fld-2">
+      ${champBloque(t('shul.rite'), rite, source)}
+      ${champBloque(t('shul.zone'), zone, source)}
+    </div>
+    ${champBloque(t('shul.phone'), s?(s.tel||''):'', source)}
+
+    <div class="fld"><span class="fld-lbl">${t('shul.features')}</span>
+      ${formChips('feats',FEATURE_CHIPS,true)}
+      <div class="tc-src">${t('shul.featuresNote')}</div></div>
+
+    ${champBloque(t('shul.email'), '', attente)}
+    ${champBloque(t('shul.site'), '', attente)}
+    ${champBloque(t('shul.whatsapp'), '', attente)}
+
+    <div class="fld"><span class="fld-lbl">${t('shul.photos')}
+        <span class="fld-lock">${ICON.lock}</span></span>
+      <button class="btn-outline" disabled>${ICON.camera}<span>${t('shul.addPhoto')}</span></button>
+      <div class="tc-src">${t('shul.photosNote')}</div></div>`;
+}
+
+function openShulForm(synId){
+  if(!currentUser){showToast(t('edit.needLogin'),{type:'error'});return;}
+  const syn=(synId==null)?null:SYNS.find(x=>x.id===synId)||null;
+  const ov=(syn&&typeof SYN_OVERRIDES!=='undefined'&&SYN_OVERRIDES)?SYN_OVERRIDES[String(syn.id)]:null;
+  SHUL_FORM={syn, creation:!syn};
+  FORM_STATE={feats:(ov&&Array.isArray(ov.features))?ov.features.slice():[]};
+  FORM_STATE._rerender=()=>{document.getElementById('formBody').innerHTML=shulFormBody();};
+  openFormSheet({
+    title: syn?t('shul.editTitle'):t('shul.newTitle'),
+    sub: syn?syn.name:'',
+    body: shulFormBody(),
+    foot:`<button class="btn-primary" onclick="enregistrerShul()">${t('save')}</button>
+          <button class="btn-outline" onclick="closeFormSheet()">${t('cancel')}</button>`
+  });
+}
+
+async function enregistrerShul(){
+  const s=SHUL_FORM&&SHUL_FORM.syn;
+  if(!s){showToast(t('shul.createSoon'),{type:'error'});return;}
+  const feats=(FORM_STATE.feats||[]).filter(v=>FEATURE_CHIPS.some(c=>c[0]===v));
+  const cle=String(s.id);
+  const prec=(typeof SYN_OVERRIDES!=='undefined'&&SYN_OVERRIDES)?SYN_OVERRIDES[cle]:null;
+  const rec=Object.assign({}, prec||{}, {
+    updatedAt:Date.now(),
+    updatedByName:(localStorage.getItem('mlUserName')||'').slice(0,60),
+    updatedByEmail:currentUser?String(currentUser.email||'').slice(0,120):'',
+    source:'manuel',
+    features:feats
+  });
+  const ok=await fbWriteSynOverride(s.id,rec);
+  if(!ok){
+    // Firebase refuse tant que firebase-rules-fiche.json n'est pas déployé :
+    // « features » n'existe pas encore dans les règles en ligne, et $autre
+    // rejette tout champ inconnu. L'échec doit être visible, pas silencieux.
+    showToast(t('shul.rulesNeeded'),{type:'error',duration:7000});
+    return;
+  }
+  if(SYN_OVERRIDES)SYN_OVERRIDES[cle]=rec;
+  s.features=feats;
+  closeFormSheet();
+  showToast(t('shul.saved'),{type:'success'});
+  refreshCurrentTab();
+}
+
 function minyanFormBody(opts){
+  opts=opts||{};
   const shulField=opts.shulPicker
-    ? `<div class="fld"><span class="fld-lbl">Shul <span class="req">*</span></span>
-        <input class="inp" id="mfShul" list="mfShulList" placeholder="Rechercher une shul…" value="${escapeAttr(FORM_STATE.shulName||'')}"/>
+    ? `<div class="fld"><span class="fld-lbl">${t('mf.shul')} <span class="req">*</span></span>
+        <input class="inp" id="mfShul" list="mfShulList" placeholder="${escapeAttr(t('mf.shulPh'))}" value="${escapeAttr(FORM_STATE.shulName||'')}"
+               oninput="FORM_STATE.shulName=this.value;majApercuRelatif()"/>
         <datalist id="mfShulList">${SYNS.map(s=>`<option value="${escapeAttr(s.name)}"></option>`).join('')}</datalist></div>`
     : '';
+  const typeFige=opts.typeFige
+    ? `<div class="fld"><span class="fld-lbl">${t('mf.prayerType')}</span>
+        <div class="inp bloque">${escapeHtml(PRAYER_LABELS[FORM_STATE.type]||FORM_STATE.type)}</div></div>`
+    : `<div class="fld"><span class="fld-lbl">${t('mf.prayerType')} <span class="req">*</span></span>
+        ${formChips('type',[['sh',PRAYER_LABELS.sh],['mi',PRAYER_LABELS.mi],['ar',PRAYER_LABELS.ar],['sel',PRAYER_LABELS.sel]])}</div>`;
+  const joursFige=opts.joursFige
+    ? `<div class="fld"><span class="fld-lbl">${t('mf.days')}</span>
+        <div class="inp bloque">${escapeHtml(opts.joursLibelle||'')}</div></div>`
+    : `<div class="fld"><span class="fld-lbl">${t('mf.days')} <span class="req">*</span></span>
+        ${formChips('days',DAY_CHIPS,true)}</div>`;
   return `${shulField}
-    <div class="fld"><span class="fld-lbl">Type de prière <span class="req">*</span></span>
-      ${formChips('type',[['sh','Shaharit'],['mi','Minha'],['ar','Arvit'],['sel','Sélichot']])}</div>
-    <div class="fld"><span class="fld-lbl">Heure de prière</span>
-      <div class="seg">
-        <button class="on">Heure fixe</button>
-        <button disabled title="Bientôt">Heure relative</button>
-      </div>
-      <input class="inp" style="margin-top:10px;" type="time" id="mfTime" value="${escapeAttr(FORM_STATE.time||'07:00')}"/>
-      <div class="tc-src">L'heure relative (avant/après le coucher du soleil) reviendra quand ces
-        horaires seront fournis par les communautés plutôt que calculés par l'app.</div></div>
-    <div class="fld"><span class="fld-lbl">Jours <span class="req">*</span></span>
-      ${formChips('days',DAY_CHIPS,true)}</div>
-    <div class="fld"><span class="fld-lbl">Horaire <span class="req">*</span></span>
+    ${typeFige}
+    <div class="fld"><span class="fld-lbl">${t('mf.time')}</span>
+      ${blocHeure()}</div>
+    ${joursFige}
+    <div class="fld"><span class="fld-lbl">${t('mf.season')} <span class="req">*</span></span>
       ${formChips('saison',saisonChips())}</div>
-    <div class="fld"><span class="fld-lbl">Détails supplémentaires</span>
-      <textarea class="txtarea" id="mfNote" placeholder="Notes, changements saisonniers…">${escapeHtml(FORM_STATE.note||'')}</textarea></div>`;
+    <div class="fld"><span class="fld-lbl">${t('mf.details')}</span>
+      <textarea class="txtarea" id="mfNote" placeholder="${escapeAttr(t('mf.detailsPh'))}">${escapeHtml(FORM_STATE.note||'')}</textarea></div>`;
 }
 
 function openAddMinyan(){
   if(!currentUser){showToast('Connectez-vous pour proposer un minyan',{type:'error'});return;}
-  FORM_STATE={type:'sh',days:[],saison:'annee',time:'07:00',note:'',shulName:''};
+  FORM_STATE={type:'sh',days:[],saison:'annee',time:'07:00',note:'',shulName:'',
+              mode:'fixe',ref:'mi',sens:'apres',ecart:20};
   FORM_STATE._rerender=()=>{document.getElementById('formBody').innerHTML=minyanFormBody({shulPicker:true});};
   openFormSheet({
     title:'Ajouter un Minyan', sub:'',
@@ -6258,14 +6956,24 @@ function ouvrirFormulaireHoraire(action,cible){
   const valeur=cible?hhmmInput(cible.time):'07:00';
   const lib=cible?cible.label:'';
   const jrs=libelleJoursDepuisCles(EDIT_CTX.keys);
+
+  // Le MÊME corps qu'à la création : c'est la contrainte de cohérence entre
+  // les deux formulaires. Seuls la prière et les jours sont figés ici, parce
+  // que le contexte d'édition les a déjà déterminés.
+  FORM_STATE={
+    type:EDIT_CTX.type, time:valeur, note:'', saison:'annee',
+    mode:'fixe', ref:(EDIT_CTX.type==='ar'?'mi':'mi'), sens:'apres', ecart:20
+  };
+  FORM_STATE._rerender=()=>{
+    document.getElementById('formBody').innerHTML=
+      minyanFormBody({typeFige:true,joursFige:true,joursLibelle:jrs});
+  };
+
   openFormSheet({
     title:t('edit.title'),
     sub:`${syn.name} · ${PRAYER_LABELS[EDIT_CTX.type]||EDIT_CTX.type}${jrs?' · '+jrs:''}`,
     body:`
-      <div class="fld">
-        <span class="fld-lbl">${action==='ajoute'?t('edit.newTime'):t('edit.changeTime')}</span>
-        <input class="inp" type="time" id="edTime" value="${valeur}"/>
-      </div>
+      ${minyanFormBody({typeFige:true,joursFige:true,joursLibelle:jrs})}
       ${action==='ajoute'?`
       <div class="fld">
         <span class="fld-lbl">${t('edit.labelOpt')}</span>
@@ -6287,8 +6995,53 @@ async function appliquerEdition(){
 
   if(action==='supprime'){
     nouveaux=nouveaux.filter(c=>c.time!==cible.time);
+  }else if(FORM_STATE.mode==='relatif'){
+    // Résolution À L'ÉCRITURE : chaque jour reçoit sa propre heure ferme,
+    // calculée maintenant. Rien ne relie ensuite ces heures à la prière de
+    // référence — la corriger plus tard ne les déplacera pas.
+    const syn=EDIT_CTX.syn;
+    const ec=ecartSigne();
+    const parCle={};
+    const refus=[];
+    for(const k of keys){
+      const dk=CLE_VERS_JOUR[k.slice(0,k.lastIndexOf('_'))];
+      if(!dk)continue;
+      const heure=resoudreRelatif(syn,dk,FORM_STATE.ref,ec);
+      if(!heure){refus.push(t('dayKey.'+dk));continue;}
+      const h=parseHour(heure);
+      const [lo,hi]=PLAUSIBLE[type]||[0,24];
+      if(h===null||h<lo||h>hi){refus.push(t('dayKey.'+dk)+' ('+heure+')');continue;}
+      // Chaque jour a ses PROPRES créneaux : le créneau visé a été choisi
+      // dans une cellule représentative, il n'existe pas forcément ailleurs.
+      // On remplace donc au cas par cas plutôt que par correspondance d'heure.
+      const existants=parseSlots((((syn.h||{})[dk])||{})[type]);
+      let liste;
+      if(action==='ajoute'){
+        if(existants.some(c=>c.time===heure)){refus.push(t('dayKey.'+dk));continue;}
+        liste=existants.concat([{time:heure,h,label:''}]);
+      }else if(existants.length<=1){
+        // Un seul office ce jour-là : c'est lui qu'on remplace, sans ambiguïté.
+        liste=[{time:heure,h,label:(existants[0]&&existants[0].label)||''}];
+      }else if(cible&&existants.some(c=>c.time===cible.time)){
+        liste=existants.map(c=>c.time===cible.time?{time:heure,h,label:c.label}:c);
+      }else{
+        // Plusieurs offices et aucun ne correspond : on ne devine pas lequel
+        // remplacer, on laisse ce jour intact et on le dit.
+        refus.push(t('dayKey.'+dk));continue;
+      }
+      parCle[dk]=formatSlots(liste);
+    }
+    if(!Object.keys(parCle).length){
+      showToast(t('mf.noneComputed'),{type:'error',duration:6000});return;
+    }
+    if(refus.length)showToast(t('mf.someSkipped').replace('{j}',refus.join(', ')),{type:'error',duration:6000});
+    closeFormSheet();
+    await appliquerHoraire({synId,keys,type,avant:EDIT_CTX.cellule,
+                            apres:parCle[Object.keys(parCle)[0]],apresParCle:parCle,action});
+    return;
   }else{
-    const v=document.getElementById('edTime').value;
+    const el=document.getElementById('mfTime')||document.getElementById('edTime');
+    const v=el?el.value:'';
     if(!v){showToast(t('edit.needTime'),{type:'error'});return;}
     // Convention du Sheet : pas de zéro initial (7h45, pas 07h45).
     const heure=v.replace(':','h').replace(/^0/,'');
@@ -7013,7 +7766,11 @@ function signalerParMail(x){
   }catch(e){console.warn('Formspree',e);}
 }
 
-async function appliquerHoraire({synId,keys,type,avant,apres,action}){
+// apresParCle : une valeur par jour. L'heure relative en produit une
+// différente par cellule (le Minha du vendredi n'est pas celui du dimanche),
+// alors qu'une heure fixe s'applique telle quelle partout. Sans carte, on
+// écrirait la même heure sur tous les jours — silencieusement fausse.
+async function appliquerHoraire({synId,keys,type,avant,apres,action,apresParCle}){
   const syn=SYNS.find(s=>s.id===synId);
   if(!syn)return;
   const auteur=localStorage.getItem('mlUserName')||'';
@@ -7029,8 +7786,9 @@ async function appliquerHoraire({synId,keys,type,avant,apres,action}){
     syn.h=syn.h||{};
     syn.h[dk]=syn.h[dk]||{sh:null,mi:null,ar:null};
     const ancien=syn.h[dk][type]||'';
-    syn.h[dk][type]=apres||null;
-    touchees.push({k,dk,ancien});
+    const val=(apresParCle&&apresParCle[dk]!=null)?apresParCle[dk]:apres;
+    syn.h[dk][type]=val||null;
+    touchees.push({k,dk,ancien,val:val||''});
   }
   try{localStorage.setItem('mlSyns',JSON.stringify(SYNS));}catch(e){}
 
@@ -7041,21 +7799,22 @@ async function appliquerHoraire({synId,keys,type,avant,apres,action}){
       id:_newContribId(),
       synId, synName:syn.name,
       champ:c.k, type, action,
-      ancienneValeur:c.ancien, nouvelleValeur:apres||'',
+      ancienneValeur:c.ancien, nouvelleValeur:c.val,
       auteurNom:auteur, auteurEmail:currentUser?currentUser.email:'',
       at:maintenant, annule:false
     });
   }
 
   // 3. Diffusion : la valeur devient celle que tout le monde voit.
-  await diffuserPatch(syn,touchees.map(c=>({dk:c.dk,type,valeur:apres||''})),auteur,maintenant);
+  await diffuserPatch(syn,touchees.map(c=>({dk:c.dk,type,valeur:c.val})),auteur,maintenant);
 
   // 4. E-mail d'information — jamais une demande d'autorisation. Une seule
   //    lettre pour l'opération, même si elle a touché cinq jours.
   signalerParMail({
     synName:syn.name, type, action,
     jours:libelleJoursDepuisCles(keys)||keys.join(','),
-    avant:touchees.map(c=>c.ancien||'—').join(' / '), apres:apres||'—',
+    avant:touchees.map(c=>c.ancien||'—').join(' / '),
+    apres:[...new Set(touchees.map(c=>c.val||'—'))].join(' / ')||'—',
     auteur:currentUser?currentUser.email:'invité'
   });
 

@@ -5,11 +5,11 @@
 // ⚠️ INCRÉMENTER À CHAQUE MISE EN LIGNE.
 // Le nom du cache est la seule chose qui purge les anciens contenus :
 // `activate` supprime tout cache dont la clé diffère de celle-ci.
-const CACHE = 'ml-v16-2026-09-impromptu';
+const CACHE = 'ml-v17-2026-09-ecrans-1-5';
 // Les images sont désormais des fichiers séparés (elles pesaient 167 Ko de
 // base64 dans index.html). Le logo de connexion est pré-caché ; les deux logos
 // de navigation sont pris au vol, ils ne servent qu'à l'ouverture de la feuille.
-const STATIC = ['./manifest.webmanifest', './icon.svg', './logo-minyan-lyon.png'];
+const STATIC = ['./manifest.webmanifest', './icon.svg', './logo-minyan-lyon.png', './tsedakif.jpg'];
 
 // TODO(push) — §3.7 / §3.8 : alertes « minyan temporaire à proximité ».
 // L'interface et la préférence (interrupteur + rayon 1/2/5/10/30 km) sont déjà
